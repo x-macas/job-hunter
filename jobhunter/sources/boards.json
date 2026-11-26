@@ -653,5 +653,10 @@
   "ats": "greenhouse",
   "slug": "alphagrepsecurities",
   "name": "AlphaGrep"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "gleanwork",
+  "name": "Glean"
  }
 ]

@@ -798,5 +798,30 @@
   "sitemap": "https://bloomberg.avature.net/careers/sitemap_index.xml",
   "style": "avature",
   "page": "https://www.bloomberg.com/company/what-we-do/"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Dell Technologies",
+  "host": "iawmqy.fa.ocs.oraclecloud.com",
+  "site": "careers"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Nokia",
+  "host": "fa-evmr-saasfaprod1.fa.ocs.oraclecloud.com",
+  "site": "CX_1"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Chubb",
+  "host": "fa-ewgu-saasfaprod1.fa.ocs.oraclecloud.com",
+  "site": "CX_2001"
+ },
+ {
+  "type": "workday",
+  "name": "Clearwater Analytics",
+  "host": "clearwateranalytics.wd1.myworkdayjobs.com",
+  "tenant": "clearwateranalytics",
+  "site": "Clearwater_Analytics_Careers"
  }
 ]
