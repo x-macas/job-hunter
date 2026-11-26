@@ -1,0 +1,13 @@
+[Unit]
+Description=job-hunter website (http://127.0.0.1:8000)
+
+[Service]
+WorkingDirectory=%h/job-hunter
+ExecStart=%h/job-hunter/.venv/bin/python -B run.py
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

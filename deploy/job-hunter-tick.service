@@ -1,0 +1,12 @@
+[Unit]
+Description=job-hunter background check (daily run + watch list)
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/job-hunter
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/job-hunter/.venv/bin/python -B -m jobhunter.worker tick
+UMask=0077
+NoNewPrivileges=true
+TimeoutStartSec=45min

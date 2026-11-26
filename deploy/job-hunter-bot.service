@@ -1,0 +1,15 @@
+[Unit]
+Description=job-hunter Telegram bot
+After=network-online.target
+
+[Service]
+WorkingDirectory=%h/job-hunter
+Environment=PATH=%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=%h/job-hunter/.venv/bin/python -B -m jobhunter.telegram_bot
+Restart=always
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

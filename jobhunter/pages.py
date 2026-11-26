@@ -1,5 +1,7 @@
 """The website's pages."""
 
+import json
+import re
 import time
 from datetime import datetime
 
@@ -13,11 +15,6 @@ from .db import get_db
 bp = Blueprint("pages", __name__)
 
 MAX_RESUME_BYTES = 5 * 1024 * 1024
-
-
-@bp.route("/")
-def today():
-    return render_template("today.html", now=datetime.now())
 
 
 @bp.route("/outbox")
@@ -135,3 +132,158 @@ def toggle_stop():
         activity.log(db, "security", "Resumed after emergency stop.")
         flash("Resumed.")
     return redirect(safe_next(request.form.get("next")))
+
+
+# ---------------- Phase 1: jobs ----------------
+
+SKIP_REASONS = [
+    "Not this company", "Wrong tech stack", "Too senior", "Pay too low",
+    "Location", "Not a dev role", "Already applied", "Other",
+]
+
+
+def _today_cards(db, s):
+    from datetime import date
+    from . import ranking
+    day_row = db.execute("SELECT MAX(day) AS d FROM picks").fetchone()
+    day = day_row["d"] if day_row and day_row["d"] else date.today().isoformat()
+    rows = db.execute(
+        "SELECT j.*, p.rank FROM picks p JOIN jobs j ON j.id = p.job_id "
+        "WHERE p.day = ? AND j.status = 'new' ORDER BY p.rank", (day,)
+    ).fetchall()
+    cards, now = [], time.time()
+    for r in rows:
+        ai = json.loads(r["ai_json"] or "{}")
+        _score, tags = ranking.final_score(r, ai, s, now)
+        cards.append({"job": r, "ai": ai, "tags": tags or [], "pay": _pay_label(r)})
+    return day, cards
+
+
+def _pay_label(job) -> str:
+    low, high = job["salary_min_lpa"], job["salary_max_lpa"]
+    if high is None:
+        return "Pay not listed"
+    if job["job_type"] == "intern":
+        return job["salary_text"] or "Stipend listed"
+    return f"₹{low:g}–{high:g} LPA" if low != high else f"₹{high:g} LPA"
+
+
+@bp.route("/", endpoint="today")
+def today_jobs():
+    db = get_db()
+    s = settings_store.get_all(db)
+    day, cards = _today_cards(db, s)
+    run = db.execute("SELECT * FROM runs WHERE name = 'daily'").fetchone()
+    counts = db.execute(
+        "SELECT COUNT(*) AS total, SUM(rule_ok = 1 AND status = 'new') AS kept FROM jobs").fetchone()
+    return render_template("today.html", now=datetime.now(), day=day, cards=cards, run=run,
+                           counts=counts, reasons=SKIP_REASONS)
+
+
+@bp.route("/job/<int:job_id>/skip", methods=["POST"])
+def skip_job(job_id):
+    db = get_db()
+    reason = request.form.get("reason", "")
+    if reason not in SKIP_REASONS:
+        flash("Pick a reason.", "error")
+        return redirect(url_for("pages.today"))
+    job = db.execute("SELECT * FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    if job is None:
+        flash("That job is gone.", "error")
+        return redirect(url_for("pages.today"))
+    db.execute("UPDATE jobs SET status = 'skipped' WHERE id = ?", (job_id,))
+    db.execute("INSERT INTO skips (job_id, reason, ts) VALUES (?, ?, ?)", (job_id, reason, time.time()))
+    if reason == "Not this company":
+        hidden = settings_store.get(db, "hidden_companies")
+        if job["company"] not in hidden:
+            settings_store.put(db, "hidden_companies", hidden + [job["company"]])
+    db.commit()
+    activity.log(db, "job", f"Skipped {job['title']} at {job['company']}: {reason}.")
+    flash(f"Skipped {job['company']}.")
+    return redirect(url_for("pages.today"))
+
+
+@bp.route("/add", methods=["POST"])
+def add_job():
+    from . import linkadd
+    db = get_db()
+    if settings_store.get(db, settings_store.PAUSED_KEY):
+        flash("Everything is stopped. Press Resume first.", "error")
+        return redirect(url_for("pages.today"))
+    s = settings_store.get_all(db)
+    link = request.form.get("link", "").strip()
+    text = request.form.get("text", "").strip()
+    try:
+        if link:
+            job = linkadd.from_url(link, s["ai_model"])
+        elif len(text) >= 80:
+            job = linkadd.from_text(text[:30000], s["ai_model"])
+        else:
+            raise linkadd.AddError("Paste a job link, or the full job text.")
+        job_id = linkadd.add(db, job, s)
+    except linkadd.AddError as e:
+        flash(str(e), "error")
+        return redirect(url_for("pages.today"))
+    row = db.execute("SELECT title, company FROM jobs WHERE id = ?", (job_id,)).fetchone()
+    activity.log(db, "job", f"Added by you: {row['title']} at {row['company']}.")
+    flash(f"Added {row['title']} at {row['company']}. It's at the top of the list.")
+    return redirect(url_for("pages.today"))
+
+
+@bp.route("/run", methods=["POST"])
+def run_now():
+    import subprocess
+    import sys
+    from .config import DATA_DIR, PROJECT_DIR
+    db = get_db()
+    if settings_store.get(db, settings_store.PAUSED_KEY):
+        flash("Everything is stopped. Press Resume first.", "error")
+        return redirect(url_for("pages.today"))
+    log_file = open(DATA_DIR / "worker.log", "a")
+    subprocess.Popen([sys.executable, "-B", "-m", "jobhunter.worker", "daily"], cwd=PROJECT_DIR,
+                     stdout=log_file, stderr=subprocess.STDOUT, start_new_session=True)
+    activity.log(db, "worker", "Daily run started by you.")
+    flash("Started. Finding and scoring jobs takes a few minutes. Reload this page later.")
+    return redirect(url_for("pages.today"))
+
+
+# ---------------- Connections (Telegram, Adzuna) ----------------
+
+@bp.route("/connections", methods=["GET", "POST"])
+def connections():
+    from . import telegram
+    from .config import SECRETS_DIR
+    db = get_db()
+    if request.method == "POST":
+        action = request.form.get("action")
+        if action == "telegram_token":
+            token = request.form.get("token", "").strip()
+            if not re.fullmatch(r"\d{6,12}:[A-Za-z0-9_-]{30,50}", token):
+                flash("That doesn't look like a bot token. It looks like 123456789:ABC...", "error")
+            else:
+                telegram.set_token(token)
+                activity.log(db, "security", "Telegram bot token saved. Waiting for pairing code.")
+                flash("Token saved. Now send the code below to your bot.")
+        elif action == "telegram_test":
+            try:
+                ok = telegram.send("Test from job-hunter. Alerts will come here.")
+                flash("Test message sent." if ok else "Telegram isn't connected yet.", "message" if ok else "error")
+            except telegram.TelegramError as e:
+                flash(str(e), "error")
+        elif action == "telegram_remove":
+            telegram.FILE.unlink(missing_ok=True)
+            activity.log(db, "security", "Telegram disconnected.")
+            flash("Telegram disconnected.")
+        elif action == "adzuna":
+            app_id, key = request.form.get("app_id", "").strip(), request.form.get("app_key", "").strip()
+            if not (re.fullmatch(r"[A-Za-z0-9]{4,40}", app_id) and re.fullmatch(r"[A-Za-z0-9]{10,80}", key)):
+                flash("Those don't look like Adzuna keys.", "error")
+            else:
+                write_private_file(SECRETS_DIR / "adzuna.json",
+                                   json.dumps({"app_id": app_id, "app_key": key}).encode())
+                activity.log(db, "security", "Adzuna keys saved.")
+                flash("Adzuna keys saved. The next daily run will use them.")
+        return redirect(url_for("pages.connections"))
+    tg = telegram.load()
+    return render_template("connections.html", tg=tg,
+                           adzuna=(SECRETS_DIR / "adzuna.json").exists())

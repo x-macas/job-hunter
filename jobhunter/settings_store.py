@@ -41,6 +41,8 @@ SETTINGS = [
     ], "One per line."),
     Setting("max_experience_years", "Most years of experience a job can ask for", "Jobs",
             "int", 1, min=0, max=10),
+    Setting("hide_level_2_plus", "Hide level II+ titles (e.g. 'SDE 2', 'Engineer III')", "Jobs",
+            "bool", True, "These usually need 2+ years."),
     Setting("locations", "Locations", "Jobs", "list",
             ["India", "Remote"], "One per line. 'Remote' covers remote jobs anywhere."),
     Setting("max_job_age_days", "Hide jobs older than (days)", "Jobs", "int", 7, min=1, max=60),
@@ -56,6 +58,8 @@ SETTINGS = [
     Setting("min_lpa_startup_service", "Lowest pay for startups and service companies (LPA)",
             "Pay", "int", 12, "Jobs with no salary listed are still shown, ranked lower.",
             min=0, max=200),
+    Setting("usd_to_inr", "1 US dollar in rupees (for dollar salaries)", "Pay", "int", 88,
+            min=50, max=200),
 
     # Companies
     Setting("big_companies", "Big companies", "Companies", "list", [
@@ -66,6 +70,9 @@ SETTINGS = [
         "Tower Research", "Walmart Global Tech", "Flipkart", "Razorpay", "PhonePe",
         "Paytm", "Zomato", "Swiggy", "CRED", "Zoho", "Freshworks", "Meesho",
         "Myntra", "Postman", "BrowserStack", "Media.net", "Samsung",
+        "Stripe", "OpenAI", "Anthropic", "Databricks", "Airbnb", "Pinterest", "Reddit",
+        "Coinbase", "MongoDB", "Datadog", "Cloudflare", "Okta", "Dropbox", "GitLab",
+        "Twilio", "Tower Research Capital", "Agoda", "Elastic",
     ], "One per line. These can show any job type and get ranked first."),
     Setting("big_company_boost", "Score boost for big companies", "Companies", "int", 15,
             min=0, max=50),
@@ -73,6 +80,10 @@ SETTINGS = [
             "Companies", "int", 10, min=0, max=100),
     Setting("blocked_companies", "Never show or email", "Companies", "list", [],
             "One per line."),
+    Setting("hidden_companies", "Hidden from job lists", "Companies", "list", [],
+            "Filled when you skip a job with 'Not this company'. Delete a line to see them again."),
+    Setting("extra_boards", "Extra company job boards", "Companies", "list", [],
+            "One per line, like: greenhouse:companyslug Company Name (also lever: or ashby:)."),
     Setting("watch_list", "Watch list (instant alert)", "Companies", "list", [],
             "One per line. New matching jobs here send a Telegram alert right away."),
     Setting("watch_interval_minutes", "Check watch list every (minutes)", "Companies", "int",
@@ -95,6 +106,13 @@ SETTINGS = [
     Setting("goal_emails", "Daily goal: emails", "Daily routine", "int", 5, min=0, max=50),
     Setting("nudge_hour", "Evening nudge at (hour, 0-23)", "Daily routine", "int", 19,
             min=0, max=23),
+
+    # AI
+    Setting("ai_model", "Claude model for scoring jobs", "AI", "text", "haiku",
+            "haiku uses the least of your Claude plan. sonnet is smarter but uses more.",
+            choices=("haiku", "sonnet", "opus")),
+    Setting("ai_jobs_per_run", "Most jobs Claude scores per run", "AI", "int", 60,
+            "Keeps your Claude plan usage low.", min=5, max=300),
 
     # Backup
     Setting("backup_dir", "Backup folder", "Backup", "text", "~/job-hunter-backups",
@@ -143,7 +161,11 @@ def parse_form(form) -> tuple[dict, dict]:
             items = [line.strip() for line in raw.splitlines()]
             values[s.key] = list(dict.fromkeys(i for i in items if i))[:500]
         elif s.kind == "text":
-            values[s.key] = raw.strip()[:300]
+            text = raw.strip()[:300]
+            if s.choices and text not in s.choices:
+                errors[s.key] = "Choose one of: " + ", ".join(s.choices)
+            else:
+                values[s.key] = text
         elif s.kind == "int":
             try:
                 number = int(raw.strip())

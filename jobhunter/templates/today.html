@@ -2,12 +2,73 @@
 {% block title %}Today{% endblock %}
 {% block content %}
 <div class="pagehead">
-  <h1>Today</h1>
-  <span class="muted">{{ now.strftime('%A, %d %B') }}</span>
+  <h1>{{ cards | length }} job{{ '' if cards | length == 1 else 's' }} for you</h1>
+  <span class="muted">
+    {% if run and run.last_finished %}Last run {{ run.last_finished | when }}{% else %}No run yet{% endif %}
+    · {{ counts.total or 0 }} jobs seen, {{ counts.kept or 0 }} passed your rules
+  </span>
 </div>
-<section class="empty">
-  <h2>No jobs yet</h2>
-  <p>Job finding comes in Phase 1. Then your top 20 jobs show up here every morning.</p>
-  <p>For now, fill your <a href="{{ url_for('pages.profile') }}">Profile</a> and check your <a href="{{ url_for('pages.settings') }}">Settings</a>.</p>
+
+<section class="card addbox">
+  <form method="post" action="{{ url_for('pages.add_job') }}" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label for="link">Found a job yourself? Paste the link</label>
+    <div class="row">
+      <input id="link" name="link" type="url" placeholder="https://..." class="grow">
+      <button class="btn pri">Add job</button>
+    </div>
+    <details>
+      <summary>Or paste the job text (for LinkedIn, Naukri and other pages that need a login)</summary>
+      <textarea name="text" rows="6" aria-label="Job text"></textarea>
+    </details>
+  </form>
+  <form method="post" action="{{ url_for('pages.run_now') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn">Find jobs now</button>
+  </form>
 </section>
+
+{% for c in cards %}
+{% set j = c.job %}
+<article class="card job">
+  <div class="score" aria-label="Score {{ j.ai_score }} out of 100">{{ j.ai_score }}</div>
+  <div class="jobmain">
+    <h2>{{ j.title }} · {{ j.company }}</h2>
+    <p class="muted">{{ j.location or 'Location not listed' }} · {{ c.pay }}{% if j.job_type not in ('unknown', 'full_time') %} · {{ j.job_type | replace('_', '-') }}{% endif %}</p>
+    {% if c.tags %}
+    <div class="tags">
+      {% for t in c.tags %}<span class="chip {% if t == 'Big company' %}chip-big{% elif t == 'NEW' %}chip-new{% elif t.startswith('Note') or t == 'Pay unknown' %}chip-warn{% endif %}">{{ t }}</span>{% endfor %}
+    </div>
+    {% endif %}
+    {% if c.ai.why %}<p><strong class="good">Why:</strong> {{ c.ai.why }}</p>{% endif %}
+    {% if c.ai.missing %}<p><strong class="warn">Missing:</strong> {{ c.ai.missing | join(', ') }}</p>{% endif %}
+    {% if c.ai.red_flags %}<p><strong class="warn">Watch out:</strong> {{ c.ai.red_flags | join(', ') }}</p>{% endif %}
+    <p class="small muted">Found on
+      {% if j.url.startswith('http') %}<a href="{{ j.url }}" target="_blank" rel="noopener noreferrer">{{ j.source_name }}</a>{% else %}{{ j.source_name }}{% endif %}
+      {% if j.posted_at %}· posted {{ j.posted_at | when }}{% endif %}</p>
+  </div>
+  <div class="actions">
+    {% if j.url.startswith('http') %}
+      <a class="btn pri" href="{{ j.apply_url or j.url }}" target="_blank" rel="noopener noreferrer">Open job</a>
+    {% endif %}
+    <button class="btn" disabled title="Comes in Phase 2">Fill the form</button>
+    <button class="btn" disabled title="Comes in Phase 3">Draft email</button>
+    <form method="post" action="{{ url_for('pages.skip_job', job_id=j.id) }}" class="skip">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label for="r-{{ j.id }}" class="sr-only">Why skip?</label>
+      <select id="r-{{ j.id }}" name="reason" required>
+        <option value="">Skip because…</option>
+        {% for r in reasons %}<option>{{ r }}</option>{% endfor %}
+      </select>
+      <button class="btn">Skip</button>
+    </form>
+  </div>
+</article>
+{% else %}
+<section class="empty">
+  <h2>No jobs on the list yet</h2>
+  <p>The daily run fills this page every morning. To try it now, press <strong>Find jobs now</strong> above.</p>
+  <p>It takes a few minutes. Upload your resume on the <a href="{{ url_for('pages.profile') }}">Profile</a> page first, so scores are right.</p>
+</section>
+{% endfor %}
 {% endblock %}

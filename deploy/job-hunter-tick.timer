@@ -1,0 +1,12 @@
+[Unit]
+Description=Run the job-hunter check every 15 minutes
+
+[Timer]
+# Every 15 minutes on the clock. Persistent=true means: if the laptop was
+# off or asleep, run once right after it wakes up.
+OnCalendar=*:0/15
+Persistent=true
+RandomizedDelaySec=60
+
+[Install]
+WantedBy=timers.target
