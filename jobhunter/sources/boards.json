@@ -658,5 +658,20 @@
   "ats": "greenhouse",
   "slug": "gleanwork",
   "name": "Glean"
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "PHONEPELIMITED",
+  "name": "PhonePe"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "netskope",
+  "name": "Netskope"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "purestorage",
+  "name": "Pure Storage"
  }
 ]

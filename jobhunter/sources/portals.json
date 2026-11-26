@@ -56,7 +56,10 @@
   "name": "Broadcom",
   "host": "broadcom.wd1.myworkdayjobs.com",
   "tenant": "broadcom",
-  "site": "External_Career"
+  "site": "External_Career",
+  "also": [
+   "VMware"
+  ]
  },
  {
   "type": "workday",
@@ -831,5 +834,18 @@
   "sitemap": "https://jobs.intuit.com/sitemap.xml",
   "style": "talentbrew",
   "page": "https://jobs.intuit.com/location/bengaluru-jobs/27595/1269750-1267701-1277333/4"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Texas Instruments",
+  "host": "edbz.fa.us2.oraclecloud.com",
+  "site": "CX"
+ },
+ {
+  "type": "workday",
+  "name": "Trellix",
+  "host": "trellix.wd1.myworkdayjobs.com",
+  "tenant": "trellix",
+  "site": "EnterpriseCareers"
  }
 ]
