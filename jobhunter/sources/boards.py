@@ -1,4 +1,4 @@
-"""Company job boards on Greenhouse, Lever and Ashby. All three have free public feeds."""
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable. All have free public feeds."""
 
 import json
 from pathlib import Path
@@ -8,6 +8,7 @@ from . import RawJob
 from .http import fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
+ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable")
 
 
 def default_boards() -> list[dict]:
@@ -20,7 +21,7 @@ def boards_from_setting(lines: list[str]) -> list[dict]:
     for line in lines:
         head, _, name = line.strip().partition(" ")
         ats, _, slug = head.partition(":")
-        if ats in ("greenhouse", "lever", "ashby") and slug:
+        if ats in ATS and slug:
             out.append({"ats": ats, "slug": slug, "name": name.strip() or slug})
     return out
 
@@ -33,6 +34,10 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _lever(slug, name)
     if ats == "ashby":
         return _ashby(slug, name)
+    if ats == "smartrecruiters":
+        return _smartrecruiters(slug, name)
+    if ats == "workable":
+        return _workable(slug, name)
     return []
 
 
@@ -106,5 +111,53 @@ def _ashby(slug, name):
             job_type=parse.job_type_from(j.get("title", ""), j.get("employmentType") or ""),
             salary_text=comp.get("scrapeableCompensationSalarySummary")
             or comp.get("compensationTierSummary") or "",
+        ))
+    return jobs
+
+
+def _smartrecruiters(slug, name):
+    jobs, offset = [], 0
+    while offset < 1000:
+        data = fetch_json(f"https://api.smartrecruiters.com/v1/companies/{slug}/postings?limit=100&offset={offset}")
+        items = data.get("content", [])
+        for j in items:
+            loc = j.get("location") or {}
+            location = ", ".join(x for x in (loc.get("city"), loc.get("region"), loc.get("country")) if x)
+            remote = bool(loc.get("remote"))
+            kind = (j.get("typeOfEmployment") or {}).get("label", "")
+            jobs.append(RawJob(
+                source="smartrecruiters", source_id=f"{slug}:{j['id']}", source_name="SmartRecruiters",
+                company=name, title=j.get("name", "").strip(),
+                url=f"https://jobs.smartrecruiters.com/{slug}/{j['id']}",
+                location=location.replace(", in", ", India") + (" (Remote)" if remote else ""), remote=remote,
+                posted_at=parse.iso_to_ts(j.get("releasedDate")),
+                job_type=parse.job_type_from(j.get("name", ""), kind),
+            ))
+        if len(items) < 100:
+            break
+        offset += 100
+    return jobs
+
+
+def smartrecruiters_description(slug: str, job_id) -> str:
+    data = fetch_json(f"https://api.smartrecruiters.com/v1/companies/{slug}/postings/{job_id}")
+    sections = (data.get("jobAd") or {}).get("sections") or {}
+    return "\n\n".join(parse.html_to_text((sections.get(k) or {}).get("text"))
+                       for k in ("jobDescription", "qualifications", "additionalInformation"))
+
+
+def _workable(slug, name):
+    data = fetch_json(f"https://apply.workable.com/api/v1/widget/accounts/{slug}?details=true")
+    jobs = []
+    for j in data.get("jobs", []):
+        location = ", ".join(x for x in (j.get("city"), j.get("state"), j.get("country")) if x)
+        remote = bool(j.get("telecommuting"))
+        jobs.append(RawJob(
+            source="workable", source_id=f"{slug}:{j.get('shortcode')}", source_name="Workable",
+            company=name, title=(j.get("title") or "").strip(), url=j.get("url") or j.get("shortlink") or "",
+            apply_url=j.get("application_url"), location=location + (" (Remote)" if remote else ""),
+            remote=remote, description=parse.html_to_text(j.get("description")),
+            posted_at=parse.iso_to_ts(j.get("published_on") or j.get("created_at")),
+            job_type=parse.job_type_from(j.get("title", ""), j.get("employment_type") or ""),
         ))
     return jobs

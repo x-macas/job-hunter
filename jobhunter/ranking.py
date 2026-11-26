@@ -16,6 +16,8 @@ def final_score(job, ai: dict, s: dict, now: float) -> tuple[float | None, list[
     if job["added_by"] == "link":
         note = [f"Note: {job['rule_reason']}"] if job["rule_reason"] else []
         return float(job["ai_score"]) + 1000, ["Added by you"] + note
+    if job["ai_score"] < s["min_score"]:
+        return None, ["score too low"]
     if not ai.get("is_dev_role", True):
         return None, ["not a dev role"]
     if ai.get("has_bond") or ai.get("pay_to_join"):

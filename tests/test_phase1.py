@@ -236,3 +236,9 @@ def test_telegram_code_cancelled_after_10_wrong_tries(app, tmp_path, monkeypatch
         for _ in range(10):
             telegram_bot.handle(db, 999, "111111")
         assert telegram_bot.handle(db, 42, "123456") is None
+
+
+def test_low_score_hidden_but_your_links_always_show():
+    s = settings(min_score=30)
+    assert ranking.final_score(job(ai_score=10), {}, s, NOW)[0] is None
+    assert ranking.final_score(job(ai_score=10, added_by="link"), {}, s, NOW)[0] is not None

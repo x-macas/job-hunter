@@ -20,8 +20,8 @@ does the boring parts, and I spend about 15 minutes a day on it.
 | Phase | What | Status |
 |---|---|---|
 | 0 | Website base: login, settings, profile, activity log, emergency stop | Done |
-| 1 | Finding and ranking jobs, daily list, alerts | Next |
-| 2 | Applying: saved answers, form filling, tracker | |
+| 1 | Finding and ranking jobs, daily list, alerts | Mostly done |
+| 2 | Applying: saved answers, form filling, tracker | Next |
 | 3 | Emails: drafts, approvals, sending, follow-ups, replies | |
 | 4 | Company info and interview prep | |
 | 5 | Stats, goals, backups, phone access | |
@@ -29,7 +29,25 @@ does the boring parts, and I spend about 15 minutes a day on it.
 
 ## Built with
 
-Python, Flask, SQLite, Waitress. Later: Playwright, Gmail API, Telegram Bot API, Claude.
+Python, Flask, SQLite, Waitress, systemd timers, Telegram Bot API, Claude (via the `claude` CLI, no tools).
+Later: Playwright, Gmail API.
+
+## Job sources
+
+- 91 company job boards (Greenhouse, Lever, Ashby, SmartRecruiters, Workable)
+- Remotive and Remote OK (each job links back to them, checked at most a few times a day)
+- Hacker News "Who is hiring?"
+- Adzuna India (free key)
+- Coming: job-alert emails from LinkedIn, Naukri, Instahyre, Cutshort, Wellfound
+
+## How a job is picked
+
+1. **Rules** (plain code, instant): role, title words, level, location, age, job type,
+   experience, pay, bonds or fees, blocked companies.
+2. **Claude** reads the jobs that pass and scores each one against my resume. It has no tools:
+   it only returns a score and short reasons. Job text is treated as data, never as instructions.
+3. **Ranking**: big companies get a boost and saved spots, fresh jobs a small boost,
+   unknown pay at startups a small penalty. Top 20 go on the Today page.
 
 ## Security
 
@@ -47,6 +65,8 @@ It runs on my own laptop and only listens on `127.0.0.1`, so it isn't on the pub
 python3 -m venv .venv
 .venv/bin/pip install -r requirements-dev.txt
 git config core.hooksPath .githooks
-.venv/bin/python run.py          # then open http://127.0.0.1:8000
-.venv/bin/python -m pytest -q    # run the tests
+.venv/bin/python run.py                    # website at http://127.0.0.1:8000
+.venv/bin/python -m jobhunter.worker daily # find jobs now
+.venv/bin/python -m pytest -q              # run the tests
+sh deploy/install.sh                       # run everything in the background (systemd)
 ```

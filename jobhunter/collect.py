@@ -108,7 +108,7 @@ def apply_rules(conn, s: dict, log=print, now: float | None = None) -> int:
             # You added it yourself: always show it, the rule result is only a warning.
             conn.execute("UPDATE jobs SET rule_ok = 1, rule_reason = ? WHERE id = ?", (reason, job["id"]))
             continue
-        if ok and job["description"] is None and job["source"] == "greenhouse":
+        if ok and job["description"] is None and job["source"] in ("greenhouse", "smartrecruiters"):
             need_text.append(job)
             continue
         conn.execute("UPDATE jobs SET rule_ok = ?, rule_reason = ? WHERE id = ?", (int(ok), reason, job["id"]))
@@ -127,9 +127,10 @@ def apply_rules(conn, s: dict, log=print, now: float | None = None) -> int:
 
 def _fill_descriptions(conn, jobs, s) -> list[int]:
     def get(job):
-        slug, _, gh_id = job["source_id"].partition(":")
+        slug, _, ext_id = job["source_id"].partition(":")
+        fetch = boards.greenhouse_description if job["source"] == "greenhouse" else boards.smartrecruiters_description
         try:
-            return job["id"], boards.greenhouse_description(slug, gh_id)
+            return job["id"], fetch(slug, ext_id)
         except FetchError:
             return job["id"], None
 

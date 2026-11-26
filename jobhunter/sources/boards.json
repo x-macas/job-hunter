@@ -25,6 +25,11 @@
   "name": "Anthropic"
  },
  {
+  "ats": "workable",
+  "slug": "apna",
+  "name": "apna"
+ },
+ {
   "ats": "ashby",
   "slug": "atlan",
   "name": "Atlan"
@@ -48,6 +53,11 @@
   "ats": "ashby",
   "slug": "buffer",
   "name": "Buffer"
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "cars24",
+  "name": "CARS24"
  },
  {
   "ats": "greenhouse",
@@ -140,6 +150,11 @@
   "name": "Fivetran"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "freshworks",
+  "name": "Freshworks"
+ },
+ {
   "ats": "greenhouse",
   "slug": "gitlab",
   "name": "GitLab"
@@ -193,6 +208,16 @@
   "ats": "greenhouse",
   "slug": "intercom",
   "name": "Intercom"
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "ixigo",
+  "name": "ixigo"
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "lendingkart",
+  "name": "Lendingkart"
  },
  {
   "ats": "lever",
@@ -275,6 +300,11 @@
   "name": "PlanetScale"
  },
  {
+  "ats": "lever",
+  "slug": "pocketfm",
+  "name": "Pocket FM"
+ },
+ {
   "ats": "ashby",
   "slug": "posthog",
   "name": "PostHog"
@@ -350,6 +380,11 @@
   "name": "Supabase"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "swiggy",
+  "name": "Swiggy"
+ },
+ {
   "ats": "greenhouse",
   "slug": "tailscale",
   "name": "Tailscale"
@@ -383,6 +418,11 @@
   "ats": "ashby",
   "slug": "uipath",
   "name": "UiPath"
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "unacademy",
+  "name": "Unacademy"
  },
  {
   "ats": "ashby",
