@@ -115,7 +115,7 @@ def test_sitemaps_read_only_when_due(monkeypatch):
     monkeypatch.setattr(portals, "default_portals", lambda: [SITE, {"type": "amazon", "name": "Amazon"}])
     monkeypatch.setattr(portals, "fetch_portal", lambda p, quick=False: seen.append(p["name"]) or [])
     monkeypatch.setattr(collect, "all_boards", lambda s: [])
-    monkeypatch.setattr(portals, "sitemap_due", lambda p, hours: False)
+    monkeypatch.setattr(portals, "due", lambda p, hours: False)
     collect.fetch_all(settings(), log=lambda m: None, quick=True)
     assert seen == ["Amazon"]
 
@@ -198,3 +198,24 @@ def test_sitemap_avature_style():
     assert portals.sitemap_job("https://bloomberg.avature.net/careers/JobDetail/Terminal-Sales-Account-Manager/46347", "avature") is None
     nd = portals.sitemap_job("https://x.avature.net/careers/JobDetail/Software-Engineer-New-Delhi/7", "avature")
     assert nd == ("7", "Software Engineer", "New Delhi")
+
+
+def test_polite_sites_follow_the_setting(monkeypatch, tmp_path):
+    seen = []
+    polite = dict(SITE, name="Flipkart", host="f.com", polite=True)
+    monkeypatch.setattr(portals, "default_portals", lambda: [polite])
+    monkeypatch.setattr(portals, "fetch_portal", lambda p, quick=False: seen.append(p["name"]) or [])
+    monkeypatch.setattr(portals, "READS_FILE", tmp_path / "reads.json")
+    monkeypatch.setattr(collect, "all_boards", lambda s: [])
+    collect.fetch_all(settings(read_no_bots_sites=False), log=lambda m: None, quick=True)
+    assert seen == []
+    collect.fetch_all(settings(read_no_bots_sites=True), log=lambda m: None, quick=True)
+    assert seen == ["Flipkart"]
+    collect.fetch_all(settings(read_no_bots_sites=True), log=lambda m: None, quick=True)
+    assert seen == ["Flipkart"]                      # read once, then waits its hours
+
+
+def test_polite_sitemap_skips_robots(monkeypatch, tmp_path):
+    _fake_site(monkeypatch, tmp_path, ["https://c.com/job/noida/software-engineer/1/11"],
+               robots_text="User-agent: *\nDisallow: /\n")
+    assert [j.title for j in portals.fetch_portal(dict(SITE, polite=True))] == ["Software Engineer"]

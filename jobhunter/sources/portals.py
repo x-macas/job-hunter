@@ -397,21 +397,22 @@ def _sitemap_links(p: dict) -> list[str]:
     url = p["sitemap"]
     if urllib.parse.urlsplit(url).netloc != p["host"]:
         raise FetchError(f"{p['name']}: sitemap is not on {p['host']}")
-    if not robots.allowed(url):
+    polite = p.get("polite")   # robots.txt asks bots to stay away; read anyway only if you allow it (Settings)
+    if not polite and not robots.allowed(url):
         raise FetchError(f"{p['name']}: robots.txt asks bots not to read its sitemap")
     text = _get_text(url)
     if "<sitemapindex" in text[:2000]:
         links = []
         for child in re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text)[:SITEMAP_CHILDREN]:
             child = html.unescape(child)
-            if urllib.parse.urlsplit(child).netloc == p["host"] and robots.allowed(child):
+            if urllib.parse.urlsplit(child).netloc == p["host"] and (polite or robots.allowed(child)):
                 links += re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", _get_text(child))
         return [html.unescape(x) for x in links]
     return [html.unescape(x) for x in re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text)]
 
 
 def _sitemap(p: dict) -> list[RawJob]:
-    rules = robots.rules_for(p["host"])
+    rules = [] if p.get("polite") else robots.rules_for(p["host"])
     jobs = []
     for link in _sitemap_links(p):
         if urllib.parse.urlsplit(link).netloc != p["host"] or not robots.allowed_by(rules, link):
@@ -430,19 +431,30 @@ def _sitemap(p: dict) -> list[RawJob]:
     return jobs
 
 
-def _remember_read(p: dict) -> None:
+def _key(p: dict) -> str:
+    return p.get("host") or p.get("slug") or p["name"]
+
+
+def remember_read(p: dict) -> None:
     with _READS_LOCK:
         try:
             saved = json.loads(READS_FILE.read_text())
         except (OSError, ValueError):
             saved = {}
-        saved[p["host"]] = time.time()
+        saved[_key(p)] = time.time()
         write_private_file(READS_FILE, json.dumps(saved).encode())
 
 
-def sitemap_due(p: dict, hours: int, now: float | None = None) -> bool:
+_remember_read = remember_read
+
+
+def due(p: dict, hours: int, now: float | None = None) -> bool:
+    """Read this source again? (sitemaps and 'polite' sites are read only every few hours)"""
     try:
-        last = json.loads(READS_FILE.read_text()).get(p["host"], 0)
+        last = json.loads(READS_FILE.read_text()).get(_key(p), 0)
     except (OSError, ValueError):
         last = 0
     return (now or time.time()) - last >= hours * 3600 - 300
+
+
+sitemap_due = due

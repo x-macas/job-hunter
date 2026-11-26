@@ -18,17 +18,31 @@ def all_boards(s: dict) -> list[dict]:
     return boards.default_boards() + boards.boards_from_setting(s["extra_boards"])
 
 
+def wanted(src: dict, s: dict) -> bool:
+    """Read this source in this run?
+    - 'polite' sites (robots.txt asks bots to stay away, but they don't block): only if you allow it
+      in Settings, and only every few hours, so we stay gentle.
+    - sitemaps are whole job lists: every few hours too."""
+    if src.get("polite"):
+        if not s["read_no_bots_sites"]:
+            return False
+        hours = max(s["no_bots_hours"], s["sitemap_hours"] if src.get("type") == "sitemap" else 0)
+        return portals.due(src, hours)
+    if src.get("type") == "sitemap":
+        return portals.due(src, s["sitemap_hours"])
+    return True
+
+
 def fetch_all(s: dict, log=print, only_boards: list[dict] | None = None, quick: bool = False) -> list[RawJob]:
     """Download jobs from every source. A source that fails is skipped, not fatal.
 
     quick=True is the 30-minute check: company boards and careers sites only
     (newest jobs), no general job sites, which ask for only a few calls a day."""
     tasks = [(f"{b['name']} ({b['ats']})", boards.fetch_board, (b,))
-             for b in (only_boards if only_boards is not None else all_boards(s))]
+             for b in (only_boards if only_boards is not None else all_boards(s)) if wanted(b, s)]
     if only_boards is None:
-        # Sitemaps are whole job lists, so they're read only every few hours (Settings).
         tasks += [(f"{p['name']} careers", portals.fetch_portal, (p, quick)) for p in portals.default_portals()
-                  if p["type"] != "sitemap" or portals.sitemap_due(p, s["sitemap_hours"])]
+                  if wanted(p, s)]
     if only_boards is None and not quick:
         tasks += [("Remotive", job_sites.remotive, ()), ("Remote OK", job_sites.remoteok, ()),
                   ("Hacker News", job_sites.hn_who_is_hiring, ())]
@@ -39,7 +53,10 @@ def fetch_all(s: dict, log=print, only_boards: list[dict] | None = None, quick: 
     def run(task):
         name, fn, args = task
         try:
-            return name, fn(*args), None
+            found = fn(*args)
+            if args and isinstance(args[0], dict) and args[0].get("polite"):
+                portals.remember_read(args[0])
+            return name, found, None
         except Exception as e:  # one broken source must never stop the run
             return name, [], str(e)[:200]
 

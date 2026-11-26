@@ -45,7 +45,7 @@ def fetch_board(board: dict) -> list[RawJob]:
     if ats == "jobvite":
         return _jobvite(slug, name)
     if ats == "freshteam":
-        return _freshteam(slug, name)
+        return _freshteam(slug, name, board.get("polite", False))
     return []
 
 
@@ -211,10 +211,10 @@ _FT_ROW = re.compile(r'<a href="(/jobs/[A-Za-z0-9_-]+/[^"]*)"[^>]*data-portal-lo
                      r'data-portal-remote-location=(\w+)[^>]*>.*?<div class="job-title">(.*?)</div>', re.S)
 
 
-def _freshteam(slug, name):
+def _freshteam(slug, name, polite=False):
     host = slug if "." in slug else f"{slug}.freshteam.com"   # some use their own domain
     url = f"https://{host}/jobs"
-    if not robots.allowed(url):
+    if not polite and not robots.allowed(url):
         raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
     page = fetch_bytes(url).decode("utf-8", "ignore")
     jobs = []

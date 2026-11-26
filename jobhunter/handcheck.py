@@ -79,7 +79,8 @@ def _search_url(company: str) -> str:
 def build(s: dict) -> dict:
     """Returns {'first': [...], 'later': [...], 'auto': [...]}.
     first = blocked / no-bots companies, later = not readable yet, auto = read by the website."""
-    sources = boards.default_boards() + boards.boards_from_setting(s["extra_boards"]) + portals.default_portals()
+    sources = [x for x in boards.default_boards() + boards.boards_from_setting(s["extra_boards"])
+               + portals.default_portals() if s["read_no_bots_sites"] or not x.get("polite")]
     links = _links()
     facets = portals.saved_facets()
     out = {"first": [], "later": [], "auto": []}

@@ -172,6 +172,11 @@ SETTINGS = [
             help="These sites ask bots to stay off their job search but list every job in a sitemap. "
                  "It's a big file and the sites update it about once a day, so twice a day is plenty."),
 
+    Setting("read_no_bots_sites", "Also read careers sites whose robots.txt asks bots to stay away", "Companies", "bool",
+            True, help="These sites don't block, they only ask. Turn off to leave them to your hand check. "
+                       "Sites that really block (bot checks, access denied) are never read."),
+    Setting("no_bots_hours", "Read those sites every (hours)", "Companies", "int", 6, min=2, max=48,
+            help="Kept slow so we stay gentle with them."),
     Setting("read_alert_emails", "Read job-alert emails from Gmail", "Companies", "bool", True,
             help="Needs Gmail connected on the Connections page. Emails stay unread in Gmail."),
     Setting("alert_senders", "Job-alert emails come from", "Companies", "list",

@@ -101,7 +101,7 @@ def watch(conn, s) -> str:
     targets = [b for b in collect.all_boards(s)
                if any(rules.name_in(b["name"], [w]) or b["slug"] == w.lower() for w in wanted)]
     watch_portals = [p for p in portals.default_portals() if rules.name_in(p["name"], wanted)
-                     and (p["type"] != "sitemap" or portals.sitemap_due(p, s["sitemap_hours"]))]
+                     and collect.wanted(p, s)]
     if not targets and not watch_portals:
         msg = "Watch list: no matching company boards." if wanted else "Watch list is empty."
         _mark(conn, "watch", ok=True, message=msg)
