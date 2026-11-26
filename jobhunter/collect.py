@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from . import parse, rules
 from .config import SECRETS_DIR
-from .sources import RawJob, boards, job_sites
+from .sources import RawJob, boards, job_sites, portals
 from .sources.http import FetchError
 
 ACTIVE_DAYS = 3          # a board job not seen for this long is treated as closed
@@ -22,6 +22,7 @@ def fetch_all(s: dict, log=print, only_boards: list[dict] | None = None) -> list
     tasks = [(f"{b['name']} ({b['ats']})", boards.fetch_board, (b,))
              for b in (only_boards if only_boards is not None else all_boards(s))]
     if only_boards is None:
+        tasks += [(f"{p['name']} careers", portals.fetch_portal, (p,)) for p in portals.default_portals()]
         tasks += [("Remotive", job_sites.remotive, ()), ("Remote OK", job_sites.remoteok, ()),
                   ("Hacker News", job_sites.hn_who_is_hiring, ())]
         keys = job_sites.load_adzuna_keys(SECRETS_DIR)
@@ -32,7 +33,7 @@ def fetch_all(s: dict, log=print, only_boards: list[dict] | None = None) -> list
         name, fn, args = task
         try:
             return name, fn(*args), None
-        except (FetchError, KeyError, ValueError, TypeError) as e:
+        except Exception as e:  # one broken source must never stop the run
             return name, [], str(e)[:200]
 
     jobs, failed = [], []
@@ -108,7 +109,7 @@ def apply_rules(conn, s: dict, log=print, now: float | None = None) -> int:
             # You added it yourself: always show it, the rule result is only a warning.
             conn.execute("UPDATE jobs SET rule_ok = 1, rule_reason = ? WHERE id = ?", (reason, job["id"]))
             continue
-        if ok and job["description"] is None and job["source"] in ("greenhouse", "smartrecruiters"):
+        if ok and job["description"] is None and job["source"] in ("greenhouse", "smartrecruiters", "workday"):
             need_text.append(job)
             continue
         conn.execute("UPDATE jobs SET rule_ok = ?, rule_reason = ? WHERE id = ?", (int(ok), reason, job["id"]))
@@ -128,8 +129,10 @@ def apply_rules(conn, s: dict, log=print, now: float | None = None) -> int:
 def _fill_descriptions(conn, jobs, s) -> list[int]:
     def get(job):
         slug, _, ext_id = job["source_id"].partition(":")
-        fetch = boards.greenhouse_description if job["source"] == "greenhouse" else boards.smartrecruiters_description
         try:
+            if job["source"] == "workday":
+                return job["id"], portals.workday_description(job["source_id"])
+            fetch = boards.greenhouse_description if job["source"] == "greenhouse" else boards.smartrecruiters_description
             return job["id"], fetch(slug, ext_id)
         except FetchError:
             return job["id"], None

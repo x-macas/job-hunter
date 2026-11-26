@@ -3,6 +3,7 @@
     python -m jobhunter.worker tick     # what the timer runs every 15 minutes
     python -m jobhunter.worker daily    # collect + rules + score + today's list, now
     python -m jobhunter.worker watch    # check watch-list companies, now
+    python -m jobhunter.worker refresh  # re-run rules, scoring and list on saved jobs (no download)
     python -m jobhunter.worker status   # when things last ran
 
 'tick' decides what is due:
@@ -20,6 +21,7 @@ from datetime import date, datetime
 from . import activity, collect, ranking, rules, scoring, settings_store, telegram
 from .config import DATA_DIR, DB_PATH, make_private_dirs
 from .db import connect, init_db
+from .sources import portals
 
 RETRY_AFTER = 30 * 60   # if a daily run failed, try again after 30 minutes
 
@@ -83,11 +85,17 @@ def watch(conn, s) -> str:
     wanted = s["watch_list"]
     targets = [b for b in collect.all_boards(s)
                if any(rules.name_in(b["name"], [w]) or b["slug"] == w.lower() for w in wanted)]
-    if not targets:
+    watch_portals = [p for p in portals.default_portals() if rules.name_in(p["name"], wanted)]
+    if not targets and not watch_portals:
         msg = "Watch list: no matching company boards." if wanted else "Watch list is empty."
         _mark(conn, "watch", ok=True, message=msg)
         return msg
-    jobs = collect.fetch_all(s, log=_log, only_boards=targets)
+    jobs = collect.fetch_all(s, log=_log, only_boards=targets) if targets else []
+    for p in watch_portals:
+        try:
+            jobs += portals.fetch_portal(p)
+        except Exception as e:  # one broken careers site must not stop the others
+            _log(f"{p['name']} careers failed: {e}")
     new = collect.save(conn, jobs, s, added_by="watch")
     collect.apply_rules(conn, s, log=_log)
     alerts = 0
@@ -108,8 +116,18 @@ def watch(conn, s) -> str:
     if new:
         scoring.score_pending(conn, s, limit=20, log=_log)
         ranking.pick_today(conn, s)
-    msg = f"Watch list: {len(targets)} boards, {len(new)} new jobs, {alerts} alerts."
+    msg = f"Watch list: {len(targets) + len(watch_portals)} sites, {len(new)} new jobs, {alerts} alerts."
     _mark(conn, "watch", ok=True, message=msg)
+    return msg
+
+
+def refresh(conn, s) -> str:
+    """Re-run rules, scoring and today's list on saved jobs. No downloading."""
+    collect.apply_rules(conn, s, log=_log)
+    scored = scoring.score_pending(conn, s, limit=s["ai_jobs_per_run"], log=_log)
+    picked = ranking.pick_today(conn, s)
+    msg = f"Refresh: {scored} scored, {picked} on today's list."
+    activity.log(conn, "worker", msg)
     return msg
 
 
@@ -156,6 +174,8 @@ def main(argv: list[str]) -> int:
             _log(daily(conn, s))
         elif command == "watch":
             _log(watch(conn, s))
+        elif command == "refresh":
+            _log(refresh(conn, s))
         else:
             print(__doc__)
             return 2

@@ -1,0 +1,198 @@
+"""Big companies' own careers sites.
+
+These are the feeds the careers pages themselves use. They aren't official APIs,
+so they can change; a reader that breaks is skipped and shows up as "failed"
+in the run log until it's fixed. We stay polite: India-only searches, a few
+requests per company, once a day.
+
+portals.json lists them. Types:
+  workday   - one reader for every company on Workday (needs host, tenant, site)
+  oraclehcm - Oracle Recruiting Cloud (needs host, site)
+  amazon, atlassian - their own systems
+"""
+
+import json
+import re
+import time
+import urllib.error
+import urllib.request
+from datetime import datetime
+from pathlib import Path
+
+from .. import parse
+from . import RawJob
+from .http import FetchError
+
+PORTALS_FILE = Path(__file__).with_name("portals.json")
+UA = "Mozilla/5.0 (X11; Linux x86_64) job-hunter/0.1 (personal job search)"
+SEARCH = "software"
+
+
+def default_portals() -> list[dict]:
+    return json.loads(PORTALS_FILE.read_text())
+
+
+def _req(url: str, body: dict | None = None, timeout: int = 30):
+    data = json.dumps(body).encode() if body is not None else None
+    r = urllib.request.Request(url, data=data, headers={
+        "User-Agent": UA, "Accept": "application/json", "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(r, timeout=timeout) as f:
+            return json.loads(f.read(20 * 1024 * 1024))
+    except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as e:
+        raise FetchError(f"{url.split('?')[0]}: {e}") from e
+
+
+def fetch_portal(p: dict) -> list[RawJob]:
+    kind = p["type"]
+    if kind == "workday":
+        return _workday(p)
+    if kind == "oraclehcm":
+        return _oraclehcm(p)
+    if kind == "amazon":
+        return _amazon(p)
+    if kind == "atlassian":
+        return _atlassian(p)
+    return []
+
+
+# ---------- Workday ----------
+
+def _days_ago(text: str) -> float | None:
+    t = (text or "").lower()
+    if "today" in t:
+        days = 0
+    elif "yesterday" in t:
+        days = 1
+    else:
+        m = re.search(r"(\d+)\+?\s*days", t)
+        if not m:
+            return None
+        days = int(m.group(1))
+    return time.time() - days * 86400
+
+
+def _workday_india_facet(base: str) -> tuple[str, str] | None:
+    """Find the 'country = India' filter for this Workday site."""
+    d = _req(f"{base}/jobs", {"appliedFacets": {}, "limit": 1, "offset": 0, "searchText": ""})
+
+    def walk(facets):
+        for f in facets or []:
+            param = f.get("facetParameter", "")
+            for v in f.get("values") or []:
+                if "ountry" in param and v.get("descriptor") == "India":
+                    return param, v["id"]
+                if v.get("values"):  # e.g. "Location" > "Country" > "India"
+                    found = walk([v])
+                    if found:
+                        return found
+        return None
+    return walk(d.get("facets"))
+
+
+def _workday(p: dict) -> list[RawJob]:
+    base = f"https://{p['host']}/wday/cxs/{p['tenant']}/{p['site']}"
+    facet = _workday_india_facet(base)
+    applied = {facet[0]: [facet[1]]} if facet else {}
+    jobs = []
+    for offset in range(0, 200, 20):
+        text = SEARCH if facet else f"{SEARCH} india"  # no country filter: ask for India in words
+        d = _req(f"{base}/jobs", {"appliedFacets": applied, "limit": 20, "offset": offset, "searchText": text})
+        posts = d.get("jobPostings", [])
+        for j in posts:
+            if not j.get("externalPath"):
+                continue
+            loc = j.get("locationsText") or ""
+            if facet and (not loc or "Locations" in loc):
+                loc = "India"
+            elif facet and not parse.is_india(loc):
+                loc += ", India"
+            jobs.append(RawJob(
+                source="workday", source_id=f"{p['tenant']}:{j['externalPath']}", source_name=f"{p['name']} careers",
+                company=p["name"], title=j.get("title", "").strip(),
+                url=f"https://{p['host']}/{p['site']}{j['externalPath']}",
+                location=loc, posted_at=_days_ago(j.get("postedOn")),
+                job_type=parse.job_type_from(j.get("title", "")),
+            ))
+        if len(posts) < 20:
+            break
+    return jobs
+
+
+def workday_description(source_id: str) -> str:
+    tenant, _, path = source_id.partition(":")
+    p = next((x for x in default_portals() if x["type"] == "workday" and x["tenant"] == tenant), None)
+    if p is None:
+        raise FetchError(f"unknown Workday site {tenant}")
+    info = _req(f"https://{p['host']}/wday/cxs/{tenant}/{p['site']}{path}").get("jobPostingInfo", {})
+    return parse.html_to_text(info.get("jobDescription"))
+
+
+# ---------- Oracle Recruiting Cloud ----------
+
+def _oraclehcm(p: dict) -> list[RawJob]:
+    host, site = p["host"], p["site"]
+    jobs = []
+    for offset in (0, 100):
+        url = (f"https://{host}/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true"
+               f"&expand=requisitionList&finder=findReqs;siteNumber={site},keyword=%22{SEARCH}%22,"
+               f"location=India,limit=100,offset={offset},sortBy=POSTING_DATES_DESC")
+        items = _req(url).get("items") or [{}]
+        reqs = items[0].get("requisitionList") or []
+        for r in reqs:
+            jobs.append(RawJob(
+                source="oraclehcm", source_id=f"{site}:{r['Id']}", source_name=f"{p['name']} careers",
+                company=p["name"], title=(r.get("Title") or "").strip(),
+                url=f"https://{host}/hcmUI/CandidateExperience/en/sites/{site}/job/{r['Id']}",
+                location=r.get("PrimaryLocation") or "India",
+                description=r.get("ShortDescriptionStr") or "",
+                posted_at=parse.iso_to_ts(r.get("PostedDate")),
+                job_type=parse.job_type_from(r.get("Title", ""), r.get("JobSchedule") or ""),
+            ))
+        if len(reqs) < 100:
+            break
+    return jobs
+
+
+# ---------- Amazon ----------
+
+def _amazon(p: dict) -> list[RawJob]:
+    jobs = []
+    for offset in (0, 100, 200):
+        d = _req("https://www.amazon.jobs/en/search.json?base_query=software&normalized_country_code%5B%5D=IND"
+                 f"&result_limit=100&offset={offset}&sort=recent")
+        for j in d.get("jobs", []):
+            try:
+                posted = datetime.strptime(j.get("posted_date", ""), "%B %d, %Y").timestamp()
+            except ValueError:
+                posted = None
+            desc = "\n\n".join(parse.html_to_text(j.get(k)) for k in
+                               ("description", "basic_qualifications", "preferred_qualifications"))
+            jobs.append(RawJob(
+                source="amazon", source_id=str(j["id"]), source_name="Amazon careers",
+                company=p["name"], title=(j.get("title") or "").strip(),
+                url="https://www.amazon.jobs" + j.get("job_path", ""),
+                location=f"{j.get('location', '')}, India", description=desc, posted_at=posted,
+                job_type="intern" if j.get("is_intern") else parse.job_type_from(j.get("title", ""), j.get("job_schedule_type") or ""),
+            ))
+        if len(d.get("jobs", [])) < 100:
+            break
+    return jobs
+
+
+# ---------- Atlassian ----------
+
+def _atlassian(p: dict) -> list[RawJob]:
+    jobs = []
+    for j in _req("https://www.atlassian.com/endpoint/careers/listings"):
+        locations = j.get("locations") or []
+        desc = "\n\n".join(parse.html_to_text(j.get(k)) for k in ("overview", "responsibilities", "qualifications"))
+        remote = any("remote" in loc.lower() for loc in locations)
+        jobs.append(RawJob(
+            source="atlassian", source_id=str(j.get("id")), source_name="Atlassian careers",
+            company=p["name"], title=(j.get("title") or "").strip(),
+            url=j.get("applyUrl") or "https://www.atlassian.com/company/careers",
+            location="; ".join(locations), remote=remote and any(parse.is_india(l) for l in locations),
+            description=desc, job_type=parse.job_type_from(j.get("title", ""), j.get("type") or ""),
+        ))
+    return jobs

@@ -34,7 +34,10 @@ Later: Playwright, Gmail API.
 
 ## Job sources
 
-- 91 company job boards (Greenhouse, Lever, Ashby, SmartRecruiters, Workable)
+- 100 company job boards (Greenhouse, Lever, Ashby, SmartRecruiters, Workable)
+- 19 big-company careers sites read directly: Amazon, Atlassian, JPMorgan, Oracle, and 15 on Workday
+  (Salesforce, Nvidia, Adobe, Intel, PayPal, Mastercard, Cisco, Broadcom, Samsung, Cadence,
+  Morgan Stanley, Deutsche Bank, Visa, Barclays, Cohesity). India-only searches, once a day.
 - Remotive and Remote OK (each job links back to them, checked at most a few times a day)
 - Hacker News "Who is hiring?"
 - Adzuna India (free key)

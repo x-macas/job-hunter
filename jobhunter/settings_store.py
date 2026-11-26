@@ -26,7 +26,9 @@ class Setting:
 SETTINGS = [
     # Jobs
     Setting("roles", "Roles to look for", "Jobs", "list", [
-        "Software Engineer", "SDE", "SWE", "Member of Technical Staff",
+        "Software Engineer", "Software Development Engineer", "Software Developer",
+        "Software Dev Engineer", "Application Developer", "Technology Analyst",
+        "SDE", "SWE", "Member of Technical Staff",
         "Backend Developer", "Backend Engineer", "Forward Deployed Engineer",
         "Python Developer", "Java Developer", "Node.js Developer", "C++ Developer",
         "Platform Engineer", "Infrastructure Engineer", "Graduate Software Engineer",
@@ -36,7 +38,8 @@ SETTINGS = [
     ], "One per line. A job title must contain one of these."),
     Setting("title_blocklist", "Hide titles with these words", "Jobs", "list", [
         "Senior", "Sr.", "Lead", "Staff", "Principal", "Manager", "Director",
-        "Architect", "Head of", "VP", "QA", "Test Engineer", "Support", "Sales",
+        "Architect", "Head of", "VP", "AVP", "Vice President", "QA", "Test Engineer",
+        "Support", "Sales",
         "Frontend",
     ], "One per line."),
     Setting("max_experience_years", "Most years of experience a job can ask for", "Jobs",

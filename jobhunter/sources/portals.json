@@ -1,0 +1,127 @@
+[
+ {
+  "type": "workday",
+  "name": "Salesforce",
+  "host": "salesforce.wd12.myworkdayjobs.com",
+  "tenant": "salesforce",
+  "site": "External_Career_Site"
+ },
+ {
+  "type": "workday",
+  "name": "Nvidia",
+  "host": "nvidia.wd5.myworkdayjobs.com",
+  "tenant": "nvidia",
+  "site": "NVIDIAExternalCareerSite"
+ },
+ {
+  "type": "workday",
+  "name": "Adobe",
+  "host": "adobe.wd5.myworkdayjobs.com",
+  "tenant": "adobe",
+  "site": "external_experienced"
+ },
+ {
+  "type": "workday",
+  "name": "Intel",
+  "host": "intel.wd1.myworkdayjobs.com",
+  "tenant": "intel",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "PayPal",
+  "host": "paypal.wd1.myworkdayjobs.com",
+  "tenant": "paypal",
+  "site": "jobs"
+ },
+ {
+  "type": "workday",
+  "name": "Mastercard",
+  "host": "mastercard.wd1.myworkdayjobs.com",
+  "tenant": "mastercard",
+  "site": "CorporateCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Cisco",
+  "host": "cisco.wd5.myworkdayjobs.com",
+  "tenant": "cisco",
+  "site": "Cisco_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Broadcom",
+  "host": "broadcom.wd1.myworkdayjobs.com",
+  "tenant": "broadcom",
+  "site": "External_Career"
+ },
+ {
+  "type": "workday",
+  "name": "Samsung",
+  "host": "sec.wd3.myworkdayjobs.com",
+  "tenant": "sec",
+  "site": "Samsung_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Cadence",
+  "host": "cadence.wd1.myworkdayjobs.com",
+  "tenant": "cadence",
+  "site": "External_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Morgan Stanley",
+  "host": "ms.wd5.myworkdayjobs.com",
+  "tenant": "ms",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Deutsche Bank",
+  "host": "db.wd3.myworkdayjobs.com",
+  "tenant": "db",
+  "site": "DBWebSite"
+ },
+ {
+  "type": "workday",
+  "name": "Visa",
+  "host": "visa.wd5.myworkdayjobs.com",
+  "tenant": "visa",
+  "site": "Visa"
+ },
+ {
+  "type": "workday",
+  "name": "Barclays",
+  "host": "barclays.wd3.myworkdayjobs.com",
+  "tenant": "barclays",
+  "site": "External_Career_Site_Barclays"
+ },
+ {
+  "type": "workday",
+  "name": "Cohesity",
+  "host": "cohesity.wd5.myworkdayjobs.com",
+  "tenant": "cohesity",
+  "site": "Cohesity_Careers"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "JPMorgan Chase",
+  "host": "jpmc.fa.oraclecloud.com",
+  "site": "CX_1001"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Oracle",
+  "host": "eeho.fa.us2.oraclecloud.com",
+  "site": "CX_45001"
+ },
+ {
+  "type": "amazon",
+  "name": "Amazon"
+ },
+ {
+  "type": "atlassian",
+  "name": "Atlassian"
+ }
+]

@@ -251,3 +251,13 @@ def test_low_score_hidden_but_your_links_always_show():
     s = settings(min_score=30)
     assert ranking.final_score(job(ai_score=10), {}, s, NOW)[0] is None
     assert ranking.final_score(job(ai_score=10, added_by="link"), {}, s, NOW)[0] is not None
+
+
+@pytest.mark.parametrize("title, ok", [
+    ("Software Development Engineer I, Alexa", True),
+    ("Software Developer", True),
+    ("Backend Developer, AVP", False),
+    ("Java Lead_Vice President _Software Engineer", False),
+])
+def test_big_company_titles(title, ok):
+    assert rules.evaluate(job(title=title), settings(), NOW)[0] is ok
