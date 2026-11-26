@@ -71,3 +71,14 @@ def parse_form(form) -> tuple[dict, dict]:
             continue
         values[f.key] = raw
     return values, errors
+
+
+def facts_block(prof: dict) -> str:
+    """Up-to-date facts for every writing prompt. They beat the resume, which may be older."""
+    from datetime import date
+    return (f"Today's date: {date.today():%d %B %Y}\n"
+            f"Graduation year: {prof.get('grad_year') or 'not given'}\n"
+            f"Current company: {prof.get('current_company') or 'none (not working right now, open to join)'}\n"
+            f"Notice period: {prof.get('notice_period') or 'not given'}\n"
+            "If the resume says something different (like 'present' for an old job, or 'student' after the\n"
+            "graduation year), trust these facts, not the resume.")

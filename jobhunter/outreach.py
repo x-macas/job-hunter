@@ -110,6 +110,7 @@ Phone: {prof.get('phone') or '-'}
 LinkedIn: {prof.get('linkedin_url') or '-'}
 College: {prof.get('college') or '-'}
 About: {prof.get('about') or '-'}
+{profile_store.facts_block(prof)}
 Resume:
 {resume_text()[:6000] or '(no resume uploaded yet)'}
 </candidate>

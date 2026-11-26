@@ -189,3 +189,22 @@ CREATE TABLE IF NOT EXISTS replies (
     snippet    TEXT NOT NULL DEFAULT '',
     ts         REAL NOT NULL
 );
+
+-- Phase 4. Company info from Claude (it can't browse: may be out of date), reused for a while.
+CREATE TABLE IF NOT EXISTS company_info (
+    company  TEXT PRIMARY KEY,      -- lower case
+    data     TEXT NOT NULL,         -- JSON
+    ts       REAL NOT NULL
+);
+
+-- Mock interview: one row per question.
+CREATE TABLE IF NOT EXISTS mock_turns (
+    job_id    INTEGER NOT NULL REFERENCES jobs (id),
+    n         INTEGER NOT NULL,
+    question  TEXT NOT NULL,
+    answer    TEXT,
+    feedback  TEXT,
+    score     INTEGER,
+    ts        REAL NOT NULL,
+    PRIMARY KEY (job_id, n)
+);

@@ -156,3 +156,42 @@ def answers_delete(answer_id):
     answers.delete(get_db(), answer_id)
     flash("Answer deleted.")
     return redirect(url_for("pages.answers_page"))
+
+
+# ---------- Prep (Phase 4) ----------
+
+@bp.route("/job/<int:job_id>/prep", methods=["GET", "POST"])
+def prep_job(job_id):
+    from . import prep
+    db = get_db()
+    job = _job_or_none(db, job_id)
+    if job is None:
+        return redirect(url_for("pages.today"))
+    s = settings_store.get_all(db)
+    if request.method == "POST":
+        action = request.form.get("action")
+        try:
+            if action == "info":
+                prep.make_company_info(db, job, s)
+            elif action == "mock_start":
+                prep.mock_reset(db, job_id)
+                prep.mock_step(db, job, s, None)
+            elif action == "mock_answer":
+                answer = request.form.get("answer", "").strip()
+                if not answer:
+                    flash("Write an answer first (or 'skip').", "error")
+                elif len(answer) > prep.ANSWER_MAX:
+                    flash(f"Keep the answer under {prep.ANSWER_MAX} characters.", "error")
+                else:
+                    prep.mock_step(db, job, s, answer)
+            elif action == "mock_reset":
+                prep.mock_reset(db, job_id)
+        except ai.AIError as e:
+            flash(f"Claude couldn't answer: {e}", "error")
+        anchor = "#mock" if action and action.startswith("mock") else ""
+        return redirect(url_for("pages.prep_job", job_id=job_id) + anchor)
+    info = prep.company_info(db, job, s)
+    turns = prep.mock_turns(db, job_id)
+    scored = [t["score"] for t in turns if t["score"]]
+    return render_template("prep.html", job=job, info=info, turns=turns,
+                           avg=(sum(scored) / len(scored)) if scored else None)

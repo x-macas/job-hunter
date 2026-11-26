@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Prepare: {{ job.company }}{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <h1>Prepare for {{ job.company }}</h1>
+  <a class="btn" href="{{ url_for('pages.apply_job', job_id=job.id) }}">Back to the job</a>
+</div>
+<p class="muted">{{ job.title }}{% if job.location %} · {{ job.location }}{% endif %}</p>
+
+<section class="card stack">
+  <div class="newhead">
+    <h2>About the company</h2>
+    <form method="post">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn{% if not info %} pri{% endif %}" name="action" value="info">{{ 'Refresh' if info else 'Get company info' }}</button>
+    </form>
+  </div>
+  {% if info %}
+  <p class="small muted">From Claude's memory on {{ info._ts | when }}. It can't browse, so check anything important
+    (pay, recent news) on Glassdoor, AmbitionBox or LinkedIn.</p>
+  <p>{{ info.about }}</p>
+  <div class="grid2">
+    <p><strong>Size:</strong> {{ info.size }}</p>
+    <p><strong>In India:</strong> {{ info.india }}</p>
+    <p><strong>Fresher pay (rough):</strong> {{ info.fresher_pay }}</p>
+    <p><strong>What people say:</strong> {{ info.reputation }}</p>
+  </div>
+  {% if info.watch_out %}<p><strong class="warn">Watch out:</strong> {{ info.watch_out | join('; ') }}</p>{% endif %}
+  <div class="grid2">
+    <div><h3>How they hire</h3><ol class="steps">{% for r in info.hiring_rounds %}<li>{{ r }}</li>{% endfor %}</ol></div>
+    <div><h3>What to revise</h3><ul class="steps">{% for r in info.topics %}<li>{{ r }}</li>{% endfor %}</ul></div>
+    <div><h3>Questions they may ask</h3><ul class="steps">{% for r in info.sample_questions %}<li>{{ r }}</li>{% endfor %}</ul></div>
+    <div><h3>Questions you can ask them</h3><ul class="steps">{% for r in info.ask_them %}<li>{{ r }}</li>{% endfor %}</ul></div>
+  </div>
+  {% else %}
+  <p class="muted">What they do, size, India offices, rough fresher pay, how they hire, what to revise and
+    questions to expect. One short Claude call.</p>
+  {% endif %}
+</section>
+
+<section class="card stack" id="mock">
+  <div class="newhead">
+    <h2>Mock interview{% if avg %} <span class="chip">Average {{ '%.1f' | format(avg) }} / 10</span>{% endif %}</h2>
+    <form method="post">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn{% if not turns %} pri{% endif %}" name="action" value="mock_start">{{ 'Start over' if turns else 'Start' }}</button>
+    </form>
+  </div>
+  {% if not turns %}
+  <p class="muted">Claude plays the interviewer: one question at a time (DSA approach, CS basics, your projects,
+    a behavioural one). Type your answer like you'd say it. You get short feedback, then the next question.</p>
+  {% endif %}
+  {% for t in turns %}
+  <div class="turn">
+    <p><strong>Q{{ t.n }}.</strong> {{ t.question }}</p>
+    {% if t.answer %}
+    <p class="small"><strong>You:</strong> {{ t.answer }}</p>
+    {% if t.feedback %}<p class="small"><strong class="good">Feedback{% if t.score %} ({{ t.score }}/10){% endif %}:</strong> {{ t.feedback }}</p>{% endif %}
+    {% elif loop.last %}
+    <form method="post" class="stack">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label for="ans" class="sr-only">Your answer</label>
+      <textarea id="ans" name="answer" rows="6" maxlength="4000" placeholder="Your answer..." required></textarea>
+      <div><button class="btn pri" name="action" value="mock_answer">Send answer</button></div>
+    </form>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+{% endblock %}

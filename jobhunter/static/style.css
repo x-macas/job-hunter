@@ -201,3 +201,5 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .qa label { display: flex; flex-direction: column; gap: 6px; }
 .grid2 > label { display: flex; flex-direction: column; gap: 6px; }
 .grid2 > label select, .grid2 > label input { margin-top: 0; }
+.turn { border-top: 1px solid var(--line); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.turn p { margin: 0; }

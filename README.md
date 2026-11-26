@@ -23,7 +23,7 @@ does the boring parts, and I spend about 15 minutes a day on it.
 | 1 | Finding and ranking jobs, daily list, alerts | Done (email parts wait for Gmail) |
 | 2 | Applying: saved answers, cover notes, form filling, tracker | Done, being tried |
 | 3 | Emails: drafts, approvals, sending, follow-ups, replies, LinkedIn notes | Built, waits for Gmail |
-| 4 | Company info and interview prep | |
+| 4 | Company info, interview prep, mock interview | Built |
 | 5 | Stats, goals, backups, phone access | |
 | 6 | A tweaked resume for each job (LaTeX) | |
 

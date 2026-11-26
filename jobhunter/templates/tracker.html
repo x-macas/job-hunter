@@ -17,6 +17,7 @@
       <p class="small"><strong>{{ r.company }}</strong></p>
       <p class="small muted">Applied {{ 'today' if c.days == 0 else (c.days ~ ' day' ~ ('' if c.days == 1 else 's') ~ ' ago') }}{% if col.key == 'done' %} · {{ c.stage_name }}{% endif %}</p>
       {% if c.waiting %}<span class="chip chip-warn">No reply in {{ followup }}+ days</span>{% endif %}
+      {% if r.stage in ('replied', 'interview') %}<a class="btn" href="{{ url_for('pages.prep_job', job_id=r.job_id) }}">Prepare</a>{% endif %}
       <form method="post" action="{{ url_for('pages.tracker_move', job_id=r.job_id) }}" class="row tight">
         <input type="hidden" name="csrf" value="{{ csrf_token() }}">
         <label for="s-{{ r.job_id }}" class="sr-only">Stage for {{ r.company }}</label>

@@ -29,6 +29,7 @@ NOTE_MAX = 3000
 def write(conn, job, s: dict) -> str:
     prof = profile_store.get_all(conn)
     prompt = f"""<candidate>
+{profile_store.facts_block(prof)}
 Resume:
 {resume_text()[:8000] or '(no resume uploaded yet)'}
 
@@ -71,6 +72,7 @@ LINKEDIN_MAX = 300
 def linkedin_note(conn, job, s: dict) -> str:
     prof = profile_store.get_all(conn)
     prompt = (f"<candidate>\nName: {prof.get('full_name') or '-'}\nCollege: {prof.get('college') or '-'}\n"
+              f"{profile_store.facts_block(prof)}\n"
               f"Resume:\n{resume_text()[:4000] or '-'}\n</candidate>\n\n<job>\nTitle: {job['title']}\n"
               f"Company: {job['company']}\n</job>\n\nWrite one LinkedIn connection note to someone at this company.")
     note = ai.ask_json(LINKEDIN_SYSTEM, prompt, SCHEMA, model=s["cover_note_model"])["note"].strip()

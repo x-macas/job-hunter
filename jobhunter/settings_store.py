@@ -192,6 +192,9 @@ SETTINGS = [
             "sonnet writes better notes; haiku uses less of your Claude plan.",
             choices=("haiku", "sonnet", "opus")),
 
+    Setting("company_info_days", "Reuse company info for (days)", "Applying", "int", 30, min=1, max=365,
+            help="Company info comes from Claude's memory (it can't browse), so it can be out of date."),
+
     # Emails
     Setting("email_daily_cap", "Most emails per day", "Emails", "int", 15, min=0, max=40),
     Setting("approvals_per_kind", "Approvals needed per email kind before auto-send",
