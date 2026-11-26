@@ -571,5 +571,124 @@
   "host": "cigna.wd5.myworkdayjobs.com",
   "tenant": "cigna",
   "site": "cignacareers"
+ },
+ {
+  "type": "workday",
+  "name": "Hewlett Packard Enterprise",
+  "host": "hpe.wd5.myworkdayjobs.com",
+  "tenant": "hpe",
+  "site": "WFMathpe"
+ },
+ {
+  "type": "workday",
+  "name": "Wells Fargo",
+  "host": "wf.wd1.myworkdayjobs.com",
+  "tenant": "wf",
+  "site": "WellsFargoJobs"
+ },
+ {
+  "type": "workday",
+  "name": "Capital One",
+  "host": "capitalone.wd12.myworkdayjobs.com",
+  "tenant": "capitalone",
+  "site": "Capital_One"
+ },
+ {
+  "type": "workday",
+  "name": "eBay",
+  "host": "ebay.wd5.myworkdayjobs.com",
+  "tenant": "ebay",
+  "site": "apply"
+ },
+ {
+  "type": "workday",
+  "name": "Novartis",
+  "host": "novartis.wd3.myworkdayjobs.com",
+  "tenant": "novartis",
+  "site": "Novartis_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "FIS",
+  "host": "fis.wd5.myworkdayjobs.com",
+  "tenant": "fis",
+  "site": "SearchJobs"
+ },
+ {
+  "type": "workday",
+  "name": "Lowe's",
+  "host": "lowes.wd5.myworkdayjobs.com",
+  "tenant": "lowes",
+  "site": "LWS_External_CS"
+ },
+ {
+  "type": "workday",
+  "name": "Gartner",
+  "host": "gartner.wd5.myworkdayjobs.com",
+  "tenant": "gartner",
+  "site": "EXT"
+ },
+ {
+  "type": "workday",
+  "name": "FactSet",
+  "host": "factset.wd108.myworkdayjobs.com",
+  "tenant": "factset",
+  "site": "FactSetCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Sanofi",
+  "host": "sanofi.wd3.myworkdayjobs.com",
+  "tenant": "sanofi",
+  "site": "SanofiCareers"
+ },
+ {
+  "type": "workday",
+  "name": "McKesson",
+  "host": "mckesson.wd3.myworkdayjobs.com",
+  "tenant": "mckesson",
+  "site": "External_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "AstraZeneca",
+  "host": "astrazeneca.wd3.myworkdayjobs.com",
+  "tenant": "astrazeneca",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Morningstar",
+  "host": "morningstar.wd5.myworkdayjobs.com",
+  "tenant": "morningstar",
+  "site": "Morningstar"
+ },
+ {
+  "type": "workday",
+  "name": "Travelers",
+  "host": "travelers.wd5.myworkdayjobs.com",
+  "tenant": "travelers",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Guidewire",
+  "host": "guidewire.wd5.myworkdayjobs.com",
+  "tenant": "guidewire",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Zoom",
+  "host": "zoom.wd5.myworkdayjobs.com",
+  "tenant": "zoom",
+  "site": "Zoom"
+ },
+ {
+  "type": "workday",
+  "name": "JioStar",
+  "host": "jiostar.wd102.myworkdayjobs.com",
+  "tenant": "jiostar",
+  "site": "Jiostar"
  }
 ]
