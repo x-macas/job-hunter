@@ -823,5 +823,13 @@
   "host": "clearwateranalytics.wd1.myworkdayjobs.com",
   "tenant": "clearwateranalytics",
   "site": "Clearwater_Analytics_Careers"
+ },
+ {
+  "type": "sitemap",
+  "name": "Intuit",
+  "host": "jobs.intuit.com",
+  "sitemap": "https://jobs.intuit.com/sitemap.xml",
+  "style": "talentbrew",
+  "page": "https://jobs.intuit.com/location/bengaluru-jobs/27595/1269750-1267701-1277333/4"
  }
 ]
