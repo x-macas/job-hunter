@@ -17,12 +17,16 @@ def all_boards(s: dict) -> list[dict]:
     return boards.default_boards() + boards.boards_from_setting(s["extra_boards"])
 
 
-def fetch_all(s: dict, log=print, only_boards: list[dict] | None = None) -> list[RawJob]:
-    """Download jobs from every source. A source that fails is skipped, not fatal."""
+def fetch_all(s: dict, log=print, only_boards: list[dict] | None = None, quick: bool = False) -> list[RawJob]:
+    """Download jobs from every source. A source that fails is skipped, not fatal.
+
+    quick=True is the 30-minute check: company boards and careers sites only
+    (newest jobs), no general job sites, which ask for only a few calls a day."""
     tasks = [(f"{b['name']} ({b['ats']})", boards.fetch_board, (b,))
              for b in (only_boards if only_boards is not None else all_boards(s))]
     if only_boards is None:
-        tasks += [(f"{p['name']} careers", portals.fetch_portal, (p,)) for p in portals.default_portals()]
+        tasks += [(f"{p['name']} careers", portals.fetch_portal, (p, quick)) for p in portals.default_portals()]
+    if only_boards is None and not quick:
         tasks += [("Remotive", job_sites.remotive, ()), ("Remote OK", job_sites.remoteok, ()),
                   ("Hacker News", job_sites.hn_who_is_hiring, ())]
         keys = job_sites.load_adzuna_keys(SECRETS_DIR)

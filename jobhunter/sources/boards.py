@@ -1,14 +1,17 @@
-"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable. All have free public feeds."""
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite.
+The first five have free public feeds; Jobvite is a plain public web page."""
 
+import html
 import json
+import re
 from pathlib import Path
 
 from .. import parse
 from . import RawJob
-from .http import fetch_json
+from .http import fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
-ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable")
+ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite")
 
 
 def default_boards() -> list[dict]:
@@ -38,6 +41,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _smartrecruiters(slug, name)
     if ats == "workable":
         return _workable(slug, name)
+    if ats == "jobvite":
+        return _jobvite(slug, name)
     return []
 
 
@@ -159,5 +164,41 @@ def _workable(slug, name):
             remote=remote, description=parse.html_to_text(j.get("description")),
             posted_at=parse.iso_to_ts(j.get("published_on") or j.get("created_at")),
             job_type=parse.job_type_from(j.get("title", ""), j.get("employment_type") or ""),
+        ))
+    return jobs
+
+
+# ---------- Jobvite (public HTML list) ----------
+
+_JV_ROW = re.compile(r'<td class="jv-job-list-name">\s*<a href="([^"]+)">(.*?)</a>.*?'
+                     r'<td class="jv-job-list-location">(.*?)</td>', re.S)
+_DEV_TITLE = re.compile(r"engineer|developer|sde|software|programmer", re.I)
+
+
+def _clean(s: str) -> str:
+    return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", s))).strip(" ,")
+
+
+def _jobvite(slug, name):
+    page = fetch_bytes(f"https://jobs.jobvite.com/{slug}/jobs").decode("utf-8", "ignore")
+    jobs, lookups = [], 0
+    for href, title, loc in _JV_ROW.findall(page):
+        title, loc = _clean(title), _clean(loc)
+        url = "https://jobs.jobvite.com" + href
+        # "5 Locations": open the post to see them, but only for dev titles and only a few
+        if re.fullmatch(r"\d+ Locations", loc) and _DEV_TITLE.search(title) and lookups < 25:
+            lookups += 1
+            try:
+                post = fetch_bytes(url).decode("utf-8", "ignore")
+                m = re.search(r'<p class="jv-job-detail-meta">(.*?)</p>', post, re.S)
+                if m:
+                    parts = [_clean(x) for x in re.split(r"<span[^>]*jv-inline-separator[^>]*>\s*</span>", m.group(1))]
+                    loc = "; ".join(x for x in parts[1:] if x and x != "NA, NA") or loc
+            except Exception:
+                pass
+        jobs.append(RawJob(
+            source="jobvite", source_id=f"{slug}:{href.rsplit('/', 1)[-1]}", source_name=f"{name} careers",
+            company=name, title=title, url=url, location=loc,
+            job_type=parse.job_type_from(title),
         ))
     return jobs

@@ -68,7 +68,7 @@ SETTINGS = [
             min=50, max=200),
 
     # Companies
-    Setting("big_companies", "Big companies (₹15 LPA+ for freshers)", "Companies", "list", [
+    Setting("big_companies", "Good companies (most pay freshers ₹15 LPA+)", "Companies", "list", [
         # Big tech and product companies
         "Google", "Microsoft", "Amazon", "Apple", "Meta", "Netflix", "Adobe", "Salesforce",
         "Oracle", "SAP", "SAP Labs", "Atlassian", "Uber", "LinkedIn", "Intuit", "PayPal", "ServiceNow",
@@ -124,6 +124,25 @@ SETTINGS = [
         "Classplus", "Teachmint", "Testbook", "Simplilearn", "Turing", "Toplyne", "Atomicwork",
         "Composio", "LambdaTest", "Testsigma", "DeepSource", "Appsmith", "ToolJet", "SpotDraft",
         "Deel", "Multiplier", "Skuad",
+        # Health tech, banks, GCCs and others added on 2026-11-27 (pay is roughly 12-20 LPA; check each job)
+        "Optum", "UnitedHealth Group", "ModMed", "Athenahealth", "eClinicalWorks", "McKesson",
+        "Carelon", "Evernorth", "CVS Health", "Veradigm", "Medtronic", "Abbott", "Becton Dickinson",
+        "Thermo Fisher Scientific", "Stryker", "Komodo Health", "Qure.ai", "Wolters Kluwer",
+        "Elsevier", "Novartis", "AstraZeneca", "Sanofi", "Eli Lilly", "Amgen", "MSD", "Zenoti",
+        "Pristyn Care", "MediBuddy", "Veeva Systems", "Bank of America", "Capital One", "Synchrony",
+        "Fiserv", "FIS", "Discover Financial", "Macquarie", "Nasdaq", "Intercontinental Exchange",
+        "CME Group", "Broadridge", "Morningstar", "FactSet", "Clearwater Analytics", "Addepar",
+        "Franklin Templeton", "Swiss Re", "Chubb", "Travelers", "Guidewire", "Verisk", "Angel One",
+        "KreditBee", "Moneyview", "OneCard", "Easebuzz", "Uni Cards", "Fibe", "Netskope", "Sumo Logic",
+        "Infoblox", "Gainsight", "Automation Anywhere", "DocuSign", "Zoom", "Glean", "Sprinto",
+        "Zluri", "Plivo", "Exotel", "Locus", "Shipsy", "FarEye", "Tally Solutions", "Highspot",
+        "Extreme Networks", "Veeam", "Qualys", "Sophos", "Trellix", "Tenable", "Barracuda", "Cloudera",
+        "Teradata", "Informatica", "Alteryx", "MicroStrategy", "Amagi", "Leena AI", "Unbxd", "Vue.ai",
+        "Fyle", "Hiver", "Yubi", "Rambus", "Silicon Labs", "onsemi", "SiFive", "Tenstorrent",
+        "Ampere Computing", "Lattice Semiconductor", "JioStar", "Times Internet", "Winzo", "Zupee",
+        "Zetwerk", "Infra.Market", "OfBusiness", "Moglix", "Jumbotail", "BlackBuck", "FreshToHome",
+        "Country Delight", "Mercari", "Sainsbury's", "Marks and Spencer", "Nike", "Lululemon",
+        "Albertsons", "eBay", "Electronic Arts", "Take-Two Interactive",
     ], "One per line. They get a score boost, saved spots, and any job type. Pay changes yearly: edit freely."),
     Setting("big_company_boost", "Score boost for big companies", "Companies", "int", 15,
             min=0, max=50),
@@ -137,8 +156,15 @@ SETTINGS = [
             "One per line, like: greenhouse:companyslug Company Name (also lever:, ashby:, smartrecruiters:, workable:)."),
     Setting("watch_list", "Watch list (instant alert)", "Companies", "list", [],
             "One per line. New matching jobs here send a Telegram alert right away."),
-    Setting("watch_interval_minutes", "Check watch list every (minutes)", "Companies", "int",
-            30, min=15, max=720),
+    Setting("watch_interval_minutes", "Check company sites for new jobs every (minutes)", "Companies", "int",
+            30, min=15, max=720,
+            help="Reads the newest jobs on every company site and sends a Telegram alert for new ones that fit."),
+    Setting("alerts_per_check", "Most job alerts per check", "Companies", "int", 8, min=0, max=30,
+            help="If more new jobs fit, you get one line saying how many more are on the website."),
+    Setting("alert_min_score", "Only alert for jobs scoring at least", "Companies", "int", 45, min=0, max=100,
+            help="Jobs below this still show on the website; they just don't send a Telegram message."),
+    Setting("alert_max_age_days", "Only alert for jobs posted in the last (days)", "Companies", "int",
+            2, min=1, max=7),
 
     # Emails
     Setting("email_daily_cap", "Most emails per day", "Emails", "int", 15, min=0, max=40),

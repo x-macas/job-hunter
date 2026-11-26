@@ -548,5 +548,45 @@
   "ats": "greenhouse",
   "slug": "zuora",
   "name": "Zuora"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "razorpaysoftwareprivatelimited",
+  "name": "Razorpay"
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "CheckPointSoftwareTechnologies2",
+  "name": "Check Point"
+ },
+ {
+  "ats": "workable",
+  "slug": "trexquant",
+  "name": "Trexquant"
+ },
+ {
+  "ats": "jobvite",
+  "slug": "nutanix",
+  "name": "Nutanix"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "komodohealth",
+  "name": "Komodo Health"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "zenoti",
+  "name": "Zenoti"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "tenstorrent",
+  "name": "Tenstorrent"
+ },
+ {
+  "ats": "ashby",
+  "slug": "sophos",
+  "name": "Sophos"
  }
 ]

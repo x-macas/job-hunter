@@ -2,6 +2,7 @@
 
     python -m jobhunter.worker tick     # what the timer runs every 15 minutes
     python -m jobhunter.worker daily    # collect + rules + score + today's list, now
+    python -m jobhunter.worker quick    # newest jobs on every company site + alerts, now
     python -m jobhunter.worker watch    # check watch-list companies, now
     python -m jobhunter.worker refresh  # re-run rules, scoring and list on saved jobs (no download)
     python -m jobhunter.worker status   # when things last ran
@@ -9,11 +10,14 @@
 'tick' decides what is due:
 - the daily run: once a day, the first tick after the hour in Settings (9 AM),
   so it runs at 9 if the laptop is on, or right after you switch it on later.
-- the watch-list check: every N minutes (Settings, at least 15).
+- the quick check: every N minutes (Settings, at least 15). It reads the newest
+  jobs on every company site and sends a Telegram alert for new ones that fit.
+  Watch-list companies are company sites too, so they are covered by it.
 Nothing runs while the emergency stop is on.
 """
 
 import fcntl
+import json
 import sys
 import time
 from datetime import date, datetime
@@ -121,6 +125,68 @@ def watch(conn, s) -> str:
     return msg
 
 
+def quick(conn, s, now: float | None = None) -> str:
+    """The 30-minute check: newest jobs on every company site, alert the new ones that fit.
+
+    To avoid a flood, a job is alerted only if
+    - it is new since the last check and passes your rules,
+    - its site was already known before (a site just added doesn't alert its whole list),
+    - it was posted in the last few days (Settings), when the site says so,
+    - Claude didn't drop it (too senior, not a dev role, bond...) and it scores
+      at least the alert bar in Settings, if it was scored."""
+    now = now or time.time()
+    _mark(conn, "quick", started=now)
+    known = {(r[0], r[1]) for r in conn.execute(
+        "SELECT DISTINCT source, company FROM jobs WHERE first_seen < ?", (now,))}
+    jobs = collect.fetch_all(s, log=_log, quick=True)
+    new = collect.save(conn, jobs, s, now=now)
+    collect.apply_rules(conn, s, log=_log, now=now)
+    if new:
+        scoring.score_pending(conn, s, limit=20, log=_log)
+    oldest = now - s["alert_max_age_days"] * 86400
+    fits = []
+    for i in new:
+        job = conn.execute("SELECT * FROM jobs WHERE id = ?", (i,)).fetchone()
+        if not job or not job["rule_ok"] or job["alerted"] or (job["source"], job["company"]) not in known:
+            continue
+        if job["posted_at"] and job["posted_at"] < oldest:
+            continue
+        if job["ai_score"] is not None:
+            score, _tags = ranking.final_score(job, json.loads(job["ai_json"] or "{}"), s, now)
+            if score is None or job["ai_score"] < s["alert_min_score"]:
+                continue
+        fits.append(job)
+    fits.sort(key=lambda j: -(j["ai_score"] or 0))
+    alerts = 0
+    for job in fits[:s["alerts_per_check"]]:
+        score = f" (score {job['ai_score']})" if job["ai_score"] is not None else ""
+        try:
+            sent = telegram.send(f"New job{score}: {job['title']} at {job['company']}\n"
+                                 f"{job['location']}\n{job['url']}")
+        except telegram.TelegramError as e:
+            activity.log(conn, "alert", f"Telegram failed: {e}")
+            break
+        conn.execute("UPDATE jobs SET alerted = 1 WHERE id = ?", (job["id"],))
+        conn.commit()
+        if sent:
+            alerts += 1
+            activity.log(conn, "alert", f"Telegram: new job {job['title']} at {job['company']}.")
+    extra = fits[s["alerts_per_check"]:]
+    if extra and alerts:
+        try:
+            telegram.send(f"{len(extra)} more new jobs fit. They're on the website.")
+        except telegram.TelegramError:
+            pass
+    for job in extra:
+        conn.execute("UPDATE jobs SET alerted = 1 WHERE id = ?", (job["id"],))
+    conn.commit()
+    if new:
+        ranking.pick_today(conn, s)
+    msg = f"Quick check: {len(jobs)} jobs read, {len(new)} new, {len(fits)} fit, {alerts} alerts."
+    _mark(conn, "quick", ok=True, message=msg)
+    return msg
+
+
 def refresh(conn, s) -> str:
     """Re-run rules, scoring and today's list on saved jobs. No downloading."""
     collect.apply_rules(conn, s, log=_log)
@@ -140,10 +206,11 @@ def tick(conn, s) -> None:
     recently_tried = d and d["last_started"] and now - d["last_started"] < RETRY_AFTER
     if hour >= s["run_after_hour"] and not done_today and not recently_tried:
         _log(daily(conn, s))
+        return  # the daily run just read everything; the quick check can wait
 
-    w = _run_row(conn, "watch")
-    if not w or not w["last_started"] or now - w["last_started"] >= s["watch_interval_minutes"] * 60:
-        _log(watch(conn, s))
+    q = _run_row(conn, "quick")
+    if not q or not q["last_started"] or now - q["last_started"] >= s["watch_interval_minutes"] * 60 - 60:
+        _log(quick(conn, s))
 
 
 def main(argv: list[str]) -> int:
@@ -172,6 +239,8 @@ def main(argv: list[str]) -> int:
             tick(conn, s)
         elif command == "daily":
             _log(daily(conn, s))
+        elif command == "quick":
+            _log(quick(conn, s))
         elif command == "watch":
             _log(watch(conn, s))
         elif command == "refresh":

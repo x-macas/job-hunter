@@ -34,10 +34,14 @@ Later: Playwright, Gmail API.
 
 ## Job sources
 
-- 110 company job boards (Greenhouse, Lever, Ashby, SmartRecruiters, Workable)
-- 45 big-company careers sites read directly (Amazon, Atlassian, JPMorgan, Oracle, and 41 on Workday
-  such as Walmart, Salesforce, Nvidia, Adobe, Micron, Target, BlackRock). India-only searches, once a day,
-  at most 3 requests at a time, with polite retries. Sites that block automated reading are left alone.
+- 118 company job boards (Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite)
+- 84 big-company careers sites read directly: Workday (Walmart, Salesforce, Citi, Nvidia, Adobe, ModMed,
+  Medtronic, Amgen...), Oracle Recruiting (JPMorgan, Oracle, Uber, BNY...), Amazon and Atlassian.
+  India-only searches, at most 3 requests at a time, with polite retries.
+- **Every 30 minutes** a quick check reads the newest jobs on every company site and sends a
+  Telegram alert for new ones that fit. The full lists are read once each morning.
+- Sites whose robots.txt says no, or that refuse plain requests or use a bot check, are left alone.
+  For those companies the plan is their own email job alerts (read through Gmail).
 - Remotive and Remote OK (each job links back to them, checked at most a few times a day)
 - Hacker News "Who is hiring?"
 - Adzuna India (free key)

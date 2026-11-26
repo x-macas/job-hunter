@@ -305,5 +305,271 @@
   "host": "lseg.wd3.myworkdayjobs.com",
   "tenant": "lseg",
   "site": "Graduate_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Palo Alto Networks",
+  "host": "paloaltonetworks.wd5.myworkdayjobs.com",
+  "tenant": "paloaltonetworks",
+  "site": "panwexternalcareers"
+ },
+ {
+  "type": "workday",
+  "name": "F5",
+  "host": "ffive.wd5.myworkdayjobs.com",
+  "tenant": "ffive",
+  "site": "f5jobs"
+ },
+ {
+  "type": "workday",
+  "name": "Citrix",
+  "host": "tibco.wd5.myworkdayjobs.com",
+  "tenant": "tibco",
+  "site": "Cloud_Software_Group"
+ },
+ {
+  "type": "workday",
+  "name": "Uniphore",
+  "host": "uniphore.wd503.myworkdayjobs.com",
+  "tenant": "uniphore",
+  "site": "Uniphore"
+ },
+ {
+  "type": "workday",
+  "name": "Amadeus",
+  "host": "amadeus.wd502.myworkdayjobs.com",
+  "tenant": "amadeus",
+  "site": "jobs"
+ },
+ {
+  "type": "workday",
+  "name": "Analog Devices",
+  "host": "analogdevices.wd1.myworkdayjobs.com",
+  "tenant": "analogdevices",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Lloyds Banking Group",
+  "host": "lbg.wd3.myworkdayjobs.com",
+  "tenant": "lbg",
+  "site": "LBG_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Northern Trust",
+  "host": "ntrs.wd1.myworkdayjobs.com",
+  "tenant": "ntrs",
+  "site": "northerntrust"
+ },
+ {
+  "type": "workday",
+  "name": "Invesco",
+  "host": "invesco.wd1.myworkdayjobs.com",
+  "tenant": "invesco",
+  "site": "IVZ"
+ },
+ {
+  "type": "workday",
+  "name": "Citi",
+  "host": "citi.wd5.myworkdayjobs.com",
+  "tenant": "citi",
+  "site": "2"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Uber",
+  "host": "iaziqy.fa.ocs.oraclecloud.com",
+  "site": "UberCareers"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Fortinet",
+  "host": "edel.fa.us2.oraclecloud.com",
+  "site": "CX_2001"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Icertis",
+  "host": "iaaviz.fa.ocs.oraclecloud.com",
+  "site": "Jobs"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "BNY",
+  "host": "eofe.fa.us2.oraclecloud.com",
+  "site": "BNY"
+ },
+ {
+  "type": "workday",
+  "name": "Philips",
+  "host": "philips.wd3.myworkdayjobs.com",
+  "tenant": "philips",
+  "site": "jobs-and-careers"
+ },
+ {
+  "type": "workday",
+  "name": "GE HealthCare",
+  "host": "gehc.wd5.myworkdayjobs.com",
+  "tenant": "gehc",
+  "site": "GEHC_ExternalSite"
+ },
+ {
+  "type": "workday",
+  "name": "ModMed",
+  "host": "modmed.wd501.myworkdayjobs.com",
+  "tenant": "modmed",
+  "site": "ModMed12"
+ },
+ {
+  "type": "workday",
+  "name": "Medtronic",
+  "host": "medtronic.wd1.myworkdayjobs.com",
+  "tenant": "medtronic",
+  "site": "MedtronicCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Abbott",
+  "host": "abbott.wd5.myworkdayjobs.com",
+  "tenant": "abbott",
+  "site": "abbottcareers"
+ },
+ {
+  "type": "workday",
+  "name": "Stryker",
+  "host": "stryker.wd1.myworkdayjobs.com",
+  "tenant": "stryker",
+  "site": "StrykerCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Wolters Kluwer",
+  "host": "wk.wd3.myworkdayjobs.com",
+  "tenant": "wk",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Elsevier",
+  "host": "relx.wd3.myworkdayjobs.com",
+  "tenant": "relx",
+  "site": "ElsevierJobs"
+ },
+ {
+  "type": "workday",
+  "name": "Nasdaq",
+  "host": "nasdaq.wd1.myworkdayjobs.com",
+  "tenant": "nasdaq",
+  "site": "Global_External_Site"
+ },
+ {
+  "type": "workday",
+  "name": "CME Group",
+  "host": "cmegroup.wd1.myworkdayjobs.com",
+  "tenant": "cmegroup",
+  "site": "cme_careers"
+ },
+ {
+  "type": "workday",
+  "name": "Broadridge",
+  "host": "broadridge.wd5.myworkdayjobs.com",
+  "tenant": "broadridge",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Extreme Networks",
+  "host": "extremenetworks.wd503.myworkdayjobs.com",
+  "tenant": "extremenetworks",
+  "site": "Extreme_Networks"
+ },
+ {
+  "type": "workday",
+  "name": "Qualys",
+  "host": "qualys.wd5.myworkdayjobs.com",
+  "tenant": "qualys",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Cloudera",
+  "host": "cloudera.wd5.myworkdayjobs.com",
+  "tenant": "cloudera",
+  "site": "External_Career"
+ },
+ {
+  "type": "workday",
+  "name": "Alteryx",
+  "host": "alteryx.wd108.myworkdayjobs.com",
+  "tenant": "alteryx",
+  "site": "AlteryxCareers"
+ },
+ {
+  "type": "workday",
+  "name": "SiFive",
+  "host": "sifive.wd1.myworkdayjobs.com",
+  "tenant": "sifive",
+  "site": "sifivecareers"
+ },
+ {
+  "type": "workday",
+  "name": "Nike",
+  "host": "nike.wd1.myworkdayjobs.com",
+  "tenant": "nike",
+  "site": "nke"
+ },
+ {
+  "type": "workday",
+  "name": "Amgen",
+  "host": "amgen.wd1.myworkdayjobs.com",
+  "tenant": "amgen",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "MSD",
+  "host": "msd.wd5.myworkdayjobs.com",
+  "tenant": "msd",
+  "site": "SearchJobs"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Verisk",
+  "host": "fa-ewmy-saasfaprod1.fa.ocs.oraclecloud.com",
+  "site": "CX_1"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Infoblox",
+  "host": "efpv.fa.us6.oraclecloud.com",
+  "site": "CX_1"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "onsemi",
+  "host": "hctz.fa.us2.oraclecloud.com",
+  "site": "CX_1001"
+ },
+ {
+  "type": "workday",
+  "name": "Athenahealth",
+  "host": "athenahealth.wd1.myworkdayjobs.com",
+  "tenant": "athenahealth",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Fiserv",
+  "host": "fiserv.wd5.myworkdayjobs.com",
+  "tenant": "fiserv",
+  "site": "EXT"
+ },
+ {
+  "type": "workday",
+  "name": "Evernorth",
+  "host": "cigna.wd5.myworkdayjobs.com",
+  "tenant": "cigna",
+  "site": "cignacareers"
  }
 ]
