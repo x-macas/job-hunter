@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ item.name }}: what's new{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <h1>{{ item.name }}: what's new</h1>
+  <a class="btn" href="{{ url_for('pages.check') }}#c-{{ item.slug }}">Back to Check</a>
+</div>
+
+{% if last %}
+<section class="card">
+  {% if last.prev_ts is none %}
+  <h2>First paste saved</h2>
+  <p>Found {{ last.total }} job title{{ '' if last.total == 1 else 's' }} on the page. Next time you paste, only the
+    ones that weren't there today will show here.</p>
+  {% else %}
+  <h2>{{ last.new | length }} new since your paste on {{ last.prev_ts | when }}</h2>
+  <p class="small muted">Pasted {{ last.total }} job titles. These weren't on the page last time:</p>
+  {% if last.new %}
+  <ul class="newjobs">
+    {% for j in last.new %}
+    <li>
+      <strong>{{ j.title }}</strong>
+      {% if j.fits %}<span class="chip chip-new">Fits</span>{% endif %}
+      <span class="small muted">{{ j.near }}{% if not j.fits and j.reason %} · {{ j.reason }}{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  <p class="small muted">Search for a title on the careers site to open the job.</p>
+  {% else %}
+  <p class="muted">Nothing new.</p>
+  {% endif %}
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="card gap-top">
+  <h2>Paste the page</h2>
+  <ol class="narrowtext">
+    <li><a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">Open {{ item.name }}'s careers site</a>,
+      search for software jobs in India, and sort by newest if it lets you.</li>
+    <li>Press Ctrl+A, then Ctrl+C, to copy the whole page.</li>
+    <li>Paste it below. Do the same search each time, so the lists match.</li>
+  </ol>
+  <form method="post">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <textarea name="page" rows="10" aria-label="Page text from {{ item.name }}'s careers site" required></textarea>
+    <button class="btn pri">Show what's new</button>
+  </form>
+  <p class="small muted">Only the job titles are kept, nothing else from the page. Pasting also ticks this company
+    for today.</p>
+</section>
+{% endblock %}

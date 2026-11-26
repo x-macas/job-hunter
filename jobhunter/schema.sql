@@ -97,3 +97,13 @@ CREATE TABLE IF NOT EXISTS hand_checks (
     ts       REAL NOT NULL,
     PRIMARY KEY (day, company)
 );
+
+-- Check page, "paste the page": the job titles seen on a company's careers page
+-- the last time you pasted it, so the next paste shows only the new ones.
+CREATE TABLE IF NOT EXISTS pasted_pages (
+    company   TEXT PRIMARY KEY,
+    titles    TEXT NOT NULL,          -- JSON {title: how many times}
+    ts        REAL NOT NULL,          -- when you pasted it
+    prev_ts   REAL,                   -- the paste before that
+    last_new  TEXT NOT NULL DEFAULT '[]'  -- JSON list of what was new this time
+);

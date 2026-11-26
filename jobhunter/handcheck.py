@@ -50,6 +50,8 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         return "https://www.amazon.jobs/en/search?base_query=software&country=IND&sort=recent"
     if kind == "atlassian":
         return "https://www.atlassian.com/company/careers/all-jobs"
+    if kind == "sitemap":
+        return src["page"]
     return {
         "greenhouse": f"https://job-boards.greenhouse.io/{slug}",
         "lever": f"https://jobs.lever.co/{slug}",
@@ -62,6 +64,11 @@ def source_url(src: dict, facets: dict | None = None) -> str:
 
 def slug(name: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "-", name)
+
+
+def _same(src: dict, name: str) -> bool:
+    names = [src["name"]] + src.get("also", [])
+    return rules.name_in(name, names) or any(rules.name_in(n, [name]) for n in names)
 
 
 def _search_url(company: str) -> str:
@@ -78,7 +85,7 @@ def build(s: dict) -> dict:
     for name in dict.fromkeys(s["big_companies"] + s["watch_list"]):
         if not name.strip():
             continue
-        srcs = [x for x in sources if rules.name_in(x["name"], [name]) or rules.name_in(name, [x["name"]])]
+        srcs = [x for x in sources if _same(x, name)]
         item = {"name": name, "slug": slug(name), "watch": name in s["watch_list"]}
         if srcs:
             item["url"] = source_url(srcs[0], facets)
@@ -139,9 +146,68 @@ def new_today(conn, s: dict, now: float | None = None, hours: int = 24) -> list[
     sources = boards.default_boards() + boards.boards_from_setting(s["extra_boards"]) + portals.default_portals()
     facets = portals.saved_facets()
     for g in groups.values():
-        src = next((x for x in sources if rules.name_in(x["name"], [g["name"]])
-                    or rules.name_in(g["name"], [x["name"]])), None)
+        src = next((x for x in sources if _same(x, g["name"])), None)
         g["url"] = source_url(src, facets) if src else None
         g["dev"].sort(key=lambda r: (not r["rule_ok"], -(r["posted_at"] or r["first_seen"])))
     return sorted((g for g in groups.values() if g["dev"]),
                   key=lambda g: (-g["fits"], -len(g["dev"]), g["name"].lower()))
+
+
+# ---------- "Paste the page" for sites we can't read ----------
+
+PASTE_MAX_CHARS = 1_000_000
+_COUNT = re.compile(r"\s*\(\d[\d,]*\)\s*$")   # "Software Engineering (120)" in a filter menu
+
+
+def page_titles(text: str, s: dict) -> list[tuple[str, str]]:
+    """(title, the line after it) for every line of pasted page text that looks like a job title."""
+    lines = [" ".join(x.split()) for x in text[:PASTE_MAX_CHARS].splitlines()]
+    lines = [_COUNT.sub("", x) for x in lines if x.strip()]
+    out = []
+    for i, line in enumerate(lines):
+        if 4 <= len(line) <= 120 and rules.is_role(line, s):
+            out.append((line, lines[i + 1][:100] if i + 1 < len(lines) else ""))
+    return out
+
+
+def paste(conn, s: dict, company: str, text: str, now: float | None = None) -> None:
+    """Save this paste and work out which job titles are new since the last one.
+    Titles are counted, so a second 'Software Engineer' job shows up as new too."""
+    now = now or time.time()
+    found = page_titles(text, s)
+    counts: dict[str, int] = {}
+    for title, _ in found:
+        counts[title] = counts.get(title, 0) + 1
+    row = conn.execute("SELECT * FROM pasted_pages WHERE company = ?", (company,)).fetchone()
+    new = []
+    if row:
+        before = dict(json.loads(row["titles"]))
+        for title, near in found:
+            if before.get(title, 0) > 0:
+                before[title] -= 1
+                continue
+            ok, reason = rules.title_check(title, s)
+            new.append({"title": title, "near": near, "fits": ok, "reason": reason})
+    conn.execute(
+        "INSERT INTO pasted_pages (company, titles, ts, prev_ts, last_new) VALUES (?, ?, ?, ?, ?) "
+        "ON CONFLICT(company) DO UPDATE SET titles = excluded.titles, ts = excluded.ts, "
+        "prev_ts = excluded.prev_ts, last_new = excluded.last_new",
+        (company, json.dumps(counts), now, row["ts"] if row else None, json.dumps(new)))
+    conn.commit()
+    if row is not None or found:
+        mark(conn, company, True)
+
+
+def last_paste(conn, company: str) -> dict | None:
+    row = conn.execute("SELECT * FROM pasted_pages WHERE company = ?", (company,)).fetchone()
+    if not row:
+        return None
+    titles = json.loads(row["titles"])
+    return {"ts": row["ts"], "prev_ts": row["prev_ts"], "total": sum(titles.values()),
+            "new": json.loads(row["last_new"])}
+
+
+def find(s: dict, company_slug: str) -> dict | None:
+    """The Check page entry for this slug, from the companies checked by hand."""
+    g = build(s)
+    return next((i for i in g["first"] + g["later"] if i["slug"] == company_slug), None)

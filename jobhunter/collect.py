@@ -25,7 +25,9 @@ def fetch_all(s: dict, log=print, only_boards: list[dict] | None = None, quick: 
     tasks = [(f"{b['name']} ({b['ats']})", boards.fetch_board, (b,))
              for b in (only_boards if only_boards is not None else all_boards(s))]
     if only_boards is None:
-        tasks += [(f"{p['name']} careers", portals.fetch_portal, (p, quick)) for p in portals.default_portals()]
+        # Sitemaps are whole job lists, so they're read only every few hours (Settings).
+        tasks += [(f"{p['name']} careers", portals.fetch_portal, (p, quick)) for p in portals.default_portals()
+                  if p["type"] != "sitemap" or portals.sitemap_due(p, s["sitemap_hours"])]
     if only_boards is None and not quick:
         tasks += [("Remotive", job_sites.remotive, ()), ("Remote OK", job_sites.remoteok, ()),
                   ("Hacker News", job_sites.hn_who_is_hiring, ())]

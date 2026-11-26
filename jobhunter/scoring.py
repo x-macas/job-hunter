@@ -86,7 +86,7 @@ Recent jobs the candidate skipped, and why (learn from these):
 
 
 def _job_block(job) -> str:
-    desc = (job["description"] or "")[:MAX_JOB_CHARS]
+    desc = (job["description"] or "")[:MAX_JOB_CHARS] or "(Only the title and city are known for this job.)"
     return (
         f'<job id="{job["id"]}">\nTitle: {job["title"]}\nCompany: {job["company"]}\n'
         f"Location: {job['location']}\nPay: {job['salary_text'] or 'not listed'}\n\n{desc}\n</job>"

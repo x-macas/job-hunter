@@ -40,8 +40,12 @@ Later: Playwright, Gmail API.
   India-only searches, at most 3 requests at a time, with polite retries.
 - **Every 30 minutes** a quick check reads the newest jobs on every company site and sends a
   Telegram alert for new ones that fit. The full lists are read once each morning.
-- Sites whose robots.txt says no, or that refuse plain requests or use a bot check, are left alone.
-  For those companies the plan is their own email job alerts (read through Gmail).
+- 7 companies whose job search asks bots to stay away, but whose robots.txt points to a sitemap
+  (a plain list of every job page): Optum, Arm, NetApp, Moody's, Nomura, Standard Chartered, Swiss Re.
+  Only the sitemap is read, every 12 hours. The title and city come from each link, and a link that
+  wasn't there before is a new job. Our own robots.txt reader checks every link first.
+- Sites that refuse plain requests or use a bot check are left alone. On the Check page you can
+  paste such a site's job list and see only the titles that are new since your last paste.
 - Remotive and Remote OK (each job links back to them, checked at most a few times a day)
 - Hacker News "Who is hiring?"
 - Adzuna India (free key)

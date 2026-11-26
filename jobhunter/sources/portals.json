@@ -690,5 +690,64 @@
   "host": "jiostar.wd102.myworkdayjobs.com",
   "tenant": "jiostar",
   "site": "Jiostar"
+ },
+ {
+  "type": "sitemap",
+  "name": "Optum",
+  "host": "careers.unitedhealthgroup.com",
+  "sitemap": "https://careers.unitedhealthgroup.com/sitemap.xml",
+  "style": "talentbrew",
+  "page": "https://careers.unitedhealthgroup.com/",
+  "also": [
+   "UnitedHealth Group"
+  ]
+ },
+ {
+  "type": "sitemap",
+  "name": "Arm",
+  "host": "careers.arm.com",
+  "sitemap": "https://careers.arm.com/sitemap.xml",
+  "style": "talentbrew",
+  "page": "https://careers.arm.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "NetApp",
+  "host": "careers.netapp.com",
+  "sitemap": "https://careers.netapp.com/sitemap.xml",
+  "style": "talentbrew",
+  "page": "https://careers.netapp.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Moody's",
+  "host": "careers.moodys.com",
+  "sitemap": "https://careers.moodys.com/sitemap.xml",
+  "style": "talentbrew",
+  "page": "https://careers.moodys.com/en"
+ },
+ {
+  "type": "sitemap",
+  "name": "Nomura",
+  "host": "careers.nomura.com",
+  "sitemap": "https://careers.nomura.com/sitemap.xml",
+  "style": "rmk",
+  "page": "https://careers.nomura.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Standard Chartered",
+  "host": "jobs.standardchartered.com",
+  "sitemap": "https://jobs.standardchartered.com/sitemap.xml",
+  "style": "rmk",
+  "page": "https://jobs.standardchartered.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Swiss Re",
+  "host": "careers.swissre.com",
+  "sitemap": "https://careers.swissre.com/sitemap.xml",
+  "style": "rmk",
+  "page": "https://careers.swissre.com/"
  }
 ]

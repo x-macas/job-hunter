@@ -18,6 +18,7 @@
   </div>
   <div class="checklinks">
     <a class="btn" href="{{ i.url }}" target="_blank" rel="noopener noreferrer">{{ 'Find careers site' if i.guessed else 'Careers site' }}</a>
+    {% if tick %}<a class="btn" href="{{ url_for('pages.check_paste', company_slug=i.slug) }}">Paste page, see what's new</a>{% endif %}
   </div>
 </li>
 {% endmacro %}
@@ -61,7 +62,8 @@
 </div>
 
 <p class="muted narrowtext">The website can't read these companies' sites: they block automated reading or ask bots
-  to stay away. Open each careers site once a day (it opens newest first where the site allows it), then tick it.</p>
+  to stay away. Open each careers site once a day and tick it. To skip the jobs you've already seen, copy the
+  site's job list and use "Paste page, see what's new": it shows only the titles that weren't there last time.</p>
 
 <section class="card">
   <h2>Check every day ({{ groups.first | length }})</h2>

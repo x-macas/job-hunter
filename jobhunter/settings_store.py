@@ -167,6 +167,10 @@ SETTINGS = [
             help="Sent at the evening nudge time if some companies on the Check page aren't ticked yet."),
     Setting("alert_max_age_days", "Only alert for jobs posted in the last (days)", "Companies", "int",
             2, min=1, max=7),
+    Setting("sitemap_hours", "Read job lists (sitemaps) of companies like Optum and Nomura every (hours)",
+            "Companies", "int", 12, min=4, max=48,
+            help="These sites ask bots to stay off their job search but list every job in a sitemap. "
+                 "It's a big file and the sites update it about once a day, so twice a day is plenty."),
 
     # Emails
     Setting("email_daily_cap", "Most emails per day", "Emails", "int", 15, min=0, max=40),

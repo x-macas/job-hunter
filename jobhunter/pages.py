@@ -61,6 +61,28 @@ def check_tick():
     return redirect(url_for("pages.check") + "#c-" + handcheck.slug(company))
 
 
+@bp.route("/check/paste/<company_slug>", methods=["GET", "POST"])
+def check_paste(company_slug):
+    """For a site we can't read: paste its job list, see only what's new since last time."""
+    from . import handcheck
+    db = get_db()
+    s = settings_store.get_all(db)
+    item = handcheck.find(s, company_slug[:200])
+    if item is None:
+        flash("That company isn't on the Check page.", "error")
+        return redirect(url_for("pages.check"))
+    if request.method == "POST":
+        text = request.form.get("page", "")
+        if len(text) > handcheck.PASTE_MAX_CHARS:
+            flash("That's too much text. Copy just the job list part of the page.", "error")
+        elif not text.strip():
+            flash("The box was empty.", "error")
+        else:
+            handcheck.paste(db, s, item["name"], text)
+        return redirect(url_for("pages.check_paste", company_slug=item["slug"]))
+    return render_template("check_paste.html", item=item, last=handcheck.last_paste(db, item["name"]))
+
+
 @bp.route("/settings", methods=["GET", "POST"])
 def settings():
     db = get_db()

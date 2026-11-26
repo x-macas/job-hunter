@@ -62,6 +62,17 @@ def is_role(title: str, s: dict) -> bool:
     return _word_match(title, s["roles"])
 
 
+def title_check(title: str, s: dict) -> tuple[bool, str]:
+    """The rules that need only the job title."""
+    if not _word_match(title, s["roles"]):
+        return False, "role not in your list"
+    if _word_match(title, s["title_blocklist"]):
+        return False, "title has a hidden word"
+    if s["hide_level_2_plus"] and LEVEL_2_PLUS.search(title):
+        return False, "level II+ title"
+    return True, ""
+
+
 def evaluate(job, s: dict, now: float | None = None) -> tuple[bool, str]:
     """job: a row (or dict) from the jobs table. s: all settings."""
     now = now or time.time()
@@ -72,12 +83,9 @@ def evaluate(job, s: dict, now: float | None = None) -> tuple[bool, str]:
         return False, "blocked company"
     if name_in(company, s["hidden_companies"]):
         return False, "hidden company"
-    if not _word_match(title, s["roles"]):
-        return False, "role not in your list"
-    if _word_match(title, s["title_blocklist"]):
-        return False, "title has a hidden word"
-    if s["hide_level_2_plus"] and LEVEL_2_PLUS.search(title):
-        return False, "level II+ title"
+    ok, reason = title_check(title, s)
+    if not ok:
+        return False, reason
     if not parse.location_ok(job["location"] or "", bool(job["remote"]), s["locations"]):
         return False, "location"
     posted = job["posted_at"]
