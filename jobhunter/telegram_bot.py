@@ -3,6 +3,7 @@
 What you can send it (only from YOUR Telegram account):
   a job link or job text  -> added to today's list and scored
   /today                  -> today's top 5 jobs
+  /goals                  -> today's applications and emails, your streak, drafts waiting
   /stop                   -> emergency stop (pauses everything)
   /resume                 -> turn the stop off
   /help                   -> this list
@@ -21,7 +22,7 @@ from .db import connect, init_db
 
 URL = re.compile(r"https?://\S+")
 HELP = ("Send me a job link (or paste the job text) and I'll add it to today's list.\n"
-        "/today - today's top jobs\n/stop - stop everything\n/resume - start again")
+        "/today - today's top jobs\n/goals - how today is going\n/stop - stop everything\n/resume - start again")
 
 
 def handle(conn, chat_id: int, text: str) -> str | None:
@@ -64,6 +65,15 @@ def handle(conn, chat_id: int, text: str) -> str | None:
         if not rows:
             return "No list yet today."
         return "Today's top jobs:\n" + "\n".join(f"- {r['title']} at {r['company']} ({r['ai_score']})" for r in rows)
+
+    if t == "/goals":
+        from . import outreach, stats, tracker
+        s = settings_store.get_all(conn)
+        drafts = conn.execute("SELECT COUNT(*) FROM emails WHERE status = 'draft'").fetchone()[0]
+        return (f"Today: {tracker.applied_today(conn)} of {s['goal_applications']} applications, "
+                f"{outreach.sent_today(conn)} of {s['goal_emails']} emails.\n"
+                f"Streak: {stats.streak(conn, s['goal_applications'])} days.\n"
+                f"Email drafts waiting in the Outbox: {drafts}.")
 
     if settings_store.get(conn, settings_store.PAUSED_KEY):
         return "Everything is stopped. Send /resume first."

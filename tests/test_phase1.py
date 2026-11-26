@@ -233,6 +233,9 @@ def test_telegram_pairing_and_strangers_ignored(app, tmp_path, monkeypatch):
         assert settings_store.get(db, settings_store.PAUSED_KEY) is False
         assert "Stopped" in telegram_bot.handle(db, 42, "/stop")        # you: works
         assert settings_store.get(db, settings_store.PAUSED_KEY) is True
+        assert telegram_bot.handle(db, 999, "/goals") is None           # stranger: ignored
+        goals = telegram_bot.handle(db, 42, "/goals")
+        assert "0 of 3 applications" in goals and "Streak: 0 days" in goals
 
 
 def test_telegram_code_cancelled_after_10_wrong_tries(app, tmp_path, monkeypatch):
