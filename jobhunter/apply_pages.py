@@ -3,6 +3,7 @@
 from flask import flash, redirect, render_template, request, url_for
 
 from . import activity, ai, answers, cover, settings_store, tracker
+from .auth import safe_next
 from .db import get_db
 from .pages import bp
 
@@ -12,8 +13,9 @@ def _job_or_none(db, job_id):
 
 
 def _back(default):
+    """Back to the page the form came from, only on this website."""
     nxt = request.form.get("next", "")
-    return redirect(nxt if nxt.startswith("/") and not nxt.startswith("//") else default)
+    return redirect(safe_next(nxt) if nxt else default)
 
 
 # ---------- Apply ----------

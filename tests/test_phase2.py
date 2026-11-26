@@ -308,5 +308,8 @@ def test_answer_from_apply_page(logged_in, app):
     assert r.headers["Location"].endswith(path)
     r = logged_in.post("/answers", data={"csrf": csrf_from(logged_in, path), "question": "q", "answer": "a",
                                          "next": "//evil.example/x"})
-    assert r.headers["Location"].endswith("/answers")
+    assert not r.headers["Location"].startswith("//") and "evil" not in r.headers["Location"]
+    r = logged_in.post("/answers", data={"csrf": csrf_from(logged_in, path), "question": "q2", "answer": "a",
+                                         "next": "/\\evil.example/x"})
+    assert "evil" not in r.headers["Location"]
     assert "Applied today: 0 of 3" in logged_in.get("/").get_data(as_text=True)
