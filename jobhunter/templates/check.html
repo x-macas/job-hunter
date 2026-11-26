@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Check by hand{% endblock %}
+{% block title %}Check{% endblock %}
 {% macro row(i, tick) %}
 <li class="checkrow{% if i.name in done %} done{% endif %}" id="c-{{ i.slug }}">
   {% if tick %}
@@ -18,19 +18,44 @@
   </div>
   <div class="checklinks">
     <a class="btn" href="{{ i.url }}" target="_blank" rel="noopener noreferrer">{{ 'Find careers site' if i.guessed else 'Careers site' }}</a>
-    <a class="btn" href="{{ i.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn, last 24 h</a>
   </div>
 </li>
 {% endmacro %}
 {% block content %}
 <div class="pagehead">
-  <h1>Check by hand</h1>
+  <h1>New on careers sites today</h1>
+  <span class="muted">{{ new_jobs }} software job{{ '' if new_jobs == 1 else 's' }} posted in the last 24 hours at {{ new | length }} compan{{ 'y' if new | length == 1 else 'ies' }}</span>
+</div>
+
+<section class="card">
+  <p class="muted small">Straight from each company's own careers site. Jobs marked <span class="chip chip-new">Fits</span>
+    pass your rules; the others show why not. Found one you like? Paste its link on the Today page.</p>
+  {% for g in new %}
+  <div class="newco" id="n-{{ g.slug }}">
+    <h3>{{ g.name }} <span class="chip">{{ g.dev | length }} new</span>{% if g.fits %} <span class="chip chip-new">{{ g.fits }} fit{{ '' if g.fits == 1 else 's' }}</span>{% endif %}</h3>
+    <ul class="newjobs">
+      {% for j in g.dev %}
+      <li>
+        {% if j.url.startswith("http") %}<a href="{{ j.url }}" target="_blank" rel="noopener noreferrer">{{ j.title }}</a>{% else %}{{ j.title }}{% endif %}
+        {% if j.rule_ok %}<span class="chip chip-new">Fits</span>{% endif %}
+        <span class="small muted">{{ j.location or 'India' }} · {% if j.posted_at %}posted {{ j.posted_at | when }}{% else %}found {{ j.first_seen | when }}{% endif %}{% if not j.rule_ok and j.rule_reason %} · {{ j.rule_reason }}{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% if g.other %}<p class="small muted">and {{ g.other }} other new job{{ '' if g.other == 1 else 's' }} that aren't software roles</p>{% endif %}
+  </div>
+  {% else %}
+  <p class="muted">Nothing new in the last 24 hours yet. The website checks every 30 minutes.</p>
+  {% endfor %}
+</section>
+
+<div class="pagehead gap-top">
+  <h2>Check by hand</h2>
   <span class="muted">{% if left %}{{ left }} of {{ groups.first | length }} left for today{% else %}All done for today{% endif %}</span>
 </div>
 
-<p class="muted narrowtext">These companies block automated reading, ask bots to stay away, or aren't readable yet.
-  Open their links once a day, then tick them. "LinkedIn, last 24 h" shows that company's entry-level
-  software jobs in India posted today, newest first. Found one you like? Paste its link on the Today page.</p>
+<p class="muted narrowtext">The website can't read these companies' sites: they block automated reading or ask bots
+  to stay away. Open each careers site once a day (it opens newest first where the site allows it), then tick it.</p>
 
 <section class="card">
   <h2>Check every day ({{ groups.first | length }})</h2>
@@ -43,7 +68,7 @@
 </details>
 
 <details class="card">
-  <summary><h2 class="inline">Read by the website every 30 minutes ({{ groups.auto | length }})</h2> <span class="small">No need to check these; links are here if you want to look</span></summary>
+  <summary><h2 class="inline">Read by the website every 30 minutes ({{ groups.auto | length }})</h2> <span class="small">Their new jobs show at the top of this page; careers links are here too</span></summary>
   <ul class="checklist">{% for i in groups.auto %}{{ row(i, false) }}{% endfor %}</ul>
 </details>
 {% endblock %}

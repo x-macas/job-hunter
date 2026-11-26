@@ -58,7 +58,7 @@ def test_check_page_lists_companies_and_ticks(logged_in):
     page = client.get("/check")
     assert page.status_code == 200
     html = page.get_data(as_text=True)
-    assert "Google" in html and "LinkedIn, last 24 h" in html and "f_TPR=r86400" in html
+    assert "Google" in html and "New on careers sites today" in html and "LinkedIn, last 24 h" not in html and "f_TPR" not in html
     assert "Read by the website" in html
     r = client.post("/check/tick", data={"csrf": csrf_from(client, "/check"), "company": "Google", "done": "1"})
     assert r.status_code == 302
@@ -81,3 +81,28 @@ def test_handcheck_sorts_blocked_first():
     assert [i["name"] for i in g["first"]] == ["Google"]
     assert [i["name"] for i in g["auto"]] == ["Walmart Global Tech"]
     assert [i["name"] for i in g["later"]] == ["Zepto"]
+
+
+def test_new_today_lists_fresh_careers_site_jobs(app):
+    from test_phase1 import settings
+    from jobhunter import handcheck
+    from jobhunter.db import get_db
+    now = time.time()
+    s = settings()
+    with app.app_context():
+        db = get_db()
+        first = raw(1, company="Walmart Global Tech")
+        first.posted_at = now - 5 * 86400
+        collect.save(db, [first], s, now=now - 5 * 86400)          # site known for days
+        fresh = raw(2, company="Walmart Global Tech", title="Software Engineer")
+        fresh.posted_at = None                                        # no date: first seen now
+        not_dev = raw(3, company="Walmart Global Tech", title="Store Manager")
+        not_dev.posted_at = now - 3600
+        newsite = raw(4, company="Brand New Co", title="Software Engineer")
+        newsite.posted_at = None                                      # new site, no date: not "new"
+        collect.save(db, [fresh, not_dev, newsite], s, now=now)
+        collect.apply_rules(db, s, log=lambda m: None, now=now)
+        groups = handcheck.new_today(db, s, now=now + 60)
+        assert [g["name"] for g in groups] == ["Walmart Global Tech"]
+        assert [j["title"] for j in groups[0]["dev"]] == ["Software Engineer"]
+        assert groups[0]["other"] == 1

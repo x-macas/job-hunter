@@ -1,9 +1,12 @@
-"""The Check page: one link per company for today's listings.
+"""The Check page.
 
-Companies whose sites we can't or shouldn't read (they block bots, their robots.txt
+At the top: every job posted on the company careers sites the website reads,
+in the last 24 hours, with a link to the job on the company's own site.
+
+Below that, companies whose sites we can't or shouldn't read (they block bots, their robots.txt
 says no, or we haven't found a readable feed yet) are checked by hand, so they come
-first with a tick box for today. Companies the website reads by itself are listed
-below, with the same links, for when you want to look yourself.
+first with a tick box for today and a link to their careers site (newest first
+where the site allows it in the link).
 """
 
 import json
@@ -13,7 +16,7 @@ import urllib.parse
 from datetime import date
 from pathlib import Path
 
-from . import rules
+from . import parse, rules
 from .sources import boards, portals
 
 LINKS_FILE = Path(__file__).parent / "sources" / "careers_links.json"
@@ -26,16 +29,6 @@ WHY = {
 
 def _links() -> dict:
     return {k.lower(): v for k, v in json.loads(LINKS_FILE.read_text()).items()}
-
-
-def linkedin_url(company: str) -> str:
-    """LinkedIn search: this company, software, India, posted in the last 24 hours,
-    internship + entry level, newest first."""
-    q = urllib.parse.urlencode({
-        "keywords": f"{company} software", "location": "India",
-        "f_TPR": "r86400", "f_E": "1,2", "sortBy": "DD",
-    })
-    return f"https://www.linkedin.com/jobs/search/?{q}"
 
 
 def source_url(src: dict) -> str:
@@ -78,7 +71,7 @@ def build(s: dict) -> dict:
         if not name.strip():
             continue
         srcs = [x for x in sources if rules.name_in(x["name"], [name]) or rules.name_in(name, [x["name"]])]
-        item = {"name": name, "slug": slug(name), "linkedin": linkedin_url(name), "watch": name in s["watch_list"]}
+        item = {"name": name, "slug": slug(name), "watch": name in s["watch_list"]}
         if srcs:
             item["url"] = source_url(srcs[0])
             out["auto"].append(item)
@@ -106,3 +99,36 @@ def mark(conn, company: str, done: bool) -> None:
     else:
         conn.execute("DELETE FROM hand_checks WHERE day = ? AND company = ?", (day, company))
     conn.commit()
+
+
+def new_today(conn, s: dict, now: float | None = None, hours: int = 24) -> list[dict]:
+    """Jobs posted on company careers sites in the last 24 hours, in your locations,
+    grouped by company. A job counts as new if the site says it was posted in that time,
+    or (when the site gives no date) the website first saw it then, on a site it
+    already knew, so a site added today doesn't show its whole list as new."""
+    now = now or time.time()
+    since = now - hours * 3600
+    rows = conn.execute(
+        """SELECT j.*, (SELECT MIN(k.first_seen) FROM jobs k
+                        WHERE k.company = j.company AND k.source = j.source) AS site_first
+           FROM jobs j
+           WHERE j.status != 'skipped' AND j.added_by != 'link'
+             AND (j.posted_at >= ? OR (j.posted_at IS NULL AND j.first_seen >= ?))
+             AND j.source NOT IN ('remotive', 'remoteok', 'hn', 'adzuna')""", (since, since)).fetchall()
+    groups: dict[str, dict] = {}
+    for r in rows:
+        if r["posted_at"] is None and r["first_seen"] <= r["site_first"] + 3600:
+            continue
+        if not parse.location_ok(r["location"] or "", bool(r["remote"]), s["locations"]):
+            continue
+        g = groups.setdefault(r["company"], {"name": r["company"], "slug": slug(r["company"]),
+                                             "dev": [], "other": 0, "fits": 0})
+        if rules.is_role(r["title"], s):
+            g["dev"].append(r)
+            g["fits"] += bool(r["rule_ok"])
+        else:
+            g["other"] += 1
+    for g in groups.values():
+        g["dev"].sort(key=lambda r: (not r["rule_ok"], -(r["posted_at"] or r["first_seen"])))
+    return sorted((g for g in groups.values() if g["dev"]),
+                  key=lambda g: (-g["fits"], -len(g["dev"]), g["name"].lower()))

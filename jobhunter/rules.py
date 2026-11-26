@@ -57,6 +57,11 @@ def _word_match(title: str, words: list[str]) -> bool:
     return False
 
 
+def is_role(title: str, s: dict) -> bool:
+    """True if the title has one of your role words (SDE, Backend, ...)."""
+    return _word_match(title, s["roles"])
+
+
 def evaluate(job, s: dict, now: float | None = None) -> tuple[bool, str]:
     """job: a row (or dict) from the jobs table. s: all settings."""
     now = now or time.time()

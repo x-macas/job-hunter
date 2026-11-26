@@ -41,10 +41,13 @@ def log():
 def check():
     from . import handcheck
     db = get_db()
-    groups = handcheck.build(settings_store.get_all(db))
+    s = settings_store.get_all(db)
+    groups = handcheck.build(s)
     done = handcheck.done_today(db)
     left = sum(1 for i in groups["first"] if i["name"] not in done)
-    return render_template("check.html", groups=groups, done=done, left=left)
+    new = handcheck.new_today(db, s)
+    return render_template("check.html", groups=groups, done=done, left=left, new=new,
+                           new_jobs=sum(len(g["dev"]) for g in new), now=time.time())
 
 
 @bp.route("/check/tick", methods=["POST"])

@@ -172,3 +172,10 @@ code { background: var(--surface2); padding: 1px 6px; border-radius: 4px; font-s
 h2.inline { display: inline; font-size: 1.05rem; margin: 0; }
 details.card { margin-top: 16px; }
 details.card summary { color: var(--ink); }
+.newco { padding: 12px 0; border-top: 1px solid var(--line); }
+.newco:first-of-type { border-top: 0; }
+.newco h3 { margin: 0 0 6px; font-size: 1rem; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.newjobs { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.newjobs li { line-height: 1.45; }
+.newjobs .chip { margin: 0 4px; }
+.gap-top { margin-top: 28px; }
