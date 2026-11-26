@@ -10,6 +10,18 @@
   </span>
 </div>
 
+{% if setup | rejectattr('done') | list %}
+<section class="card">
+  <h2>Getting set up</h2>
+  <ul class="checklist">
+    {% for st in setup if not st.done %}
+    <li class="checkrow"><span class="checkname">{{ st.text }}</span>
+      <span class="checklinks"><a class="btn" href="{{ st.url }}">Do it</a></span></li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
 <section class="card addbox">
   <form method="post" action="{{ url_for('pages.add_job') }}" class="stack">
     <input type="hidden" name="csrf" value="{{ csrf_token() }}">

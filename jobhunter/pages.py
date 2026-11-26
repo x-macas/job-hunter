@@ -243,6 +243,24 @@ def _pay_label(job) -> str:
     return f"₹{low:g}–{high:g} LPA" if low != high else f"₹{high:g} LPA"
 
 
+def _setup_steps(db) -> list[dict]:
+    """What's still left to set up. Shown at the top of Today until it's all done."""
+    from . import gmail, tailor, telegram
+    prof = profile_store.get_all(db)
+    answered = db.execute("SELECT COUNT(*) FROM answers WHERE answer != ''").fetchone()[0]
+    steps = [
+        ("Upload your resume PDF", current_app.config["RESUME_PATH"].exists(), url_for("pages.profile")),
+        ("Fill your Profile (name, email, phone, college, notice period, country)",
+         all(prof.get(k) for k in ("full_name", "email", "phone", "college", "notice_period", "country")),
+         url_for("pages.profile")),
+        ("Answer the common form questions (at least 5)", answered >= 5, url_for("pages.answers_page")),
+        ("Connect Telegram for job alerts", bool(telegram.load().get("chat_id")), url_for("pages.connections")),
+        ("Connect Gmail (job-alert emails, sending emails)", gmail.connected(), url_for("pages.connections")),
+        ("Optional: upload your resume's .tex for a version per job", tailor.TEX_PATH.exists(), url_for("pages.profile")),
+    ]
+    return [{"text": text, "done": done, "url": link} for text, done, link in steps]
+
+
 @bp.route("/", endpoint="today")
 def today_jobs():
     db = get_db()
@@ -253,6 +271,7 @@ def today_jobs():
         "SELECT COUNT(*) AS total, SUM(rule_ok = 1 AND status = 'new') AS kept FROM jobs").fetchone()
     from . import tracker
     return render_template("today.html", now=datetime.now(), cards=cards, dropped=dropped, run=run,
+                           setup=_setup_steps(db),
                            counts=counts, reasons=SKIP_REASONS, applied=tracker.applied_today(db),
                            goal=s["goal_applications"])
 

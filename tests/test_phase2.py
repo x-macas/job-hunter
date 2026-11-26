@@ -313,3 +313,8 @@ def test_answer_from_apply_page(logged_in, app):
                                          "next": "/\\evil.example/x"})
     assert "evil" not in r.headers["Location"]
     assert "Applied today: 0 of 3" in logged_in.get("/").get_data(as_text=True)
+
+
+def test_setup_card(logged_in):
+    html = logged_in.get("/").get_data(as_text=True)
+    assert "Getting set up" in html and "Connect Gmail" in html and "Answer the common form questions" in html
