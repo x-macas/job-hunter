@@ -13,6 +13,7 @@ portals.json lists them. Types:
 
 import json
 import re
+import threading
 import time
 import urllib.error
 import urllib.request
@@ -32,15 +33,27 @@ def default_portals() -> list[dict]:
     return json.loads(PORTALS_FILE.read_text())
 
 
+# At most 3 careers-site requests at the same time, so we never flood anyone.
+_GATE = threading.BoundedSemaphore(3)
+RETRY_WAITS = (3, 10)  # seconds to wait before the 2nd and 3rd try
+
+
 def _req(url: str, body: dict | None = None, timeout: int = 30):
     data = json.dumps(body).encode() if body is not None else None
-    r = urllib.request.Request(url, data=data, headers={
-        "User-Agent": UA, "Accept": "application/json", "Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(r, timeout=timeout) as f:
-            return json.loads(f.read(20 * 1024 * 1024))
-    except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as e:
-        raise FetchError(f"{url.split('?')[0]}: {e}") from e
+    for attempt in range(len(RETRY_WAITS) + 1):
+        r = urllib.request.Request(url, data=data, headers={
+            "User-Agent": UA, "Accept": "application/json", "Content-Type": "application/json"})
+        try:
+            with _GATE, urllib.request.urlopen(r, timeout=timeout) as f:
+                return json.loads(f.read(20 * 1024 * 1024))
+        except urllib.error.HTTPError as e:
+            busy = e.code == 429 or e.code >= 500
+            if not busy or attempt == len(RETRY_WAITS):
+                raise FetchError(f"{url.split('?')[0]}: HTTP {e.code}") from e
+        except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as e:
+            if attempt == len(RETRY_WAITS):
+                raise FetchError(f"{url.split('?')[0]}: {e}") from e
+        time.sleep(RETRY_WAITS[attempt])
 
 
 def fetch_portal(p: dict) -> list[RawJob]:
@@ -108,7 +121,7 @@ def _workday(p: dict) -> list[RawJob]:
             elif facet and not parse.is_india(loc):
                 loc += ", India"
             jobs.append(RawJob(
-                source="workday", source_id=f"{p['tenant']}:{j['externalPath']}", source_name=f"{p['name']} careers",
+                source="workday", source_id=f"{p['tenant']}/{p['site']}:{j['externalPath']}", source_name=f"{p['name']} careers",
                 company=p["name"], title=j.get("title", "").strip(),
                 url=f"https://{p['host']}/{p['site']}{j['externalPath']}",
                 location=loc, posted_at=_days_ago(j.get("postedOn")),
@@ -120,8 +133,10 @@ def _workday(p: dict) -> list[RawJob]:
 
 
 def workday_description(source_id: str) -> str:
-    tenant, _, path = source_id.partition(":")
-    p = next((x for x in default_portals() if x["type"] == "workday" and x["tenant"] == tenant), None)
+    key, _, path = source_id.partition(":")
+    tenant, _, site = key.partition("/")
+    p = next((x for x in default_portals() if x["type"] == "workday" and x["tenant"] == tenant
+              and (not site or x["site"] == site)), None)
     if p is None:
         raise FetchError(f"unknown Workday site {tenant}")
     info = _req(f"https://{p['host']}/wday/cxs/{tenant}/{p['site']}{path}").get("jobPostingInfo", {})

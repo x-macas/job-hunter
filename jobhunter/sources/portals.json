@@ -123,5 +123,187 @@
  {
   "type": "atlassian",
   "name": "Atlassian"
+ },
+ {
+  "type": "workday",
+  "name": "Expedia",
+  "host": "expedia.wd108.myworkdayjobs.com",
+  "tenant": "expedia",
+  "site": "Search"
+ },
+ {
+  "type": "workday",
+  "name": "Postman",
+  "host": "postman.wd108.myworkdayjobs.com",
+  "tenant": "postman",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "BrowserStack",
+  "host": "browserstack.wd3.myworkdayjobs.com",
+  "tenant": "browserstack",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Sprinklr",
+  "host": "sprinklr.wd1.myworkdayjobs.com",
+  "tenant": "sprinklr",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Workday",
+  "host": "workday.wd5.myworkdayjobs.com",
+  "tenant": "workday",
+  "site": "Workday"
+ },
+ {
+  "type": "workday",
+  "name": "PTC",
+  "host": "ptc.wd1.myworkdayjobs.com",
+  "tenant": "ptc",
+  "site": "Ptc"
+ },
+ {
+  "type": "workday",
+  "name": "Zebra Technologies",
+  "host": "zebra.wd501.myworkdayjobs.com",
+  "tenant": "zebra",
+  "site": "Zebra_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "CrowdStrike",
+  "host": "crowdstrike.wd5.myworkdayjobs.com",
+  "tenant": "crowdstrike",
+  "site": "CrowdstrikeCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Ciena",
+  "host": "ciena.wd5.myworkdayjobs.com",
+  "tenant": "ciena",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Red Hat",
+  "host": "redhat.wd5.myworkdayjobs.com",
+  "tenant": "redhat",
+  "site": "jobs"
+ },
+ {
+  "type": "workday",
+  "name": "HP",
+  "host": "hp.wd5.myworkdayjobs.com",
+  "tenant": "hp",
+  "site": "ExternalCareerSite"
+ },
+ {
+  "type": "workday",
+  "name": "Motorola Solutions",
+  "host": "motorolasolutions.wd5.myworkdayjobs.com",
+  "tenant": "motorolasolutions",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Zendesk",
+  "host": "zendesk.wd1.myworkdayjobs.com",
+  "tenant": "zendesk",
+  "site": "Zendesk"
+ },
+ {
+  "type": "workday",
+  "name": "Target",
+  "host": "target.wd5.myworkdayjobs.com",
+  "tenant": "target",
+  "site": "TargetCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Sabre",
+  "host": "sabre.wd1.myworkdayjobs.com",
+  "tenant": "sabre",
+  "site": "SabreJobs"
+ },
+ {
+  "type": "workday",
+  "name": "Thomson Reuters",
+  "host": "thomsonreuters.wd5.myworkdayjobs.com",
+  "tenant": "thomsonreuters",
+  "site": "External_Career_Site"
+ },
+ {
+  "type": "workday",
+  "name": "LSEG",
+  "host": "lseg.wd3.myworkdayjobs.com",
+  "tenant": "lseg",
+  "site": "Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Aptiv",
+  "host": "aptiv.wd5.myworkdayjobs.com",
+  "tenant": "aptiv",
+  "site": "Aptiv_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Marvell",
+  "host": "marvell.wd1.myworkdayjobs.com",
+  "tenant": "marvell",
+  "site": "MarvellCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Micron",
+  "host": "micron.wd1.myworkdayjobs.com",
+  "tenant": "micron",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "KLA",
+  "host": "kla.wd1.myworkdayjobs.com",
+  "tenant": "kla",
+  "site": "Search"
+ },
+ {
+  "type": "workday",
+  "name": "State Street",
+  "host": "statestreet.wd1.myworkdayjobs.com",
+  "tenant": "statestreet",
+  "site": "Global"
+ },
+ {
+  "type": "workday",
+  "name": "Walmart Global Tech",
+  "host": "walmart.wd504.myworkdayjobs.com",
+  "tenant": "walmart",
+  "site": "WalmartExternal"
+ },
+ {
+  "type": "workday",
+  "name": "Autodesk",
+  "host": "autodesk.wd1.myworkdayjobs.com",
+  "tenant": "autodesk",
+  "site": "Ext"
+ },
+ {
+  "type": "workday",
+  "name": "BlackRock",
+  "host": "blackrock.wd1.myworkdayjobs.com",
+  "tenant": "blackrock",
+  "site": "BlackRock_Professional"
+ },
+ {
+  "type": "workday",
+  "name": "LSEG",
+  "host": "lseg.wd3.myworkdayjobs.com",
+  "tenant": "lseg",
+  "site": "Graduate_Careers"
  }
 ]

@@ -95,6 +95,16 @@
   "name": "Coinbase"
  },
  {
+  "ats": "greenhouse",
+  "slug": "commvault",
+  "name": "Commvault"
+ },
+ {
+  "ats": "ashby",
+  "slug": "composio",
+  "name": "Composio"
+ },
+ {
   "ats": "lever",
   "slug": "cred",
   "name": "CRED"
@@ -275,6 +285,11 @@
   "name": "New Relic"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "Nobroker",
+  "name": "NoBroker"
+ },
+ {
   "ats": "ashby",
   "slug": "notion",
   "name": "Notion"
@@ -330,6 +345,11 @@
   "name": "PostHog"
  },
  {
+  "ats": "greenhouse",
+  "slug": "pubmatic",
+  "name": "PubMatic"
+ },
+ {
   "ats": "ashby",
   "slug": "railway",
   "name": "Railway"
@@ -358,6 +378,11 @@
   "ats": "greenhouse",
   "slug": "rubrik",
   "name": "Rubrik"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "salesloft",
+  "name": "Salesloft"
  },
  {
   "ats": "greenhouse",
@@ -398,6 +423,11 @@
   "ats": "ashby",
   "slug": "spotdraft",
   "name": "SpotDraft"
+ },
+ {
+  "ats": "lever",
+  "slug": "spotify",
+  "name": "Spotify"
  },
  {
   "ats": "greenhouse",
@@ -465,6 +495,11 @@
   "name": "Unacademy"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "Upstox",
+  "name": "Upstox"
+ },
+ {
   "ats": "ashby",
   "slug": "vanta",
   "name": "Vanta"
@@ -475,9 +510,24 @@
   "name": "Vercel"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "WesternDigital",
+  "name": "Western Digital"
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "Whatfix",
+  "name": "Whatfix"
+ },
+ {
   "ats": "greenhouse",
   "slug": "wikimedia",
   "name": "Wikimedia Foundation"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "worldquant",
+  "name": "WorldQuant"
  },
  {
   "ats": "ashby",
