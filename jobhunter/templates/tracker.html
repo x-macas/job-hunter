@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Tracker{% endblock %}
+{% block content %}
+<div class="pagehead"><h1>Tracker</h1></div>
+<div class="board" aria-label="Job stages">
+  {% for col in ['Applied', 'Emailed', 'Replied', 'Interview', 'Offer / Rejected'] %}
+  <section class="col">
+    <h2>{{ col }} <span class="count">0</span></h2>
+    <p class="muted small">Nothing here yet.</p>
+  </section>
+  {% endfor %}
+</div>
+<p class="muted">The board starts filling up in Phase 2, when you begin applying.</p>
+{% endblock %}

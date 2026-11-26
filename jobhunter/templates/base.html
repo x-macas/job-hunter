@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}job-hunter{% endblock %} · job-hunter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</head>
+<body>
+{% if session.get('logged_in') %}
+<header class="topbar">
+  <a class="brand" href="{{ url_for('pages.today') }}">job-hunter</a>
+  <nav class="nav" aria-label="Main">
+    {% set here = request.endpoint %}
+    <a href="{{ url_for('pages.today') }}" {% if here == 'pages.today' %}class="on" aria-current="page"{% endif %}>Today</a>
+    <a href="{{ url_for('pages.outbox') }}" {% if here == 'pages.outbox' %}class="on" aria-current="page"{% endif %}>Outbox</a>
+    <a href="{{ url_for('pages.tracker') }}" {% if here == 'pages.tracker' %}class="on" aria-current="page"{% endif %}>Tracker</a>
+    <a href="{{ url_for('pages.stats') }}" {% if here == 'pages.stats' %}class="on" aria-current="page"{% endif %}>Stats</a>
+    <a href="{{ url_for('pages.profile') }}" {% if here == 'pages.profile' %}class="on" aria-current="page"{% endif %}>Profile</a>
+    <a href="{{ url_for('pages.settings') }}" {% if here == 'pages.settings' %}class="on" aria-current="page"{% endif %}>Settings</a>
+    <a href="{{ url_for('pages.log') }}" {% if here == 'pages.log' %}class="on" aria-current="page"{% endif %}>Log</a>
+  </nav>
+  <div class="tools">
+    <button type="button" class="btn ghost" id="theme-toggle" aria-label="Switch light or dark mode">Theme</button>
+    <form method="post" action="{{ url_for('pages.toggle_stop') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      {% if paused %}
+        <button class="btn pri">Resume</button>
+      {% else %}
+        <button class="btn danger">Stop all</button>
+      {% endif %}
+    </form>
+    <form method="post" action="{{ url_for('auth.logout') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn ghost">Log out</button>
+    </form>
+  </div>
+</header>
+{% if paused %}
+<div class="banner" role="status">Everything is stopped. No emails, alerts or background work until you press Resume.</div>
+{% endif %}
+{% endif %}
+
+<main class="wrap">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <p class="flash {{ cat }}" role="status">{{ msg }}</p>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

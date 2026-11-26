@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Set a password{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Welcome</h1>
+  <p class="muted">Set a password for this website. You'll need it to open it on your laptop or phone.</p>
+  {% if error %}<p class="flash error" role="alert">{{ error }}</p>{% endif %}
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Password (at least {{ min_length }} characters)
+      <input type="password" name="password" autocomplete="new-password" required minlength="{{ min_length }}">
+    </label>
+    <label>Type it again
+      <input type="password" name="confirm" autocomplete="new-password" required>
+    </label>
+    <button class="btn pri">Save password</button>
+  </form>
+</section>
+{% endblock %}

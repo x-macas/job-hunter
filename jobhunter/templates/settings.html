@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Settings{% endblock %}
+{% block content %}
+<div class="pagehead"><h1>Settings</h1><span class="muted">Change any rule. Saved when you press Save.</span></div>
+<form method="post" class="stack">
+  <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+  {% for group in groups %}
+  <fieldset class="card">
+    <legend>{{ group }}</legend>
+    <div class="grid2">
+    {% for s in settings if s.group == group %}
+      {% set err = errors.get(s.key) %}
+      <div class="field{% if s.kind == 'list' %} tall{% endif %}{% if err %} has-error{% endif %}">
+        {% if s.kind == 'bool' %}
+          <label class="check"><input type="checkbox" name="{{ s.key }}" {% if values[s.key] %}checked{% endif %}> {{ s.label }}</label>
+        {% else %}
+          <label for="f-{{ s.key }}">{{ s.label }}</label>
+          {% if s.kind == 'list' %}
+            <textarea id="f-{{ s.key }}" name="{{ s.key }}" rows="6">{{ values[s.key] | join('\n') }}</textarea>
+          {% elif s.kind == 'int' %}
+            <input id="f-{{ s.key }}" name="{{ s.key }}" type="number" inputmode="numeric" value="{{ values[s.key] }}" {% if s.min is not none %}min="{{ s.min }}"{% endif %} {% if s.max is not none %}max="{{ s.max }}"{% endif %}>
+          {% else %}
+            <input id="f-{{ s.key }}" name="{{ s.key }}" value="{{ values[s.key] }}">
+          {% endif %}
+        {% endif %}
+        {% if s.help %}<p class="hint">{{ s.help }}</p>{% endif %}
+        {% if err %}<p class="err">{{ err }}</p>{% endif %}
+      </div>
+    {% endfor %}
+    </div>
+  </fieldset>
+  {% endfor %}
+  <div><button class="btn pri">Save settings</button></div>
+</form>
+{% endblock %}

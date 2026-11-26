@@ -1,0 +1,17 @@
+# Personal data and keys. These must never go to GitHub.
+data/
+secrets/
+*.db
+*.sqlite3
+*.pdf
+*.tex
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Private build notes (personal choices)
+NOTES.md

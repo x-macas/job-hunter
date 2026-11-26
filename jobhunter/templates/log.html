@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Activity log{% endblock %}
+{% block content %}
+<div class="pagehead"><h1>Activity log</h1><span class="muted">Last 200 things the website did</span></div>
+<div class="card scroll-x">
+  <table>
+    <thead><tr><th>When</th><th>Type</th><th>What happened</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr><td class="nowrap">{{ r.ts | when }}</td><td><span class="chip">{{ r.kind }}</span></td><td>{{ r.message }}</td></tr>
+    {% else %}
+      <tr><td colspan="3" class="muted">Nothing yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

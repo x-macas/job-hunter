@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Today{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <h1>Today</h1>
+  <span class="muted">{{ now.strftime('%A, %d %B') }}</span>
+</div>
+<section class="empty">
+  <h2>No jobs yet</h2>
+  <p>Job finding comes in Phase 1. Then your top 20 jobs show up here every morning.</p>
+  <p>For now, fill your <a href="{{ url_for('pages.profile') }}">Profile</a> and check your <a href="{{ url_for('pages.settings') }}">Settings</a>.</p>
+</section>
+{% endblock %}
