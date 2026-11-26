@@ -643,5 +643,15 @@
   "ats": "greenhouse",
   "slug": "addepar1",
   "name": "Addepar"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "arcesiumllc",
+  "name": "Arcesium"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "alphagrepsecurities",
+  "name": "AlphaGrep"
  }
 ]
