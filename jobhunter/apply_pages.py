@@ -27,8 +27,11 @@ def apply_job(job_id):
         return redirect(url_for("pages.today"))
     app_row = db.execute("SELECT * FROM applications WHERE job_id = ?", (job_id,)).fetchone()
     unanswered = [q for q in cover.get(db, job_id, "unanswered").splitlines() if q.strip()]
-    from . import formfill
+    from . import formfill, outreach
     return render_template("apply.html", job=job, app=app_row, note=cover.get(db, job_id),
+                           contacts=outreach.contacts_for(db, job_id), kinds=outreach.KINDS,
+                           linkedin=cover.get(db, job_id, "linkedin"),
+                           official_email=outreach.official_apply_email(job),
                            unanswered=unanswered, fill_log=cover.get(db, job_id, "fill_log"),
                            filler=formfill.status(), stage_names=tracker.STAGE_NAMES)
 
@@ -39,6 +42,14 @@ def cover_note(job_id):
     job = _job_or_none(db, job_id)
     if job is None:
         return redirect(url_for("pages.today"))
+    if request.form.get("action") == "linkedin":
+        s = settings_store.get_all(db)
+        try:
+            cover.put(db, job_id, cover.linkedin_note(db, job, s), "linkedin")
+            flash("LinkedIn note written. Copy it into LinkedIn's 'Add a note' box.")
+        except ai.AIError as e:
+            flash(f"Couldn't write the note: {e}", "error")
+        return redirect(url_for("pages.apply_job", job_id=job_id) + "#linkedin")
     if request.form.get("action") == "write":
         s = settings_store.get_all(db)
         try:

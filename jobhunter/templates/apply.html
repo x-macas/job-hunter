@@ -16,7 +16,7 @@
   </ol>
   <div class="row">
     {% if job.url.startswith('http') %}
-    <a class="btn" href="{{ job.apply_url or job.url }}" target="_blank" rel="noopener noreferrer">Open job page</a>
+    <a class="btn" href="{{ job.apply_url if (job.apply_url or '').startswith('http') else job.url }}" target="_blank" rel="noopener noreferrer">Open job page</a>
     {% endif %}
     <form method="post" action="{{ url_for('pages.fill_form', job_id=job.id) }}">
       <input type="hidden" name="csrf" value="{{ csrf_token() }}">
@@ -60,6 +60,53 @@
   {% if fill_log %}<p class="small muted">{{ fill_log }}</p>{% endif %}
 </section>
 {% endif %}
+
+<section class="card stack" id="people">
+  <h2>Reach people</h2>
+  <p class="small muted">Add someone at {{ job.company }} you found yourself (on LinkedIn, the company site, from a friend).
+    The website only ever emails people you add here.</p>
+  {% if official_email and not (contacts | selectattr('email', 'equalto', official_email) | list) %}
+  <form method="post" action="{{ url_for('pages.add_contact', job_id=job.id) }}" class="row">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="official" value="1">
+    <span>This job's official apply email is <strong>{{ official_email }}</strong>.</span>
+    <button class="btn">Add it</button>
+  </form>
+  {% endif %}
+  {% for c in contacts %}
+  <div class="row qa">
+    <span class="grow"><strong>{{ c.name or c.email }}</strong> · {{ kinds[c.kind] }} <span class="small muted">· {{ c.email }}{% if c.how %} · {{ c.how }}{% endif %}</span></span>
+    <form method="post" action="{{ url_for('pages.draft_email', contact_id=c.id) }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn">Write email</button>
+    </form>
+  </div>
+  {% endfor %}
+  <form method="post" action="{{ url_for('pages.add_contact', job_id=job.id) }}" class="grid2">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Name<input name="name" maxlength="100"></label>
+    <label>Email<input name="email" type="email" maxlength="254" required></label>
+    <label>Who they are<select name="kind" required>
+      {% for k, n in kinds.items() if k != 'followup' %}<option value="{{ k }}">{{ n }}</option>{% endfor %}
+    </select></label>
+    <label>How you know them (optional)<input name="how" maxlength="300" placeholder="e.g. same college, 2021 batch"></label>
+    <div><button class="btn">Add person</button></div>
+  </form>
+</section>
+
+<section class="card stack" id="linkedin">
+  <h2>LinkedIn note</h2>
+  <p class="small muted">For a connection request to someone at {{ job.company }}. You send it yourself on LinkedIn.</p>
+  {% if linkedin %}
+  <label for="li" class="sr-only">LinkedIn note</label>
+  <textarea id="li" rows="4" readonly>{{ linkedin }}</textarea>
+  <p class="small muted">{{ linkedin | length }} of 300 characters</p>
+  {% endif %}
+  <form method="post" action="{{ url_for('pages.cover_note', job_id=job.id) }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn" name="action" value="linkedin">{{ 'Write a new one' if linkedin else 'Write a LinkedIn note' }}</button>
+  </form>
+</section>
 
 <section class="card stack" id="cover">
   <h2>Cover note</h2>

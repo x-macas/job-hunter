@@ -228,6 +228,20 @@ def tick(conn, s) -> None:
     if not q or not q["last_started"] or now - q["last_started"] >= s["watch_interval_minutes"] * 60 - 60:
         _log(quick(conn, s))
     hand_check_nudge(conn, s, hour)
+    emails(conn, s)
+
+
+def emails(conn, s) -> None:
+    """Every tick: send queued auto emails, draft follow-ups that are due, look for replies."""
+    from . import outreach
+    try:
+        sent = outreach.send_queued(conn, s, log=_log)
+        made = outreach.make_followups(conn, s, log=_log)
+        replies = outreach.check_replies(conn, s, log=_log)
+        if sent or made or replies:
+            _log(f"Emails: {sent} sent, {made} follow-ups drafted, {replies} replies.")
+    except gmail.GmailError as e:
+        _log(f"Emails wait: {e}")
 
 
 def hand_check_nudge(conn, s, hour: int) -> None:

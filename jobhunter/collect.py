@@ -1,5 +1,6 @@
 """Collect jobs from all sources, save them, and run your rules on them."""
 
+import re
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -69,7 +70,7 @@ def save(conn, jobs: list[RawJob], s: dict, added_by: str = "auto", now: float |
         # Links come from the internet: keep only real web links (no "javascript:" tricks).
         if not _is_web_link(j.url) and j.url != "about:blank":
             continue
-        if j.apply_url and not _is_web_link(j.apply_url):
+        if j.apply_url and not (_is_web_link(j.apply_url) or _is_apply_email(j.apply_url)):
             j.apply_url = None
         if not (j.title and j.company):
             continue
@@ -166,3 +167,8 @@ def _pay_lines(text: str) -> str:
 
 def _is_web_link(url: str | None) -> bool:
     return bool(url) and url.lower().startswith(("https://", "http://")) and len(url) < 2000
+
+
+def _is_apply_email(url: str) -> bool:
+    """A job's official apply email (mailto: link from the job board's own apply field)."""
+    return bool(re.fullmatch(r"mailto:[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,24}(\?[^\s]*)?", url or ""))

@@ -24,6 +24,9 @@ def _msg(html=LINKEDIN_HTML, msg_id="<a1@linkedin.com>", sender="LinkedIn Job Al
     m = email.message.EmailMessage(policy=email.policy.default)
     m["From"], m["Subject"], m["Message-ID"] = sender, "30+ new jobs for software engineer", msg_id
     m["Date"] = email.utils.formatdate(time.time())
+    dom = email.utils.parseaddr(sender)[1].split("@")[1]
+    m["Authentication-Results"] = (f"mx.google.com; dkim=pass header.i=@{dom} header.s=s1; "
+                                   f"spf=pass smtp.mailfrom={dom}; dmarc=pass (p=REJECT) header.from={dom}")
     m.set_content("plain version")
     m.add_alternative(html, subtype="html")
     return email.message_from_bytes(m.as_bytes(), policy=email.policy.default)
@@ -151,3 +154,26 @@ def test_connections_gmail(logged_in, monkeypatch):
     assert "abcdefghijklmnop" not in html and "abcd efgh" not in html
     logged_in.post("/connections", data={"csrf": token, "action": "gmail_remove"})
     assert not gmail.FILE.exists()
+
+
+def test_fake_alert_senders_are_ignored(app, monkeypatch):
+    from jobhunter.db import get_db
+    spoof = _msg(msg_id="<s1@x>", sender="Naukri <jobs@naukri.com.evil.io>")
+    unverified = _msg(msg_id="<s2@x>")
+    del unverified["Authentication-Results"]
+    unverified["Authentication-Results"] = "mx.google.com; dkim=fail header.i=@linkedin.com; dmarc=fail header.from=linkedin.com"
+    forged_top = _msg(msg_id="<s3@x>")
+    forged_top._headers.insert(0, ("Authentication-Results", "attacker.example; dmarc=pass header.from=linkedin.com"))
+    _fake_gmail(monkeypatch, [spoof, unverified, forged_top])
+    with app.app_context():
+        db = get_db()
+        assert alertmail.read_alerts(db, settings(), log=lambda m: None) == []
+        assert db.execute("SELECT COUNT(*) FROM email_seen").fetchone()[0] == 3     # each looked at once
+
+
+def test_sender_checks():
+    m = _msg(sender="Jobs <alerts@mail.naukri.com>")
+    assert gmail.sender_matches(m, ["naukri.com"]) and gmail.authenticated(m)
+    assert not gmail.sender_matches(_msg(sender="x@notnaukri.com"), ["naukri.com"])
+    assert gmail.sender_matches(_msg(), ["jobalerts-noreply@linkedin.com"])
+    assert not gmail.sender_matches(_msg(sender="other@linkedin.com"), ["jobalerts-noreply@linkedin.com"])

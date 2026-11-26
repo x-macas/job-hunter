@@ -154,6 +154,12 @@ def read_alerts(conn, s: dict, log=print, now: float | None = None) -> list[int]
     new_ids, done = [], 0
     for msg in msgs:
         msg_id = (msg.get("Message-ID") or "").strip()
+        if not (gmail.sender_matches(msg, s["alert_senders"]) and gmail.authenticated(msg)):
+            # Looks like an alert sender but isn't really one (or Gmail couldn't verify it): ignore it.
+            conn.execute("INSERT OR IGNORE INTO email_seen (msg_id, ts, jobs) VALUES (?, ?, 0)", (msg_id, now))
+            conn.commit()
+            log(f"Ignored an alert email Gmail couldn't verify: {gmail.sender_address(msg)}")
+            continue
         try:
             jobs = extract(msg, s["ai_model"])
         except ai.AIError as e:

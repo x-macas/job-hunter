@@ -303,7 +303,7 @@ def apply_actions(frame, fields: list[dict], actions: list[dict]) -> tuple[int, 
 
 def form_url(job) -> str:
     """Go straight to the form where the job board has a separate form page."""
-    url = job["apply_url"] or job["url"]
+    url = job["apply_url"] if (job["apply_url"] or "").startswith("https://") else job["url"]
     if job["source"] == "lever" and not url.rstrip("/").endswith("/apply"):
         return url.rstrip("/") + "/apply"
     if job["source"] == "ashby" and not url.rstrip("/").endswith("/application"):

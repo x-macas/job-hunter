@@ -141,3 +141,51 @@ CREATE TABLE IF NOT EXISTS email_seen (
     ts      REAL NOT NULL,
     jobs    INTEGER NOT NULL DEFAULT 0
 );
+
+-- Phase 3. People you added for a job (never addresses taken from job-post text).
+CREATE TABLE IF NOT EXISTS contacts (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id   INTEGER NOT NULL REFERENCES jobs (id),
+    name     TEXT NOT NULL DEFAULT '',
+    email    TEXT NOT NULL,
+    kind     TEXT NOT NULL,                 -- hr, manager, employee, alumni
+    how      TEXT NOT NULL DEFAULT '',      -- your note: how you know them
+    created  REAL NOT NULL,
+    UNIQUE (job_id, email)
+);
+
+-- Every email: draft, queued (auto kinds wait here a while), sent, rejected.
+CREATE TABLE IF NOT EXISTS emails (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    job_id      INTEGER NOT NULL REFERENCES jobs (id),
+    contact_id  INTEGER NOT NULL REFERENCES contacts (id),
+    kind        TEXT NOT NULL,
+    to_addr     TEXT NOT NULL,
+    subject     TEXT NOT NULL,
+    body        TEXT NOT NULL,
+    status      TEXT NOT NULL DEFAULT 'draft',
+    edited      INTEGER NOT NULL DEFAULT 0,
+    replied     INTEGER NOT NULL DEFAULT 0,
+    followup_of INTEGER REFERENCES emails (id),
+    message_id  TEXT,
+    error       TEXT,
+    created     REAL NOT NULL,
+    updated     REAL NOT NULL,
+    sent_at     REAL
+);
+
+-- How many emails of each kind you approved in a row without changing them.
+CREATE TABLE IF NOT EXISTS email_kinds (
+    kind    TEXT PRIMARY KEY,
+    streak  INTEGER NOT NULL DEFAULT 0
+);
+
+-- Replies from people you emailed.
+CREATE TABLE IF NOT EXISTS replies (
+    msg_id     TEXT PRIMARY KEY,
+    email_id   INTEGER NOT NULL REFERENCES emails (id),
+    from_addr  TEXT NOT NULL,
+    subject    TEXT NOT NULL DEFAULT '',
+    snippet    TEXT NOT NULL DEFAULT '',
+    ts         REAL NOT NULL
+);

@@ -17,11 +17,6 @@ bp = Blueprint("pages", __name__)
 MAX_RESUME_BYTES = 5 * 1024 * 1024
 
 
-@bp.route("/outbox")
-def outbox():
-    return render_template("outbox.html")
-
-
 @bp.route("/stats")
 def stats():
     return render_template("stats.html")
@@ -356,4 +351,4 @@ def connections():
                            adzuna=(SECRETS_DIR / "adzuna.json").exists())
 
 
-from . import apply_pages  # noqa: E402,F401  (Phase 2 pages: Apply, Tracker, Answers)
+from . import apply_pages, outbox_pages  # noqa: E402,F401  (Phase 2 and 3 pages)

@@ -22,7 +22,7 @@ does the boring parts, and I spend about 15 minutes a day on it.
 | 0 | Website base: login, settings, profile, activity log, emergency stop | Done |
 | 1 | Finding and ranking jobs, daily list, alerts | Done (email parts wait for Gmail) |
 | 2 | Applying: saved answers, cover notes, form filling, tracker | Done, being tried |
-| 3 | Emails: drafts, approvals, sending, follow-ups, replies | Next |
+| 3 | Emails: drafts, approvals, sending, follow-ups, replies, LinkedIn notes | Built, waits for Gmail |
 | 4 | Company info and interview prep | |
 | 5 | Stats, goals, backups, phone access | |
 | 6 | A tweaked resume for each job (LaTeX) | |
@@ -30,7 +30,7 @@ does the boring parts, and I spend about 15 minutes a day on it.
 ## Built with
 
 Python, Flask, SQLite, Waitress, systemd timers, Telegram Bot API, Claude (via the `claude` CLI, no tools),
-Playwright (form filling). Later: Gmail API.
+Playwright (form filling), Gmail over IMAP/SMTP with an app password.
 
 ## Job sources
 
@@ -65,6 +65,19 @@ Playwright (form filling). Later: Gmail API.
 4. Questions it couldn't answer are listed on the Apply page with a box to answer them once, for every form after.
 5. **I applied** puts the job on the Tracker board (Applied, Emailed, Replied, Interview, Offer / Rejected),
    with a note per job and a flag when there's been no reply for a while.
+
+## How emails work
+
+- I add the people myself on a job's page (HR, hiring manager, employee, alumni). The website never takes an
+  address from a job post's text; the only other address it uses is a job's official apply email (a mailto: apply link).
+- Claude writes a short, plain draft with my resume attached. It waits in the Outbox until I approve it.
+- After I approve 2 emails of one kind without changing them, that kind sends on its own: new drafts wait
+  30 minutes (so I can still stop them), then go out. If I change or reject one, it needs 2 approvals again.
+- At most 15 emails a day. The Stop button stops everything. Every send is in the activity log.
+- Follow-ups are drafted after 5 and 10 days if nobody replied, in the same email thread.
+- Replies move the job to Replied and send a short Telegram alert. The website never answers people itself.
+- Alert emails and replies count only when Gmail itself confirms the sender (DMARC/DKIM/SPF pass), so a
+  look-alike address can't sneak links in.
 
 ## How a job is picked
 

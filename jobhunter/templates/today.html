@@ -50,7 +50,7 @@
   </div>
   <div class="actions">
     {% if j.url.startswith('http') %}
-      <a class="btn pri" href="{{ j.apply_url or j.url }}" target="_blank" rel="noopener noreferrer">Open job</a>
+      <a class="btn pri" href="{{ j.apply_url if (j.apply_url or '').startswith('http') else j.url }}" target="_blank" rel="noopener noreferrer">Open job</a>
     {% endif %}
     <a class="btn" href="{{ url_for('pages.apply_job', job_id=j.id) }}">Apply here</a>
     <form method="post" action="{{ url_for('pages.job_applied', job_id=j.id) }}" class="full">
@@ -58,7 +58,7 @@
       <input type="hidden" name="next" value="{{ url_for('pages.today') }}">
       <button class="btn">I applied</button>
     </form>
-    <button class="btn" disabled title="Comes in Phase 3">Draft email</button>
+    <a class="btn" href="{{ url_for('pages.apply_job', job_id=j.id) }}#people">Email someone</a>
     <form method="post" action="{{ url_for('pages.skip_job', job_id=j.id) }}" class="skip">
       <input type="hidden" name="csrf" value="{{ csrf_token() }}">
       <label for="r-{{ j.id }}" class="sr-only">Why skip?</label>

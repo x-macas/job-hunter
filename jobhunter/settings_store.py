@@ -196,6 +196,8 @@ SETTINGS = [
     Setting("email_daily_cap", "Most emails per day", "Emails", "int", 15, min=0, max=40),
     Setting("approvals_per_kind", "Approvals needed per email kind before auto-send",
             "Emails", "int", 2, min=1, max=50),
+    Setting("auto_send_wait_minutes", "Auto emails wait in the Outbox before sending (minutes)", "Emails", "int",
+            30, min=5, max=1440, help="So you can still stop or change them."),
     Setting("followup_1_days", "First follow-up after (days)", "Emails", "int", 5,
             min=1, max=30),
     Setting("followup_2_days", "Second follow-up after (days)", "Emails", "int", 10,

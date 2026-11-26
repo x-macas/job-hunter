@@ -141,3 +141,46 @@ def send(to: str, subject: str, body: str, attachment: tuple[str, bytes] | None 
     except OSError as e:
         raise GmailError(f"Couldn't reach Gmail: {e}") from e
     return msg["Message-ID"]
+
+
+def sender_address(msg) -> str | None:
+    addr = email.utils.parseaddr(msg.get("From", ""))[1].strip().lower()
+    return addr if re.fullmatch(r"[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,24}", addr) else None
+
+
+def sender_matches(msg, senders: list[str]) -> bool:
+    """The From address is exactly one on the list, or its domain is (or is under) a listed domain.
+    Gmail's own FROM search matches any part of the address, so this is checked again here."""
+    addr = sender_address(msg)
+    if not addr:
+        return False
+    domain = addr.split("@")[1]
+    for s in senders:
+        s = s.strip().lower()
+        if not s:
+            continue
+        if "@" in s and addr == s:
+            return True
+        if "@" not in s and (domain == s or domain.endswith("." + s)):
+            return True
+    return False
+
+
+def authenticated(msg) -> bool:
+    """Did Gmail check that this email really comes from the sender's domain?
+    We trust only the Authentication-Results line Gmail itself added (the top one)."""
+    addr = sender_address(msg)
+    results = msg.get_all("Authentication-Results") or []
+    if not addr or not results or not str(results[0]).strip().lower().startswith("mx.google.com"):
+        return False
+    domain = addr.split("@")[1]
+    res = str(results[0]).lower()
+
+    def passes(kind: str, field: str) -> bool:
+        for m in re.finditer(rf"{kind}=pass[^;]*?{field}=@?([a-z0-9.-]+)", res):
+            d = m.group(1)
+            if domain == d or domain.endswith("." + d):
+                return True
+        return False
+    return passes("dmarc", "header.from") or passes("dkim", "header.i") or passes("dkim", "header.d") \
+        or passes("spf", "smtp.mailfrom")
