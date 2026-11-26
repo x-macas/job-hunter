@@ -184,3 +184,18 @@ details.card summary { color: var(--ink); }
 .newhead .btn { text-decoration: none; }
 .newco .newlist { margin-top: 6px; }
 .rank { color: var(--muted); font-weight: 600; margin-right: 4px; }
+
+/* Phase 2: Tracker cards, Apply page */
+.tcard { border-top: 1px solid var(--line); padding: 12px 0; display: flex; flex-direction: column; gap: 6px; }
+.tcard:first-of-type { border-top: 0; }
+.tcard h3 { margin: 0; font-size: 15px; }
+.tcard h3 a { color: var(--ink); }
+.tcard p { margin: 0; }
+.tcard select, .tcard textarea { margin-top: 0; }
+.tight { gap: 6px; margin: 0; }
+.jobtext { white-space: pre-wrap; max-height: 480px; overflow-y: auto; line-height: 1.5; }
+a.btn { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+.actions form.full { margin: 0; }
+.actions form.full .btn { width: 100%; }
+.qa { align-items: flex-end; padding: 10px 0; border-top: 1px solid var(--line); }
+.qa label { display: flex; flex-direction: column; gap: 6px; }

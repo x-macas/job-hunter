@@ -172,6 +172,15 @@ SETTINGS = [
             help="These sites ask bots to stay off their job search but list every job in a sitemap. "
                  "It's a big file and the sites update it about once a day, so twice a day is plenty."),
 
+    # Applying
+    Setting("answer_match_min", "Use a saved answer when the form question is at least this alike (0-100)",
+            "Applying", "int", 60, min=30, max=100,
+            help="Lower fills more boxes but may pick the wrong answer. You check every box before you submit anyway."),
+    Setting("cover_note_words", "Cover note length (words)", "Applying", "int", 120, min=50, max=250),
+    Setting("cover_note_model", "Claude model for cover notes", "Applying", "text", "sonnet",
+            "sonnet writes better notes; haiku uses less of your Claude plan.",
+            choices=("haiku", "sonnet", "opus")),
+
     # Emails
     Setting("email_daily_cap", "Most emails per day", "Emails", "int", 15, min=0, max=40),
     Setting("approvals_per_kind", "Approvals needed per email kind before auto-send",

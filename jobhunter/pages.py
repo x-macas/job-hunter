@@ -22,11 +22,6 @@ def outbox():
     return render_template("outbox.html")
 
 
-@bp.route("/tracker")
-def tracker():
-    return render_template("tracker.html")
-
-
 @bp.route("/stats")
 def stats():
     return render_template("stats.html")
@@ -227,8 +222,10 @@ def today_jobs():
     run = db.execute("SELECT * FROM runs WHERE name = 'daily'").fetchone()
     counts = db.execute(
         "SELECT COUNT(*) AS total, SUM(rule_ok = 1 AND status = 'new') AS kept FROM jobs").fetchone()
+    from . import tracker
     return render_template("today.html", now=datetime.now(), cards=cards, dropped=dropped, run=run,
-                           counts=counts, reasons=SKIP_REASONS)
+                           counts=counts, reasons=SKIP_REASONS, applied=tracker.applied_today(db),
+                           goal=s["goal_applications"])
 
 
 @bp.route("/job/<int:job_id>/skip", methods=["POST"])
@@ -338,3 +335,6 @@ def connections():
     tg = telegram.load()
     return render_template("connections.html", tg=tg,
                            adzuna=(SECRETS_DIR / "adzuna.json").exists())
+
+
+from . import apply_pages  # noqa: E402,F401  (Phase 2 pages: Apply, Tracker, Answers)

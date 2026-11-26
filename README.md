@@ -20,17 +20,17 @@ does the boring parts, and I spend about 15 minutes a day on it.
 | Phase | What | Status |
 |---|---|---|
 | 0 | Website base: login, settings, profile, activity log, emergency stop | Done |
-| 1 | Finding and ranking jobs, daily list, alerts | Mostly done |
-| 2 | Applying: saved answers, form filling, tracker | Next |
-| 3 | Emails: drafts, approvals, sending, follow-ups, replies | |
+| 1 | Finding and ranking jobs, daily list, alerts | Done (email parts wait for Gmail) |
+| 2 | Applying: saved answers, cover notes, form filling, tracker | Done, being tried |
+| 3 | Emails: drafts, approvals, sending, follow-ups, replies | Next |
 | 4 | Company info and interview prep | |
 | 5 | Stats, goals, backups, phone access | |
 | 6 | A tweaked resume for each job (LaTeX) | |
 
 ## Built with
 
-Python, Flask, SQLite, Waitress, systemd timers, Telegram Bot API, Claude (via the `claude` CLI, no tools).
-Later: Playwright, Gmail API.
+Python, Flask, SQLite, Waitress, systemd timers, Telegram Bot API, Claude (via the `claude` CLI, no tools),
+Playwright (form filling). Later: Gmail API.
 
 ## Job sources
 
@@ -50,6 +50,19 @@ Later: Playwright, Gmail API.
 - Hacker News "Who is hiring?"
 - Adzuna India (free key)
 - Coming: job-alert emails from LinkedIn, Naukri, Instahyre, Cutshort, Wellfound
+
+## How applying works
+
+1. **Apply here** on a job opens its Apply page.
+2. **Cover note**: Claude writes a short one from my resume and the job post. I edit it.
+3. **Fill the form for me** opens the job's form in a separate, empty browser (no saved logins) and fills
+   what it knows: my Profile (name, email, phone, links, college, CTC, notice period, country), my saved
+   answers (matched even when a form words the question differently), the resume file and the cover note.
+   It never clicks Submit, never ticks "I agree" boxes, never touches password boxes, and never changes
+   a box that already has something in it. Custom drop-downs are only picked when an option really matches.
+4. Questions it couldn't answer are listed on the Apply page with a box to answer them once, for every form after.
+5. **I applied** puts the job on the Tracker board (Applied, Emailed, Replied, Interview, Offer / Rejected),
+   with a note per job and a flag when there's been no reply for a while.
 
 ## How a job is picked
 

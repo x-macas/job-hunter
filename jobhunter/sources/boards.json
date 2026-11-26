@@ -618,5 +618,25 @@
   "ats": "jobvite",
   "slug": "barracuda-networks-inc",
   "name": "Barracuda"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "couchbaseinc",
+  "name": "Couchbase"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "doordashindia",
+  "name": "DoorDash"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "harnessinc",
+  "name": "Harness"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "multipliercareers",
+  "name": "Multiplier"
  }
 ]

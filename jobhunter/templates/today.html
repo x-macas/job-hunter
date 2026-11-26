@@ -6,6 +6,7 @@
   <span class="muted">
     {% if run and run.last_finished %}Last run {{ run.last_finished | when }}{% else %}No run yet{% endif %}
     · {{ counts.total or 0 }} jobs seen, {{ counts.kept or 0 }} passed your rules
+    · <strong>Applied today: {{ applied }} of {{ goal }}</strong>
   </span>
 </div>
 
@@ -51,7 +52,12 @@
     {% if j.url.startswith('http') %}
       <a class="btn pri" href="{{ j.apply_url or j.url }}" target="_blank" rel="noopener noreferrer">Open job</a>
     {% endif %}
-    <button class="btn" disabled title="Comes in Phase 2">Fill the form</button>
+    <a class="btn" href="{{ url_for('pages.apply_job', job_id=j.id) }}">Apply here</a>
+    <form method="post" action="{{ url_for('pages.job_applied', job_id=j.id) }}" class="full">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ url_for('pages.today') }}">
+      <button class="btn">I applied</button>
+    </form>
     <button class="btn" disabled title="Comes in Phase 3">Draft email</button>
     <form method="post" action="{{ url_for('pages.skip_job', job_id=j.id) }}" class="skip">
       <input type="hidden" name="csrf" value="{{ csrf_token() }}">

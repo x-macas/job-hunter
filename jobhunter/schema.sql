@@ -107,3 +107,30 @@ CREATE TABLE IF NOT EXISTS pasted_pages (
     prev_ts   REAL,                   -- the paste before that
     last_new  TEXT NOT NULL DEFAULT '[]'  -- JSON list of what was new this time
 );
+
+-- Phase 2. Jobs you applied to, and where each one stands (the Tracker board).
+CREATE TABLE IF NOT EXISTS applications (
+    job_id      INTEGER PRIMARY KEY REFERENCES jobs (id),
+    stage       TEXT NOT NULL DEFAULT 'applied',  -- applied, emailed, replied, interview, offer, rejected
+    applied_at  REAL NOT NULL,
+    updated_at  REAL NOT NULL,
+    note        TEXT NOT NULL DEFAULT ''
+);
+
+-- Your saved answers to form questions. {company} and {role} are filled in per job.
+CREATE TABLE IF NOT EXISTS answers (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    question    TEXT NOT NULL,
+    answer      TEXT NOT NULL DEFAULT '',
+    used        INTEGER NOT NULL DEFAULT 0,
+    updated_at  REAL NOT NULL
+);
+
+-- Per-job text: the cover note, and questions the form filler couldn't answer.
+CREATE TABLE IF NOT EXISTS job_notes (
+    job_id      INTEGER NOT NULL REFERENCES jobs (id),
+    kind        TEXT NOT NULL,       -- cover, unanswered, fill_log
+    text        TEXT NOT NULL,
+    ts          REAL NOT NULL,
+    PRIMARY KEY (job_id, kind)
+);

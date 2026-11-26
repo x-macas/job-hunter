@@ -18,6 +18,8 @@ FIELDS = [
     Field("email", "Email", "email"),
     Field("phone", "Phone"),
     Field("city", "City you live in"),
+    Field("country", "Country you live in", help="For example: India"),
+    Field("current_company", "Current company", help="Leave empty if you're not working now"),
     Field("linkedin_url", "LinkedIn link", "url"),
     Field("github_url", "GitHub link", "url"),
     Field("portfolio_url", "Portfolio or project link", "url"),

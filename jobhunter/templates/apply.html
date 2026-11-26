@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Apply: {{ job.company }}{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <h1>{{ job.title }} · {{ job.company }}</h1>
+  <span class="muted">{{ job.location or 'Location not listed' }}</span>
+</div>
+
+<section class="card stack">
+  <h2>Apply in 3 steps</h2>
+  <ol class="steps">
+    <li>Check the cover note below (write one if the form asks for it).</li>
+    <li>Press <strong>Fill the form for me</strong>. A separate browser opens the job's form and fills what it can.
+      Read every box, fix anything wrong, then press Submit yourself. The website never submits for you.</li>
+    <li>Come back and press <strong>I applied</strong>, so it goes on the Tracker.</li>
+  </ol>
+  <div class="row">
+    {% if job.url.startswith('http') %}
+    <a class="btn" href="{{ job.apply_url or job.url }}" target="_blank" rel="noopener noreferrer">Open job page</a>
+    {% endif %}
+    <form method="post" action="{{ url_for('pages.fill_form', job_id=job.id) }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn pri" {% if not filler.ready or not job.url.startswith('http') %}disabled{% endif %}>Fill the form for me</button>
+    </form>
+    {% if app %}
+    <span class="chip chip-new">On the Tracker: {{ stage_names[app.stage] }}</span>
+    <form method="post" action="{{ url_for('pages.job_applied', job_id=job.id) }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="undo" value="1">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button class="btn ghost">Undo</button>
+    </form>
+    {% else %}
+    <form method="post" action="{{ url_for('pages.job_applied', job_id=job.id) }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <button class="btn">I applied</button>
+    </form>
+    {% endif %}
+  </div>
+  {% if not filler.ready %}<p class="small muted">{{ filler.why }}</p>{% endif %}
+</section>
+
+{% if unanswered or fill_log %}
+<section class="card">
+  <h2>Last time the form was filled</h2>
+  {% if unanswered %}
+  <p>These questions had no saved answer, so they were left for you. Answer them here once and every
+    form after this fills them. Write <code>{company}</code> for the company name.</p>
+  {% for q in unanswered %}
+  <form method="post" action="{{ url_for('pages.answers_page') }}" class="row qa">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="question" value="{{ q }}">
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <label class="grow">{{ q }}<input name="answer" maxlength="3000" required></label>
+    <button class="btn">Save answer</button>
+  </form>
+  {% endfor %}
+  {% endif %}
+  {% if fill_log %}<p class="small muted">{{ fill_log }}</p>{% endif %}
+</section>
+{% endif %}
+
+<section class="card stack" id="cover">
+  <h2>Cover note</h2>
+  <form method="post" action="{{ url_for('pages.cover_note', job_id=job.id) }}" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label for="note" class="sr-only">Cover note</label>
+    <textarea id="note" name="note" rows="9" placeholder="No note yet. Press Write one, or type your own.">{{ note }}</textarea>
+    <div class="row">
+      <button class="btn pri" name="action" value="save">Save note</button>
+      <button class="btn" name="action" value="write" formnovalidate>{{ 'Write a new one' if note else 'Write one' }}</button>
+    </div>
+  </form>
+  <p class="small muted">Claude writes it from your resume and the job post. It has no tools and only returns text.</p>
+</section>
+
+{% if job.description %}
+<section class="card">
+  <h2>The job post</h2>
+  <div class="jobtext">{{ job.description }}</div>
+</section>
+{% endif %}
+{% endblock %}

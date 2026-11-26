@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Answers{% endblock %}
+{% block content %}
+<div class="pagehead">
+  <h1>Saved answers</h1>
+  <span class="muted">{{ rows | length - empty }} answered{% if empty %}, {{ empty }} still empty{% endif %}</span>
+</div>
+<p class="muted narrowtext">Write an answer once and the form filler reuses it whenever a form asks the same thing,
+  even in other words. Write <code>{company}</code> or <code>{role}</code> and they're replaced with the job's company
+  and title. Things already on your <a href="{{ url_for('pages.profile') }}">Profile</a> (name, phone, links, CTC,
+  notice period) are filled from there.</p>
+
+<section class="card stack">
+  <h2>Add a question</h2>
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label>Question<input name="question" maxlength="300" required></label>
+    <label>Your answer<textarea name="answer" rows="3" maxlength="3000"></textarea></label>
+    <div><button class="btn pri">Add</button></div>
+  </form>
+</section>
+
+{% for r in rows %}
+<section class="card stack" id="q-{{ r.id }}">
+  <form method="post" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="id" value="{{ r.id }}">
+    <label>Question<input name="question" value="{{ r.question }}" maxlength="300" required></label>
+    <label>Answer{% if not r.answer %} <span class="chip chip-warn">Empty</span>{% endif %}
+      <textarea name="answer" rows="3" maxlength="3000">{{ r.answer }}</textarea></label>
+    <div class="row">
+      <button class="btn">Save</button>
+      {% if r.used %}<span class="small muted">Used in {{ r.used }} form{{ '' if r.used == 1 else 's' }}</span>{% endif %}
+    </div>
+  </form>
+  <form method="post" action="{{ url_for('pages.answers_delete', answer_id=r.id) }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn ghost">Delete</button>
+  </form>
+</section>
+{% endfor %}
+{% endblock %}
