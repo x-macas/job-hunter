@@ -21,6 +21,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .. import parse
+from ..config import DATA_DIR, write_private_file
 from . import RawJob
 from .http import FetchError
 
@@ -117,9 +118,35 @@ def _workday_india_facet(base: str) -> tuple[str, list[str]] | None:
     return None
 
 
+FACETS_FILE = DATA_DIR / "workday_facets.json"
+_FACETS_LOCK = threading.Lock()
+
+
+def _remember_facet(p: dict, facet) -> None:
+    """Keep each site's India filter, so the Check page can link to the site already filtered."""
+    key = f"{p['tenant']}/{p['site']}"
+    with _FACETS_LOCK:
+        try:
+            saved = json.loads(FACETS_FILE.read_text())
+        except (OSError, ValueError):
+            saved = {}
+        value = list(facet) if facet else None
+        if saved.get(key) != value:
+            saved[key] = value
+            write_private_file(FACETS_FILE, json.dumps(saved).encode())
+
+
+def saved_facets() -> dict:
+    try:
+        return json.loads(FACETS_FILE.read_text())
+    except (OSError, ValueError):
+        return {}
+
+
 def _workday(p: dict, quick: bool = False) -> list[RawJob]:
     base = f"https://{p['host']}/wday/cxs/{p['tenant']}/{p['site']}"
     facet = _workday_india_facet(base)
+    _remember_facet(p, facet)
     applied = {facet[0]: facet[1]} if facet else {}
     jobs = []
     # Full run: search "software", up to 200 jobs. Quick check: no search word,

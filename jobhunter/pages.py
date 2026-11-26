@@ -167,20 +167,25 @@ SKIP_REASONS = [
 
 
 def _today_cards(db, s):
-    from datetime import date
+    """Every open job that passed your rules (and Claude's checks), best first.
+    Jobs Claude hasn't scored yet come last."""
     from . import ranking
-    day_row = db.execute("SELECT MAX(day) AS d FROM picks").fetchone()
-    day = day_row["d"] if day_row and day_row["d"] else date.today().isoformat()
-    rows = db.execute(
-        "SELECT j.*, p.rank FROM picks p JOIN jobs j ON j.id = p.job_id "
-        "WHERE p.day = ? AND j.status = 'new' ORDER BY p.rank", (day,)
-    ).fetchall()
-    cards, now = [], time.time()
+    rows = db.execute("SELECT * FROM jobs WHERE rule_ok = 1 AND status = 'new'").fetchall()
+    cards, unscored, dropped, now = [], [], [], time.time()
     for r in rows:
         ai = json.loads(r["ai_json"] or "{}")
-        _score, tags = ranking.final_score(r, ai, s, now)
-        cards.append({"job": r, "ai": ai, "tags": tags or [], "pay": _pay_label(r)})
-    return day, cards
+        if r["ai_score"] is None:
+            unscored.append({"job": r, "ai": ai, "tags": ["Not scored yet"], "pay": _pay_label(r), "final": None})
+            continue
+        final, tags = ranking.final_score(r, ai, s, now)
+        if final is None:
+            dropped.append({"job": r, "why": (tags or ["dropped"])[0]})
+            continue
+        cards.append({"job": r, "ai": ai, "tags": tags or [], "pay": _pay_label(r), "final": final})
+    cards.sort(key=lambda c: -c["final"])
+    unscored.sort(key=lambda c: -(c["job"]["posted_at"] or c["job"]["first_seen"]))
+    dropped.sort(key=lambda d: -(d["job"]["ai_score"] or 0))
+    return cards + unscored, dropped
 
 
 def _pay_label(job) -> str:
@@ -196,11 +201,11 @@ def _pay_label(job) -> str:
 def today_jobs():
     db = get_db()
     s = settings_store.get_all(db)
-    day, cards = _today_cards(db, s)
+    cards, dropped = _today_cards(db, s)
     run = db.execute("SELECT * FROM runs WHERE name = 'daily'").fetchone()
     counts = db.execute(
         "SELECT COUNT(*) AS total, SUM(rule_ok = 1 AND status = 'new') AS kept FROM jobs").fetchone()
-    return render_template("today.html", now=datetime.now(), day=day, cards=cards, run=run,
+    return render_template("today.html", now=datetime.now(), cards=cards, dropped=dropped, run=run,
                            counts=counts, reasons=SKIP_REASONS)
 
 

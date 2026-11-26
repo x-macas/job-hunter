@@ -106,3 +106,23 @@ def test_new_today_lists_fresh_careers_site_jobs(app):
         assert [g["name"] for g in groups] == ["Walmart Global Tech"]
         assert [j["title"] for j in groups[0]["dev"]] == ["Software Engineer"]
         assert groups[0]["other"] == 1
+
+
+def test_today_page_lists_every_passing_job_ranked(app, logged_in):
+    import json as _json
+    from test_phase1 import settings
+    from jobhunter.db import get_db
+    s = settings(daily_top_n=2)
+    with app.app_context():
+        db = get_db()
+        collect.save(db, [raw(i, company=f"Co{i}", title="Software Engineer") for i in range(5)], s)
+        collect.apply_rules(db, s, log=lambda m: None)
+        for i, row in enumerate(db.execute("SELECT id FROM jobs ORDER BY id").fetchall()):
+            if i < 4:  # the 5th stays unscored
+                db.execute("UPDATE jobs SET ai_score = ?, ai_json = ? WHERE id = ?",
+                           (50 + i * 10, _json.dumps({"company_type": "product"}), row["id"]))
+        db.commit()
+    html = logged_in.get("/").get_data(as_text=True)
+    assert "5 jobs passed your rules" in html
+    assert html.index("Co3") < html.index("Co2") < html.index("Co1") < html.index("Co0") < html.index("Co4")
+    assert "Not scored yet" in html

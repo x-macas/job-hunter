@@ -2,7 +2,7 @@
 {% block title %}Today{% endblock %}
 {% block content %}
 <div class="pagehead">
-  <h1>{{ cards | length }} job{{ '' if cards | length == 1 else 's' }} for you</h1>
+  <h1>{{ cards | length }} job{{ '' if cards | length == 1 else 's' }} passed your rules</h1>
   <span class="muted">
     {% if run and run.last_finished %}Last run {{ run.last_finished | when }}{% else %}No run yet{% endif %}
     · {{ counts.total or 0 }} jobs seen, {{ counts.kept or 0 }} passed your rules
@@ -31,9 +31,9 @@
 {% for c in cards %}
 {% set j = c.job %}
 <article class="card job">
-  <div class="score" aria-label="Score {{ j.ai_score }} out of 100">{{ j.ai_score }}</div>
+  <div class="score" aria-label="{% if j.ai_score is none %}Not scored yet{% else %}Rank {{ loop.index }}, score {{ j.ai_score }} out of 100{% endif %}">{{ '–' if j.ai_score is none else j.ai_score }}</div>
   <div class="jobmain">
-    <h2>{{ j.title }} · {{ j.company }}</h2>
+    <h2>{% if c.final is not none %}<span class="rank">#{{ loop.index }}</span> {% endif %}{{ j.title }} · {{ j.company }}</h2>
     <p class="muted">{{ j.location or 'Location not listed' }} · {{ c.pay }}{% if j.job_type not in ('unknown', 'full_time') %} · {{ j.job_type | replace('_', '-') }}{% endif %}</p>
     {% if c.tags %}
     <div class="tags">
@@ -71,4 +71,15 @@
   <p>It takes a few minutes. Upload your resume on the <a href="{{ url_for('pages.profile') }}">Profile</a> page first, so scores are right.</p>
 </section>
 {% endfor %}
+{% if dropped %}
+<details class="card">
+  <summary><h2 class="inline">Passed the rules, dropped after Claude read them ({{ dropped | length }})</h2></summary>
+  <ul class="newjobs">
+    {% for d in dropped %}
+    <li>{% if d.job.url.startswith('http') %}<a href="{{ d.job.url }}" target="_blank" rel="noopener noreferrer">{{ d.job.title }}</a>{% else %}{{ d.job.title }}{% endif %}
+      · {{ d.job.company }} <span class="small muted">· score {{ d.job.ai_score }} · {{ d.why }}</span></li>
+    {% endfor %}
+  </ul>
+</details>
+{% endif %}
 {% endblock %}

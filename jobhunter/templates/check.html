@@ -28,21 +28,28 @@
 </div>
 
 <section class="card">
-  <p class="muted small">Straight from each company's own careers site. Jobs marked <span class="chip chip-new">Fits</span>
-    pass your rules; the others show why not. Found one you like? Paste its link on the Today page.</p>
+  <p class="muted small">Companies that posted software jobs in India in the last 24 hours. "Open careers site" opens
+    the company's own site filtered to India, newest first, so today's jobs are at the top. Careers sites don't
+    offer a "today only" filter in their links, so the exact jobs are listed under "See the jobs" too.</p>
   {% for g in new %}
   <div class="newco" id="n-{{ g.slug }}">
-    <h3>{{ g.name }} <span class="chip">{{ g.dev | length }} new</span>{% if g.fits %} <span class="chip chip-new">{{ g.fits }} fit{{ '' if g.fits == 1 else 's' }}</span>{% endif %}</h3>
-    <ul class="newjobs">
-      {% for j in g.dev %}
-      <li>
-        {% if j.url.startswith("http") %}<a href="{{ j.url }}" target="_blank" rel="noopener noreferrer">{{ j.title }}</a>{% else %}{{ j.title }}{% endif %}
-        {% if j.rule_ok %}<span class="chip chip-new">Fits</span>{% endif %}
-        <span class="small muted">{{ j.location or 'India' }} · {% if j.posted_at %}posted {{ j.posted_at | when }}{% else %}found {{ j.first_seen | when }}{% endif %}{% if not j.rule_ok and j.rule_reason %} · {{ j.rule_reason }}{% endif %}</span>
-      </li>
-      {% endfor %}
-    </ul>
-    {% if g.other %}<p class="small muted">and {{ g.other }} other new job{{ '' if g.other == 1 else 's' }} that aren't software roles</p>{% endif %}
+    <div class="newhead">
+      <h3>{{ g.name }} <span class="chip">{{ g.dev | length }} posted today</span>{% if g.fits %} <span class="chip chip-new">{{ g.fits }} fit{{ '' if g.fits == 1 else 's' }}</span>{% endif %}</h3>
+      {% if g.url %}<a class="btn pri" href="{{ g.url }}" target="_blank" rel="noopener noreferrer">Open careers site</a>{% endif %}
+    </div>
+    <details>
+      <summary>See the {{ g.dev | length }} job{{ '' if g.dev | length == 1 else 's' }}</summary>
+      <ul class="newjobs">
+        {% for j in g.dev %}
+        <li>
+          {% if j.url.startswith("http") %}<a href="{{ j.url }}" target="_blank" rel="noopener noreferrer">{{ j.title }}</a>{% else %}{{ j.title }}{% endif %}
+          {% if j.rule_ok %}<span class="chip chip-new">Fits</span>{% endif %}
+          <span class="small muted">{{ j.location or 'India' }}{% if not j.rule_ok and j.rule_reason %} · {{ j.rule_reason }}{% endif %}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      {% if g.other %}<p class="small muted">and {{ g.other }} other new job{{ '' if g.other == 1 else 's' }} that aren't software roles</p>{% endif %}
+    </details>
   </div>
   {% else %}
   <p class="muted">Nothing new in the last 24 hours yet. The website checks every 30 minutes.</p>

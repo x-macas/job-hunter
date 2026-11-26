@@ -31,14 +31,21 @@ def _links() -> dict:
     return {k.lower(): v for k, v in json.loads(LINKS_FILE.read_text()).items()}
 
 
-def source_url(src: dict) -> str:
-    """The careers page for a source the website reads."""
+def source_url(src: dict, facets: dict | None = None) -> str:
+    """The careers page for a source the website reads, filtered to India and
+    newest first where the site's links allow it."""
     kind = src.get("type") or src.get("ats")
     slug = src.get("slug", "")
     if kind == "workday":
-        return f"https://{src['host']}/{src['site']}"
+        # Workday lists newest first; its links take the same India filter the website uses.
+        url = f"https://{src['host']}/{src['site']}"
+        facet = (facets or {}).get(f"{src['tenant']}/{src['site']}")
+        if facet:
+            url += "?" + urllib.parse.urlencode([(facet[0], i) for i in facet[1]])
+        return url
     if kind == "oraclehcm":
-        return f"https://{src['host']}/hcmUI/CandidateExperience/en/sites/{src['site']}/requisitions"
+        return (f"https://{src['host']}/hcmUI/CandidateExperience/en/sites/{src['site']}/requisitions?"
+                + urllib.parse.urlencode({"location": "India", "sortBy": "POSTING_DATES_DESC"}))
     if kind == "amazon":
         return "https://www.amazon.jobs/en/search?base_query=software&country=IND&sort=recent"
     if kind == "atlassian":
@@ -66,6 +73,7 @@ def build(s: dict) -> dict:
     first = blocked / no-bots companies, later = not readable yet, auto = read by the website."""
     sources = boards.default_boards() + boards.boards_from_setting(s["extra_boards"]) + portals.default_portals()
     links = _links()
+    facets = portals.saved_facets()
     out = {"first": [], "later": [], "auto": []}
     for name in dict.fromkeys(s["big_companies"] + s["watch_list"]):
         if not name.strip():
@@ -73,7 +81,7 @@ def build(s: dict) -> dict:
         srcs = [x for x in sources if rules.name_in(x["name"], [name]) or rules.name_in(name, [x["name"]])]
         item = {"name": name, "slug": slug(name), "watch": name in s["watch_list"]}
         if srcs:
-            item["url"] = source_url(srcs[0])
+            item["url"] = source_url(srcs[0], facets)
             out["auto"].append(item)
             continue
         known = links.get(name.lower(), {})
@@ -122,13 +130,18 @@ def new_today(conn, s: dict, now: float | None = None, hours: int = 24) -> list[
         if not parse.location_ok(r["location"] or "", bool(r["remote"]), s["locations"]):
             continue
         g = groups.setdefault(r["company"], {"name": r["company"], "slug": slug(r["company"]),
-                                             "dev": [], "other": 0, "fits": 0})
+                                             "dev": [], "other": 0, "fits": 0, "url": None})
         if rules.is_role(r["title"], s):
             g["dev"].append(r)
             g["fits"] += bool(r["rule_ok"])
         else:
             g["other"] += 1
+    sources = boards.default_boards() + boards.boards_from_setting(s["extra_boards"]) + portals.default_portals()
+    facets = portals.saved_facets()
     for g in groups.values():
+        src = next((x for x in sources if rules.name_in(x["name"], [g["name"]])
+                    or rules.name_in(g["name"], [x["name"]])), None)
+        g["url"] = source_url(src, facets) if src else None
         g["dev"].sort(key=lambda r: (not r["rule_ok"], -(r["posted_at"] or r["first_seen"])))
     return sorted((g for g in groups.values() if g["dev"]),
                   key=lambda g: (-g["fits"], -len(g["dev"]), g["name"].lower()))
