@@ -30,15 +30,14 @@
 <section class="card">
   <p class="muted small">Companies that posted software jobs in India in the last 24 hours. "Open careers site" opens
     the company's own site filtered to India, newest first, so today's jobs are at the top. Careers sites don't
-    offer a "today only" filter in their links, so the exact jobs are listed under "See the jobs" too.</p>
+    offer a "today only" filter in their links, so the exact jobs are listed under each company too.</p>
   {% for g in new %}
   <div class="newco" id="n-{{ g.slug }}">
     <div class="newhead">
       <h3>{{ g.name }} <span class="chip">{{ g.dev | length }} posted today</span>{% if g.fits %} <span class="chip chip-new">{{ g.fits }} fit{{ '' if g.fits == 1 else 's' }}</span>{% endif %}</h3>
       {% if g.url %}<a class="btn pri" href="{{ g.url }}" target="_blank" rel="noopener noreferrer">Open careers site</a>{% endif %}
     </div>
-    <details>
-      <summary>See the {{ g.dev | length }} job{{ '' if g.dev | length == 1 else 's' }}</summary>
+    <div class="newlist">
       <ul class="newjobs">
         {% for j in g.dev %}
         <li>
@@ -49,7 +48,7 @@
         {% endfor %}
       </ul>
       {% if g.other %}<p class="small muted">and {{ g.other }} other new job{{ '' if g.other == 1 else 's' }} that aren't software roles</p>{% endif %}
-    </details>
+    </div>
   </div>
   {% else %}
   <p class="muted">Nothing new in the last 24 hours yet. The website checks every 30 minutes.</p>
@@ -69,13 +68,15 @@
   <ul class="checklist">{% for i in groups.first %}{{ row(i, true) }}{% endfor %}</ul>
 </section>
 
-<details class="card">
-  <summary><h2 class="inline">Not readable yet ({{ groups.later | length }})</h2> <span class="small">I'm working through these; until then, check the ones you care about</span></summary>
+<section class="card gap-top">
+  <h2>Not readable yet ({{ groups.later | length }})</h2>
+  <p class="small muted">I'm working through these; until then, check the ones you care about</p>
   <ul class="checklist">{% for i in groups.later %}{{ row(i, true) }}{% endfor %}</ul>
-</details>
+</section>
 
-<details class="card">
-  <summary><h2 class="inline">Read by the website every 30 minutes ({{ groups.auto | length }})</h2> <span class="small">Their new jobs show at the top of this page; careers links are here too</span></summary>
+<section class="card gap-top">
+  <h2>Read by the website every 30 minutes ({{ groups.auto | length }})</h2>
+  <p class="small muted">Their new jobs show at the top of this page; careers links are here too</p>
   <ul class="checklist">{% for i in groups.auto %}{{ row(i, false) }}{% endfor %}</ul>
-</details>
+</section>
 {% endblock %}

@@ -182,5 +182,5 @@ details.card summary { color: var(--ink); }
 .newhead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
 .newhead h3 { margin: 0; }
 .newhead .btn { text-decoration: none; }
-.newco details { margin-top: 6px; }
+.newco .newlist { margin-top: 6px; }
 .rank { color: var(--muted); font-weight: 600; margin-right: 4px; }
