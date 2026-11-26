@@ -18,7 +18,6 @@ import time
 from datetime import date, datetime
 
 from . import activity, ai, profile_store, settings_store
-from .config import RESUME_PATH
 from .scoring import resume_text
 
 KINDS = {
@@ -214,10 +213,12 @@ def send(conn, email_id: int, s: dict, approved_by_you: bool) -> None:
     if contact is None or contact["email"] != row["to_addr"]:
         raise SendBlocked("That address isn't one you added. Not sent.")
     prof = profile_store.get_all(conn)
+    from . import tailor
     attachment = None
-    if RESUME_PATH.exists():
+    resume = tailor.resume_for(row["job_id"])
+    if resume.exists():
         name = re.sub(r"[^A-Za-z0-9 ]+", "", prof.get("full_name") or "").strip() or "My"
-        attachment = (f"{name} Resume.pdf", RESUME_PATH.read_bytes())
+        attachment = (f"{name} Resume.pdf", resume.read_bytes())
     earlier = conn.execute("SELECT message_id FROM emails WHERE id = ?", (row["followup_of"],)).fetchone() \
         if row["followup_of"] else None
     try:

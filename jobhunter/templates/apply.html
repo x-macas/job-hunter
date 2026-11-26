@@ -109,6 +109,49 @@
   </form>
 </section>
 
+<section class="card stack" id="tailor">
+  <h2>Resume for this job</h2>
+  {% if tailored %}
+  <p><strong class="good">A tailored resume is ready.</strong> Emails and the form filler use it for this job.</p>
+  <div class="row">
+    <a class="btn" href="{{ url_for('pages.tailored_pdf', job_id=job.id) }}" target="_blank" rel="noopener">Open the PDF</a>
+    <form method="post" action="{{ url_for('pages.tailor_job', job_id=job.id) }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <button class="btn ghost" name="action" value="remove">Use my main resume instead</button>
+    </form>
+  </div>
+  {% endif %}
+  {% if not tex %}
+  <p class="muted">Upload your resume's .tex file on the <a href="{{ url_for('pages.profile') }}">Profile</a> page to get a
+    version tweaked for each job. Until then, your main resume PDF is used.</p>
+  {% else %}
+  {% if not latex %}<p class="flash error">LaTeX isn't installed, so the PDF can't be built yet. In a terminal run:
+    <code>sudo dnf install texlive-scheme-medium</code></p>{% endif %}
+  <form method="post" action="{{ url_for('pages.tailor_job', job_id=job.id) }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn" name="action" value="suggest">{{ 'Suggest new edits' if edits else 'Suggest edits for this job' }}</button>
+  </form>
+  {% if edits %}
+  <form method="post" action="{{ url_for('pages.tailor_job', job_id=job.id) }}" class="stack">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <p class="small muted">Claude may only reword or reorder what's already in your resume. Read each one: untick anything
+      that isn't true or doesn't sound like you.</p>
+    {% for e in edits %}
+    <label class="edit">
+      <input type="checkbox" name="edit" value="{{ loop.index0 }}" checked>
+      <span class="stack tight">
+        <span class="small"><strong>{{ e.why }}</strong></span>
+        <pre class="before">{{ e.find }}</pre>
+        <pre class="after">{{ e.replace }}</pre>
+      </span>
+    </label>
+    {% endfor %}
+    <div><button class="btn pri" name="action" value="build" {% if not latex %}disabled{% endif %}>Build the PDF with ticked edits</button></div>
+  </form>
+  {% endif %}
+  {% endif %}
+</section>
+
 <section class="card stack" id="cover">
   <h2>Cover note</h2>
   <form method="post" action="{{ url_for('pages.cover_note', job_id=job.id) }}" class="stack">

@@ -223,3 +223,10 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .charts2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
 table.plain { border-collapse: collapse; width: 100%; font-size: 14px; }
 table.plain th, table.plain td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--line); }
+
+/* Phase 6: tailored resume edits */
+.edit { display: flex; gap: 12px; align-items: flex-start; border-top: 1px solid var(--line); padding-top: 12px; }
+.edit input { margin-top: 4px; width: auto; }
+.edit pre { white-space: pre-wrap; margin: 0; padding: 8px 10px; border-radius: 8px; font-size: 13px; }
+.edit pre.before { background: var(--danger-soft); color: var(--ink); text-decoration: line-through; text-decoration-color: var(--danger); }
+.edit pre.after { background: var(--accent-soft); color: var(--ink); }

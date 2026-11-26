@@ -25,7 +25,7 @@ does the boring parts, and I spend about 15 minutes a day on it.
 | 3 | Emails: drafts, approvals, sending, follow-ups, replies, LinkedIn notes | Built, waits for Gmail |
 | 4 | Company info, interview prep, mock interview | Built |
 | 5 | Stats, skill gaps, goals and streak, evening nudge, backups, phone access | Built (phone access waits) |
-| 6 | A tweaked resume for each job (LaTeX) | |
+| 6 | A tweaked resume for each job (LaTeX) | Built, needs LaTeX installed + my .tex |
 
 ## Built with
 
@@ -87,6 +87,15 @@ Playwright (form filling), Gmail over IMAP/SMTP with an app password.
    it only returns a score and short reasons. Job text is treated as data, never as instructions.
 3. **Ranking**: big companies get a boost and saved spots, fresh jobs a small boost,
    unknown pay at startups a small penalty. Top 20 go on the Today page.
+
+## A resume tweaked for each job
+
+Upload the resume's `.tex` on the Profile page. On a job's page, **Suggest edits** asks Claude for a few small
+changes (reorder skills, move the best bullet up, use the job's words for things I really did). It can only
+change text that is already there. Our code drops any edit that isn't an exact single match, breaks braces, or
+adds a LaTeX command the resume doesn't already use (so nothing that reads or writes files or runs programs).
+I tick the edits I want; it's compiled with shell escape OFF and file access limited to its own folder.
+Emails and the form filler then use that PDF for that job. Needs LaTeX: `sudo dnf install texlive-scheme-medium`.
 
 ## Backups
 

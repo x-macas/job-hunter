@@ -140,8 +140,9 @@ def profile():
     resume_info = None
     if resume.exists():
         resume_info = datetime.fromtimestamp(resume.stat().st_mtime)
+    from . import tailor
     return render_template(
-        "profile.html",
+        "profile.html", has_tex=tailor.TEX_PATH.exists(),
         fields=profile_store.FIELDS,
         values=values,
         errors=errors,
@@ -168,6 +169,22 @@ def upload_resume():
         db.commit()
         activity.log(db, "profile", "Resume uploaded.")
         flash("Resume saved.")
+    return redirect(url_for("pages.profile"))
+
+
+@bp.route("/profile/tex", methods=["POST"])
+def upload_tex():
+    from . import tailor
+    file = request.files.get("tex")
+    if file is None or not file.filename:
+        flash("Pick your resume's .tex file first.", "error")
+        return redirect(url_for("pages.profile"))
+    try:
+        tailor.save_source(file.read(tailor.TEX_MAX + 1))
+        activity.log(get_db(), "profile", "Resume LaTeX source uploaded.")
+        flash("LaTeX source saved. On a job's page you can now make a version tweaked for that job.")
+    except tailor.TailorError as e:
+        flash(str(e), "error")
     return redirect(url_for("pages.profile"))
 
 

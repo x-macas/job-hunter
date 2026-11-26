@@ -125,7 +125,7 @@ def _pick_option(answer: str, options: list[str]) -> str | None:
 
 
 def plan(fields: list[dict], prof: dict, saved, cover_note: str, company: str, role: str,
-         min_score: float, have_resume: bool) -> tuple[list[dict], list[str], list[str]]:
+         min_score: float, have_resume: bool, resume_path=None) -> tuple[list[dict], list[str], list[str]]:
     """fields: [{id, label, kind, options, required}] read from the page.
     Returns (actions, unanswered questions, boxes left for you on purpose)."""
     pv = profile_values(prof)
@@ -137,7 +137,8 @@ def plan(fields: list[dict], prof: dict, saved, cover_note: str, company: str, r
             continue
         if kind == "file":
             if RESUME.search(label) and have_resume:
-                actions.append({"id": f["id"], "kind": "file", "value": str(RESUME_PATH), "from": "resume"})
+                actions.append({"id": f["id"], "kind": "file", "value": str(resume_path or RESUME_PATH),
+                                "from": "resume", "label": label})
             elif f.get("required"):
                 unanswered.append(label)
             continue
@@ -314,7 +315,7 @@ def form_url(job) -> str:
 def run(job_id: int) -> str:
     from playwright.sync_api import sync_playwright
 
-    from . import cover, profile_store, settings_store
+    from . import cover, profile_store, settings_store, tailor
     from .config import DB_PATH, make_private_dirs
     from .db import connect
     make_private_dirs()
@@ -348,8 +349,9 @@ def run(job_id: int) -> str:
                 continue
             if not fields:
                 continue
+            resume = tailor.resume_for(job_id)
             actions, un, lf = plan(fields, prof, saved, note, job["company"], job["title"],
-                                   s["answer_match_min"] / 100, RESUME_PATH.exists())
+                                   s["answer_match_min"] / 100, resume.exists(), resume)
             n, missed = apply_actions(frame, fields, actions)
             filled += n
             unanswered += un + missed

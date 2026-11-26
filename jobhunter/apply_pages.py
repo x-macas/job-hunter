@@ -27,8 +27,10 @@ def apply_job(job_id):
         return redirect(url_for("pages.today"))
     app_row = db.execute("SELECT * FROM applications WHERE job_id = ?", (job_id,)).fetchone()
     unanswered = [q for q in cover.get(db, job_id, "unanswered").splitlines() if q.strip()]
-    from . import formfill, outreach
+    from . import formfill, outreach, tailor
     return render_template("apply.html", job=job, app=app_row, note=cover.get(db, job_id),
+                           tex=bool(tailor.source()), latex=tailor.compiler() is not None,
+                           edits=tailor.saved_edits(db, job_id), tailored=tailor.pdf_path(job_id).exists(),
                            contacts=outreach.contacts_for(db, job_id), kinds=outreach.KINDS,
                            linkedin=cover.get(db, job_id, "linkedin"),
                            official_email=outreach.official_apply_email(job),
@@ -195,3 +197,43 @@ def prep_job(job_id):
     scored = [t["score"] for t in turns if t["score"]]
     return render_template("prep.html", job=job, info=info, turns=turns,
                            avg=(sum(scored) / len(scored)) if scored else None)
+
+
+# ---------- Tailored resume (Phase 6) ----------
+
+@bp.route("/job/<int:job_id>/tailor", methods=["POST"])
+def tailor_job(job_id):
+    from . import tailor
+    db = get_db()
+    job = _job_or_none(db, job_id)
+    if job is None:
+        return redirect(url_for("pages.today"))
+    action = request.form.get("action")
+    try:
+        if action == "suggest":
+            edits = tailor.suggest(db, job, settings_store.get_all(db))
+            tailor.save_edits(db, job_id, edits)
+            flash(f"{len(edits)} edits suggested. Tick the ones you want, then build the PDF."
+                  if edits else "Claude found nothing worth changing for this job.")
+        elif action == "build":
+            edits = tailor.saved_edits(db, job_id)
+            picked = [edits[int(i)] for i in request.form.getlist("edit") if i.isdigit() and int(i) < len(edits)]
+            tailor.compile_pdf(tailor.apply(tailor.source(), picked), job_id)
+            activity.log(db, "apply", f"Tailored resume built for {job['company']} ({len(picked)} edits).")
+            flash("Tailored resume built. Emails and the form filler use it for this job.")
+        elif action == "remove":
+            tailor.pdf_path(job_id).unlink(missing_ok=True)
+            flash("Removed. This job uses your main resume again.")
+    except (tailor.TailorError, ai.AIError) as e:
+        flash(str(e), "error")
+    return redirect(url_for("pages.apply_job", job_id=job_id) + "#tailor")
+
+
+@bp.route("/job/<int:job_id>/resume.pdf")
+def tailored_pdf(job_id):
+    from flask import send_file
+    from . import tailor
+    p = tailor.pdf_path(job_id)
+    if not p.exists():
+        return redirect(url_for("pages.apply_job", job_id=job_id))
+    return send_file(p, mimetype="application/pdf", download_name=f"resume-job-{job_id}.pdf")

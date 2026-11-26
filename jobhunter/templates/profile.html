@@ -18,6 +18,18 @@
   </form>
 </section>
 
+<section class="card stack">
+  <h2>Resume LaTeX source (optional)</h2>
+  <p class="muted small">Upload the .tex file your resume PDF is made from (one file, UTF-8). Then each job's page can
+    make a version tweaked for that job. {% if has_tex %}<strong class="good">Saved.</strong> Upload again to replace it.{% endif %}</p>
+  <form method="post" action="{{ url_for('pages.upload_tex') }}" enctype="multipart/form-data" class="row">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <label for="tex" class="sr-only">Resume .tex file</label>
+    <input id="tex" type="file" name="tex" accept=".tex,text/x-tex,text/plain" required>
+    <button class="btn">Upload .tex</button>
+  </form>
+</section>
+
 <form method="post" class="stack">
   <input type="hidden" name="csrf" value="{{ csrf_token() }}">
   <fieldset class="card">
