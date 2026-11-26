@@ -65,18 +65,29 @@ SETTINGS = [
             min=50, max=200),
 
     # Companies
-    Setting("big_companies", "Big companies", "Companies", "list", [
-        "Google", "Microsoft", "Amazon", "Apple", "Meta", "Netflix", "Adobe",
-        "Salesforce", "Oracle", "SAP", "IBM", "Intel", "Nvidia", "Qualcomm", "Cisco",
-        "Uber", "LinkedIn", "Atlassian", "Intuit", "PayPal", "ServiceNow", "Nutanix",
-        "Rubrik", "Goldman Sachs", "JPMorgan Chase", "Morgan Stanley", "D. E. Shaw",
-        "Tower Research", "Walmart Global Tech", "Flipkart", "Razorpay", "PhonePe",
-        "Paytm", "Zomato", "Swiggy", "CRED", "Zoho", "Freshworks", "Meesho",
-        "Myntra", "Postman", "BrowserStack", "Media.net", "Samsung",
-        "Stripe", "OpenAI", "Anthropic", "Databricks", "Airbnb", "Pinterest", "Reddit",
-        "Coinbase", "MongoDB", "Datadog", "Cloudflare", "Okta", "Dropbox", "GitLab",
-        "Twilio", "Tower Research Capital", "Agoda", "Elastic",
-    ], "One per line. These can show any job type and get ranked first."),
+    Setting("big_companies", "Big companies (₹17 LPA+ for freshers)", "Companies", "list", [
+        # Big tech and product companies
+        "Google", "Microsoft", "Amazon", "Apple", "Meta", "Netflix", "Adobe", "Salesforce",
+        "Oracle", "SAP", "SAP Labs", "Atlassian", "Uber", "LinkedIn", "Intuit", "PayPal", "ServiceNow",
+        "Nutanix", "Rubrik", "Cohesity", "Databricks", "Snowflake", "MongoDB", "Datadog",
+        "Cloudflare", "Okta", "Zscaler", "Palo Alto Networks", "Arista Networks", "VMware",
+        "Broadcom", "Cisco", "Nvidia", "Qualcomm", "Intel", "AMD", "Texas Instruments",
+        "Cadence", "Synopsys", "Samsung", "Expedia", "Agoda", "Grab", "Twilio", "Stripe",
+        "Coinbase", "Airbnb", "Pinterest", "Reddit", "Dropbox", "OpenAI", "Anthropic", "Elastic",
+        "GitLab", "Visa", "Mastercard", "American Express", "Walmart Global Tech", "Rippling",
+        "Harness", "Postman", "BrowserStack", "Sprinklr", "Media.net", "Trilogy Innovations",
+        "CodeNation", "Tekion",
+        # Trading and finance
+        "D. E. Shaw", "Arcesium", "Tower Research Capital", "Graviton Research Capital",
+        "Quadeye", "Optiver", "IMC Trading", "Squarepoint Capital", "AlphaGrep", "Jane Street",
+        "Citadel", "Goldman Sachs", "Morgan Stanley", "JPMorgan Chase", "J.P. Morgan",
+        "Deutsche Bank", "Barclays", "UBS",
+        # Indian product companies
+        "Flipkart", "Myntra", "Swiggy", "Zomato", "Eternal", "Blinkit", "PhonePe", "Razorpay",
+        "CRED", "Meesho", "Zepto", "Groww", "Dream11", "ShareChat", "Navi Technologies",
+        "Paytm", "Ola Cabs", "Ola Electric", "Juspay", "InMobi", "Glance", "Zeta", "slice",
+        "Urban Company", "Udaan", "Upstox", "Zerodha", "Freshworks", "Druva", "Innovaccer",
+    ], "One per line. They get a score boost, saved spots, and any job type. Pay changes yearly: edit freely."),
     Setting("big_company_boost", "Score boost for big companies", "Companies", "int", 15,
             min=0, max=50),
     Setting("big_company_spots", "Spots kept for big companies on the Today page",

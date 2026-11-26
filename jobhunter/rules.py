@@ -21,18 +21,29 @@ BOND_OR_FEE = re.compile(
 )
 
 
-def norm(name: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", (name or "").lower())
+def _words(name: str) -> list[str]:
+    return re.findall(r"[a-z0-9]+", (name or "").lower())
 
 
 def name_in(company: str, names: list[str]) -> bool:
-    """Does this company match a name on the list? 'Google India' matches 'Google'."""
-    c = norm(company)
-    if not c:
+    """Does this company match a name on the list?
+
+    Whole words only: "Google India Pvt Ltd" matches "Google",
+    but "Sapient" does not match "SAP" and "Intellect" does not match "Intel".
+    "Media.net" and "Medianet" also match (same letters, ignoring spaces and dots).
+    """
+    c_words = _words(company)
+    if not c_words:
         return False
-    for n in names:
-        n2 = norm(n)
-        if n2 and (c == n2 or c.startswith(n2) or (len(n2) >= 5 and n2 in c)):
+    c_joined = "".join(c_words)
+    for name in names:
+        n_words = _words(name)
+        if not n_words:
+            continue
+        if "".join(n_words) == c_joined:
+            return True
+        size = len(n_words)
+        if any(c_words[i:i + size] == n_words for i in range(len(c_words) - size + 1)):
             return True
     return False
 

@@ -30,6 +30,11 @@
   "name": "apna"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "aristanetworks",
+  "name": "Arista Networks"
+ },
+ {
   "ats": "ashby",
   "slug": "atlan",
   "name": "Atlan"
@@ -165,9 +170,19 @@
   "name": "Glance"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "grab",
+  "name": "Grab"
+ },
+ {
   "ats": "greenhouse",
   "slug": "grafanalabs",
   "name": "Grafana Labs"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "gravitonresearchcapital",
+  "name": "Graviton Research Capital"
  },
  {
   "ats": "greenhouse",
@@ -193,6 +208,11 @@
   "ats": "greenhouse",
   "slug": "highradius",
   "name": "HighRadius"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "imc",
+  "name": "IMC Trading"
  },
  {
   "ats": "greenhouse",
@@ -350,6 +370,11 @@
   "name": "Sarvam AI"
  },
  {
+  "ats": "smartrecruiters",
+  "slug": "servicenow",
+  "name": "ServiceNow"
+ },
+ {
   "ats": "greenhouse",
   "slug": "sigmoid",
   "name": "Sigmoid"
@@ -361,6 +386,11 @@
  },
  {
   "ats": "ashby",
+  "slug": "snowflake",
+  "name": "Snowflake"
+ },
+ {
+  "ats": "ashby",
   "slug": "snyk",
   "name": "Snyk"
  },
@@ -368,6 +398,11 @@
   "ats": "ashby",
   "slug": "spotdraft",
   "name": "SpotDraft"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "squarepointcapital",
+  "name": "Squarepoint Capital"
  },
  {
   "ats": "greenhouse",
@@ -393,6 +428,11 @@
   "ats": "ashby",
   "slug": "tekion",
   "name": "Tekion"
+ },
+ {
+  "ats": "ashby",
+  "slug": "thoughtworks",
+  "name": "Thoughtworks"
  },
  {
   "ats": "greenhouse",
@@ -448,6 +488,11 @@
   "ats": "lever",
   "slug": "zeta",
   "name": "Zeta"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "zscaler",
+  "name": "Zscaler"
  },
  {
   "ats": "greenhouse",

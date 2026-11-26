@@ -95,10 +95,19 @@ def test_rules(changes, ok, reason_part):
     assert reason_part in reason
 
 
-def test_company_name_matching():
-    assert rules.name_in("Google India Pvt Ltd", ["Google"])
-    assert not rules.name_in("Googly Games", ["Google India"])
-    assert not rules.name_in("Ab", ["Abc Corp"])
+@pytest.mark.parametrize("company, names, expected", [
+    ("Google India Pvt Ltd", ["Google"], True),
+    ("Walmart Global Tech India", ["Walmart Global Tech"], True),
+    ("Medianet", ["Media.net"], True),
+    ("GeeksForGeeks", ["GeeksforGeeks"], True),
+    ("Googly Games", ["Google India"], False),
+    ("Ab", ["Abc Corp"], False),
+    ("Sapient", ["SAP Labs", "SAP"], False),
+    ("Intellect Design Arena", ["Intel"], False),
+    ("Olam International", ["Ola Cabs"], False),
+])
+def test_company_name_matching(company, names, expected):
+    assert rules.name_in(company, names) is expected
 
 
 # ---------- ranking ----------
