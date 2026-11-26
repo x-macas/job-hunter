@@ -130,7 +130,7 @@ def new_today(conn, s: dict, now: float | None = None, hours: int = 24) -> list[
            FROM jobs j
            WHERE j.status != 'skipped' AND j.added_by != 'link'
              AND (j.posted_at >= ? OR (j.posted_at IS NULL AND j.first_seen >= ?))
-             AND j.source NOT IN ('remotive', 'remoteok', 'hn', 'adzuna')""", (since, since)).fetchall()
+             AND j.source NOT IN ('remotive', 'remoteok', 'hn', 'adzuna', 'email')""", (since, since)).fetchall()
     groups: dict[str, dict] = {}
     for r in rows:
         if r["posted_at"] is None and r["first_seen"] <= r["site_first"] + 3600:

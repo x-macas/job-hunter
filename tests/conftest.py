@@ -5,6 +5,15 @@ import pytest
 from jobhunter import create_app
 
 
+@pytest.fixture(autouse=True)
+def no_real_accounts(tmp_path, monkeypatch):
+    """Tests never touch your real Gmail, Telegram or browser profile."""
+    from jobhunter import formfill, gmail, telegram
+    monkeypatch.setattr(gmail, "FILE", tmp_path / "gmail.json")
+    monkeypatch.setattr(telegram, "FILE", tmp_path / "telegram.json")
+    monkeypatch.setattr(formfill, "PROFILE_DIR", tmp_path / "browser-profile")
+
+
 @pytest.fixture
 def app(tmp_path):
     return create_app({

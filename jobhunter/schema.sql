@@ -134,3 +134,10 @@ CREATE TABLE IF NOT EXISTS job_notes (
     ts          REAL NOT NULL,
     PRIMARY KEY (job_id, kind)
 );
+
+-- Job-alert emails already read (by Message-ID), so each is read once.
+CREATE TABLE IF NOT EXISTS email_seen (
+    msg_id  TEXT PRIMARY KEY,
+    ts      REAL NOT NULL,
+    jobs    INTEGER NOT NULL DEFAULT 0
+);

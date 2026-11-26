@@ -322,6 +322,24 @@ def connections():
             telegram.FILE.unlink(missing_ok=True)
             activity.log(db, "security", "Telegram disconnected.")
             flash("Telegram disconnected.")
+        elif action == "gmail_connect":
+            from . import gmail
+            address = request.form.get("email", "").strip().lower()
+            if not re.fullmatch(r"[a-z0-9._%+-]+@gmail\.com", address):
+                flash("Use your full Gmail address, like name@gmail.com.", "error")
+            else:
+                try:
+                    gmail.connect(address, request.form.get("app_password", ""))
+                    activity.log(db, "security", f"Gmail connected ({address}).")
+                    flash("Gmail connected. Job-alert emails are read on the next check.")
+                except gmail.GmailError as e:
+                    flash(str(e), "error")
+        elif action == "gmail_remove":
+            from . import gmail
+            gmail.disconnect()
+            activity.log(db, "security", "Gmail disconnected.")
+            flash("Gmail disconnected. The app password is deleted from this laptop. "
+                  "You can also delete it in your Google account.")
         elif action == "adzuna":
             app_id, key = request.form.get("app_id", "").strip(), request.form.get("app_key", "").strip()
             if not (re.fullmatch(r"[A-Za-z0-9]{4,40}", app_id) and re.fullmatch(r"[A-Za-z0-9]{10,80}", key)):
@@ -332,8 +350,9 @@ def connections():
                 activity.log(db, "security", "Adzuna keys saved.")
                 flash("Adzuna keys saved. The next daily run will use them.")
         return redirect(url_for("pages.connections"))
+    from . import gmail
     tg = telegram.load()
-    return render_template("connections.html", tg=tg,
+    return render_template("connections.html", tg=tg, gmail=gmail.load().get("email"),
                            adzuna=(SECRETS_DIR / "adzuna.json").exists())
 
 

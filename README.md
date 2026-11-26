@@ -49,7 +49,9 @@ Playwright (form filling). Later: Gmail API.
 - Remotive and Remote OK (each job links back to them, checked at most a few times a day)
 - Hacker News "Who is hiring?"
 - Adzuna India (free key)
-- Coming: job-alert emails from LinkedIn, Naukri, Instahyre, Cutshort, Wellfound
+- Job-alert emails in Gmail (LinkedIn, Naukri, Instahyre, Cutshort, Wellfound, Indeed, foundit and
+  companies' own alerts), read every check once Gmail is connected with an app password. Claude picks out
+  the jobs but can only point at links that are really in the email.
 
 ## How applying works
 

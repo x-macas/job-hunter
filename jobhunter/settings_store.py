@@ -172,6 +172,17 @@ SETTINGS = [
             help="These sites ask bots to stay off their job search but list every job in a sitemap. "
                  "It's a big file and the sites update it about once a day, so twice a day is plenty."),
 
+    Setting("read_alert_emails", "Read job-alert emails from Gmail", "Companies", "bool", True,
+            help="Needs Gmail connected on the Connections page. Emails stay unread in Gmail."),
+    Setting("alert_senders", "Job-alert emails come from", "Companies", "list",
+            ["jobalerts-noreply@linkedin.com", "jobs-noreply@linkedin.com", "naukri.com", "instahyre.com",
+             "cutshort.io", "wellfound.com", "indeed.com", "foundit.in", "hirist.tech", "myworkday.com",
+             "greenhouse.io", "lever.co", "ashbyhq.com"],
+            "One per line: a full address or just the part after @. Add your companies' own alert senders here."),
+    Setting("alert_email_days", "Look at alert emails from the last (days)", "Companies", "int", 2, min=1, max=14),
+    Setting("alert_emails_per_run", "Most alert emails Claude reads per check", "Companies", "int", 15,
+            min=1, max=60, help="Each email is one short Claude call."),
+
     # Applying
     Setting("answer_match_min", "Use a saved answer when the form question is at least this alike (0-100)",
             "Applying", "int", 60, min=30, max=100,

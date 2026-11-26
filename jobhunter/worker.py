@@ -22,7 +22,7 @@ import sys
 import time
 from datetime import date, datetime
 
-from . import activity, collect, handcheck, ranking, rules, scoring, settings_store, telegram
+from . import activity, alertmail, collect, gmail, handcheck, ranking, rules, scoring, settings_store, telegram
 from .config import DATA_DIR, DB_PATH, make_private_dirs
 from .db import connect, init_db
 from .sources import portals
@@ -53,6 +53,7 @@ def daily(conn, s) -> str:
     try:
         jobs = collect.fetch_all(s, log=_log)
         new = collect.save(conn, jobs, s)
+        new += _alert_emails(conn, s)
         _log(f"{len(new)} new jobs saved.")
         collect.apply_rules(conn, s, log=_log)
         scored = scoring.score_pending(conn, s, limit=s["ai_jobs_per_run"], log=_log)
@@ -67,6 +68,16 @@ def daily(conn, s) -> str:
     activity.log(conn, "worker", msg)
     _send_daily_alert(conn, picked)
     return msg
+
+
+def _alert_emails(conn, s, now=None) -> list[int]:
+    """New jobs from job-alert emails. A Gmail problem never stops the run."""
+    try:
+        return alertmail.read_alerts(conn, s, log=_log, now=now)
+    except gmail.GmailError as e:
+        _log(f"Alert emails skipped: {e}")
+        activity.log(conn, "worker", f"Alert emails skipped: {e}")
+        return []
 
 
 def _send_daily_alert(conn, picked: int) -> None:
@@ -131,7 +142,8 @@ def quick(conn, s, now: float | None = None) -> str:
 
     To avoid a flood, a job is alerted only if
     - it is new since the last check and passes your rules,
-    - its site was already known before (a site just added doesn't alert its whole list),
+    - its site was already known before (a site just added doesn't alert its whole list);
+      jobs from alert emails count as known,
     - it was posted in the last few days (Settings), when the site says so,
     - Claude didn't drop it (too senior, not a dev role, bond...) and it scores
       at least the alert bar in Settings, if it was scored."""
@@ -141,6 +153,7 @@ def quick(conn, s, now: float | None = None) -> str:
         "SELECT DISTINCT source, company FROM jobs WHERE first_seen < ?", (now,))}
     jobs = collect.fetch_all(s, log=_log, quick=True)
     new = collect.save(conn, jobs, s, now=now)
+    new += _alert_emails(conn, s, now=now)
     collect.apply_rules(conn, s, log=_log, now=now)
     if new:
         scoring.score_pending(conn, s, limit=20, log=_log)
@@ -148,7 +161,9 @@ def quick(conn, s, now: float | None = None) -> str:
     fits = []
     for i in new:
         job = conn.execute("SELECT * FROM jobs WHERE id = ?", (i,)).fetchone()
-        if not job or not job["rule_ok"] or job["alerted"] or (job["source"], job["company"]) not in known:
+        # Alert emails are new by nature, so their jobs don't need a known site.
+        if not job or not job["rule_ok"] or job["alerted"] or \
+                (job["source"] != "email" and (job["source"], job["company"]) not in known):
             continue
         if job["posted_at"] and job["posted_at"] < oldest:
             continue
