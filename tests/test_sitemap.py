@@ -160,3 +160,33 @@ def test_paste_page_flow(logged_in, app):
     assert logged_in.get("/check/paste/Not-A-Company").status_code == 302
     with app.app_context():
         assert get_db().execute("SELECT COUNT(*) FROM pasted_pages").fetchone()[0] == 1
+
+
+FT_PAGE = """<a href="/jobs/8RrzHwmKvc5h/software-engineer-backend" class="heading" data-portal-title="x"
+ data-portal-location="Mumbai, India" data-portal-job-type="2" data-portal-remote-location=false>
+ <div class="row"><div class="job-list-info"><div class="job-title">Software Engineer - Backend</div></div></div></a>
+<a href="/jobs/HVivFopqkiC1/voice-ai" class="heading" data-portal-location="" data-portal-remote-location=true>
+ <div class="job-title">Voice AI Engineer &amp; Agent</div></a>"""
+
+
+def test_freshteam_board(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(boards, "fetch_bytes", lambda url: FT_PAGE.encode())
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nAllow: /jobs\nDisallow: /\n"))
+    jobs = boards.fetch_board({"ats": "freshteam", "slug": "haptik", "name": "Haptik"})
+    assert [(j.source_id, j.title, j.location, j.remote) for j in jobs] == [
+        ("haptik:8RrzHwmKvc5h", "Software Engineer - Backend", "Mumbai, India", False),
+        ("haptik:HVivFopqkiC1", "Voice AI Engineer & Agent", "", True)]
+    assert jobs[0].url == "https://haptik.freshteam.com/jobs/8RrzHwmKvc5h/software-engineer-backend"
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /\n"))
+    with pytest.raises(FetchError):
+        boards.fetch_board({"ats": "freshteam", "slug": "haptik", "name": "Haptik"})
+
+
+def test_sitemap_more_link_styles():
+    jid = portals.sitemap_job("https://jobs.renesas.com/job/aws-network-engineer-in-bengaluru-ka-india-jid-3274", "jid")
+    assert jid == ("3274", "AWS Network Engineer", "Bengaluru")
+    assert portals.sitemap_job("https://jobs.renesas.com/job/radio-engineer-in-kallithea-greece-jid-7543", "jid") is None
+    team = portals.sitemap_job("https://www.optiver.com/join-us/jobs/technology/mumbai/data-center-engineer/", "team")
+    assert team == ("technology/mumbai/data-center-engineer", "Data Center Engineer", "Mumbai")
+    assert portals.sitemap_job("https://www.optiver.com/join-us/jobs/technology/london/software-engineer/", "team") is None

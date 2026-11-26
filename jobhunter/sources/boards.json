@@ -588,5 +588,30 @@
   "ats": "ashby",
   "slug": "sophos",
   "name": "Sophos"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "sumologic",
+  "name": "Sumo Logic"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "tenableinc",
+  "name": "Tenable"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "lattice",
+  "name": "Lattice Semiconductor"
+ },
+ {
+  "ats": "freshteam",
+  "slug": "haptik",
+  "name": "Haptik"
+ },
+ {
+  "ats": "freshteam",
+  "slug": "careers.zluri.com",
+  "name": "Zluri"
  }
 ]

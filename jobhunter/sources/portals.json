@@ -46,7 +46,10 @@
   "name": "Cisco",
   "host": "cisco.wd5.myworkdayjobs.com",
   "tenant": "cisco",
-  "site": "Cisco_Careers"
+  "site": "Cisco_Careers",
+  "also": [
+   "Splunk"
+  ]
  },
  {
   "type": "workday",
@@ -108,7 +111,10 @@
   "type": "oraclehcm",
   "name": "JPMorgan Chase",
   "host": "jpmc.fa.oraclecloud.com",
-  "site": "CX_1001"
+  "site": "CX_1001",
+  "also": [
+   "J.P. Morgan"
+  ]
  },
  {
   "type": "oraclehcm",
@@ -749,5 +755,37 @@
   "sitemap": "https://careers.swissre.com/sitemap.xml",
   "style": "rmk",
   "page": "https://careers.swissre.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Synopsys",
+  "host": "careers.synopsys.com",
+  "sitemap": "https://careers.synopsys.com/sitemap.xml",
+  "style": "talentbrew",
+  "page": "https://careers.synopsys.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Veeam",
+  "host": "careers.veeam.com",
+  "sitemap": "https://careers.veeam.com/sitemap.xml",
+  "style": "talentbrew",
+  "page": "https://careers.veeam.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Renesas",
+  "host": "jobs.renesas.com",
+  "sitemap": "https://jobs.renesas.com/sitemap.xml",
+  "style": "jid",
+  "page": "https://jobs.renesas.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Optiver",
+  "host": "www.optiver.com",
+  "sitemap": "https://www.optiver.com/sitemap.xml",
+  "style": "team",
+  "page": "https://www.optiver.com/working-at-optiver/career-opportunities/"
  }
 ]

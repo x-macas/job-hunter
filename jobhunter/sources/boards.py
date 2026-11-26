@@ -1,5 +1,6 @@
-"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite.
-The first five have free public feeds; Jobvite is a plain public web page."""
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam.
+The first five have free public feeds; Jobvite and Freshteam are plain public web pages
+(their robots.txt allows the job list)."""
 
 import html
 import json
@@ -7,11 +8,11 @@ import re
 from pathlib import Path
 
 from .. import parse
-from . import RawJob
-from .http import fetch_bytes, fetch_json
+from . import RawJob, robots
+from .http import FetchError, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
-ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite")
+ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam")
 
 
 def default_boards() -> list[dict]:
@@ -43,6 +44,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _workable(slug, name)
     if ats == "jobvite":
         return _jobvite(slug, name)
+    if ats == "freshteam":
+        return _freshteam(slug, name)
     return []
 
 
@@ -199,6 +202,28 @@ def _jobvite(slug, name):
         jobs.append(RawJob(
             source="jobvite", source_id=f"{slug}:{href.rsplit('/', 1)[-1]}", source_name=f"{name} careers",
             company=name, title=title, url=url, location=loc,
+            job_type=parse.job_type_from(title),
+        ))
+    return jobs
+
+
+_FT_ROW = re.compile(r'<a href="(/jobs/[A-Za-z0-9_-]+/[^"]*)"[^>]*data-portal-location="([^"]*)"[^>]*'
+                     r'data-portal-remote-location=(\w+)[^>]*>.*?<div class="job-title">(.*?)</div>', re.S)
+
+
+def _freshteam(slug, name):
+    host = slug if "." in slug else f"{slug}.freshteam.com"   # some use their own domain
+    url = f"https://{host}/jobs"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    page = fetch_bytes(url).decode("utf-8", "ignore")
+    jobs = []
+    for href, loc, remote, title in _FT_ROW.findall(page):
+        title, loc = _clean(title), _clean(loc)
+        jobs.append(RawJob(
+            source="freshteam", source_id=f"{slug}:{href.split('/')[2]}", source_name=f"{name} careers",
+            company=name, title=title, url=f"https://{host}{href}", location=loc,
+            remote=remote == "true" and parse.is_open_remote(loc + " remote", True),
             job_type=parse.job_type_from(title),
         ))
     return jobs
