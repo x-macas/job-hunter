@@ -14,6 +14,7 @@
   <nav class="nav" aria-label="Main">
     {% set here = request.endpoint %}
     <a href="{{ url_for('pages.today') }}" {% if here == 'pages.today' %}class="on" aria-current="page"{% endif %}>Today</a>
+    <a href="{{ url_for('pages.check') }}" {% if here == 'pages.check' %}class="on" aria-current="page"{% endif %}>Check</a>
     <a href="{{ url_for('pages.outbox') }}" {% if here == 'pages.outbox' %}class="on" aria-current="page"{% endif %}>Outbox</a>
     <a href="{{ url_for('pages.tracker') }}" {% if here == 'pages.tracker' %}class="on" aria-current="page"{% endif %}>Tracker</a>
     <a href="{{ url_for('pages.stats') }}" {% if here == 'pages.stats' %}class="on" aria-current="page"{% endif %}>Stats</a>

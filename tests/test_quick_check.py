@@ -50,3 +50,34 @@ def test_quick_check_caps_alerts(app, monkeypatch):
         worker.quick(db, s, now=now + 1800)
         assert len(sent) == 3 and sent[-1].startswith("3 more new jobs fit")
         assert db.execute("SELECT COUNT(*) FROM jobs WHERE alerted = 0 AND rule_ok = 1 AND source_id >= '10'").fetchone()[0] == 0
+
+
+def test_check_page_lists_companies_and_ticks(logged_in):
+    from conftest import csrf_from
+    client = logged_in
+    page = client.get("/check")
+    assert page.status_code == 200
+    html = page.get_data(as_text=True)
+    assert "Google" in html and "LinkedIn, last 24 h" in html and "f_TPR=r86400" in html
+    assert "Read by the website" in html
+    r = client.post("/check/tick", data={"csrf": csrf_from(client, "/check"), "company": "Google", "done": "1"})
+    assert r.status_code == 302
+    assert 'aria-pressed="true"' in client.get("/check").get_data(as_text=True)
+
+
+def test_check_tick_ignores_unknown_company(logged_in, app):
+    from conftest import csrf_from
+    from jobhunter.db import get_db
+    html = logged_in.get("/check").get_data(as_text=True)
+    logged_in.post("/check/tick", data={"csrf": csrf_from(logged_in, "/check"), "company": "<script>", "done": "1"})
+    with app.app_context():
+        assert get_db().execute("SELECT COUNT(*) FROM hand_checks").fetchone()[0] == 0
+
+
+def test_handcheck_sorts_blocked_first():
+    from test_phase1 import settings
+    from jobhunter import handcheck
+    g = handcheck.build(settings(big_companies=["Google", "Walmart Global Tech", "Zepto"], watch_list=[]))
+    assert [i["name"] for i in g["first"]] == ["Google"]
+    assert [i["name"] for i in g["auto"]] == ["Walmart Global Tech"]
+    assert [i["name"] for i in g["later"]] == ["Zepto"]

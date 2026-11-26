@@ -37,6 +37,27 @@ def log():
     return render_template("log.html", rows=activity.recent(get_db()))
 
 
+@bp.route("/check")
+def check():
+    from . import handcheck
+    db = get_db()
+    groups = handcheck.build(settings_store.get_all(db))
+    done = handcheck.done_today(db)
+    left = sum(1 for i in groups["first"] if i["name"] not in done)
+    return render_template("check.html", groups=groups, done=done, left=left)
+
+
+@bp.route("/check/tick", methods=["POST"])
+def check_tick():
+    from . import handcheck
+    db = get_db()
+    company = request.form.get("company", "").strip()[:200]
+    names = {i["name"] for g in handcheck.build(settings_store.get_all(db)).values() for i in g}
+    if company in names:
+        handcheck.mark(db, company, request.form.get("done") == "1")
+    return redirect(url_for("pages.check") + "#c-" + handcheck.slug(company))
+
+
 @bp.route("/settings", methods=["GET", "POST"])
 def settings():
     db = get_db()

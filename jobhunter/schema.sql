@@ -89,3 +89,11 @@ CREATE TABLE IF NOT EXISTS runs (
     last_ok       INTEGER,
     message       TEXT NOT NULL DEFAULT ''
 );
+
+-- Companies you ticked on the Check page, per day.
+CREATE TABLE IF NOT EXISTS hand_checks (
+    day      TEXT NOT NULL,
+    company  TEXT NOT NULL,
+    ts       REAL NOT NULL,
+    PRIMARY KEY (day, company)
+);

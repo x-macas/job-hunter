@@ -156,3 +156,19 @@ select {
 .code { font: 700 32px "Space Grotesk", monospace; letter-spacing: .2em; margin: 0; }
 .steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; }
 code { background: var(--surface2); padding: 1px 6px; border-radius: 4px; font-size: 14px; }
+
+/* Check page */
+.narrowtext { max-width: 70ch; margin: 0 0 16px; }
+.checklist { list-style: none; margin: 12px 0 0; padding: 0; display: grid; }
+.checkrow { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding: 10px 0; border-top: 1px solid var(--line); }
+.checkrow:first-child { border-top: 0; }
+.checkrow.done .checkname strong { color: var(--muted); text-decoration: line-through; }
+.checkname { flex: 1 1 220px; min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.checklinks { display: flex; flex-wrap: wrap; gap: 8px; }
+.checklinks .btn { text-decoration: none; display: inline-flex; align-items: center; }
+.tick { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--line); background: var(--surface);
+  color: var(--accent-ink); font-weight: 700; cursor: pointer; padding: 0; }
+.tick[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+h2.inline { display: inline; font-size: 1.05rem; margin: 0; }
+details.card { margin-top: 16px; }
+details.card summary { color: var(--ink); }

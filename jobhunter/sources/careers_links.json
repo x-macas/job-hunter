@@ -1,0 +1,1178 @@
+{
+ "AMD": {
+  "url": "https://careers.amd.com/careers-home/jobs?keywords=software&location=India",
+  "why": "no_bots"
+ },
+ "Acko": {
+  "url": "https://www.acko.com/careers/",
+  "why": "not_found"
+ },
+ "Addepar": {
+  "url": "https://addepar.com/careers",
+  "why": "not_found"
+ },
+ "Airtel": {
+  "url": "https://careers.airtel.com/",
+  "why": "not_found"
+ },
+ "Ajio": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Akamai": {
+  "url": "https://www.akamai.com/careers",
+  "why": "not_found"
+ },
+ "Albertsons": {
+  "url": "https://eofd.fa.us6.oraclecloud.com:443/hcmUI/CandidateExperience/en/sites/CX_1001",
+  "why": "not_found"
+ },
+ "AlphaGrep": {
+  "url": "https://careers.alphagrep.in/",
+  "why": "not_found"
+ },
+ "Amagi": {
+  "url": "https://www.amagi.com/careers",
+  "why": "not_found"
+ },
+ "American Express": {
+  "url": "https://www.americanexpress.com/en-us/careers/",
+  "why": "blocks"
+ },
+ "Ampere Computing": {
+  "url": "https://careers.amperecomputing.io/",
+  "why": "not_found"
+ },
+ "Angel One": {
+  "url": "https://www.angel.com/careers",
+  "why": "not_found"
+ },
+ "Ansys": {
+  "url": "https://ansys.synopsys.com/careers",
+  "why": "not_found"
+ },
+ "Apple": {
+  "url": "https://jobs.apple.com/en-in/search?location=india-INDC&key=software&sort=newest",
+  "why": "blocks"
+ },
+ "Applied Materials": {
+  "url": "https://careers.appliedmaterials.com/careers",
+  "why": "blocks"
+ },
+ "Appsmith": {
+  "url": "https://www.appsmith.com/careers",
+  "why": "not_found"
+ },
+ "Arcesium": {
+  "url": "https://careers.arcesium.ai/",
+  "why": "not_found"
+ },
+ "Arm": {
+  "url": "https://careers.arm.com/",
+  "why": "no_bots"
+ },
+ "AstraZeneca": {
+  "url": "https://careers.astrazeneca.com/",
+  "why": "blocks"
+ },
+ "Ather Energy": {
+  "url": "https://careers.atherenergy.ai/",
+  "why": "not_found"
+ },
+ "Atomicwork": {
+  "url": "https://www.atomicwork.com/company/careers",
+  "why": "not_found"
+ },
+ "Automation Anywhere": {
+  "url": null,
+  "why": "not_found"
+ },
+ "BNP Paribas": {
+  "url": "https://group.bnpparibas/en/careers",
+  "why": "not_found"
+ },
+ "Bank of America": {
+  "url": "https://careers.bankofamerica.com/en-us",
+  "why": "not_found"
+ },
+ "Barracuda": {
+  "url": "https://careers.barracuda.com/",
+  "why": "not_found"
+ },
+ "Becton Dickinson": {
+  "url": null,
+  "why": "not_found"
+ },
+ "BharatPe": {
+  "url": "https://www.bharatpe.com/careers",
+  "why": "not_found"
+ },
+ "BigBasket": {
+  "url": "https://careers.bigbasket.com/",
+  "why": "blocks"
+ },
+ "BlackBuck": {
+  "url": "https://careers.blackbuck.io/",
+  "why": "not_found"
+ },
+ "Blinkit": {
+  "url": "https://careers.blinkit.com/",
+  "why": "not_found"
+ },
+ "Bloomberg": {
+  "url": "https://www.bloomberg.com/company/what-we-do/",
+  "why": "not_found"
+ },
+ "Booking.com": {
+  "url": "https://careers.bookingcom.com/",
+  "why": "not_found"
+ },
+ "Capillary Technologies": {
+  "url": "https://www.capillarytechnologies.com/careers",
+  "why": "not_found"
+ },
+ "Capital One": {
+  "url": "https://careers.capital.com/",
+  "why": "not_found"
+ },
+ "CarDekho": {
+  "url": "https://careers.cardekho.com/",
+  "why": "blocks"
+ },
+ "Carelon": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Cashfree Payments": {
+  "url": "https://www.cashfree.com/careers/",
+  "why": "not_found"
+ },
+ "Chargebee": {
+  "url": "https://www.chargebee.com/company/careers/",
+  "why": "not_found"
+ },
+ "Chubb": {
+  "url": "https://fa-ewgu-saasfaprod1.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_2001",
+  "why": "not_found"
+ },
+ "Citadel": {
+  "url": "https://careers.citadel.in/",
+  "why": "not_found"
+ },
+ "Classplus": {
+  "url": "https://careers.classplus.in/",
+  "why": "not_found"
+ },
+ "Cleartrip": {
+  "url": "https://careers.cleartrip.com/",
+  "why": "no_bots"
+ },
+ "Clearwater Analytics": {
+  "url": "https://cwan.com/company/careers/",
+  "why": "not_found"
+ },
+ "CleverTap": {
+  "url": "https://clevertap.com/careers/",
+  "why": "blocks"
+ },
+ "CodeNation": {
+  "url": null,
+  "why": "not_found"
+ },
+ "CoinDCX": {
+  "url": "https://coindcx.com/about-us",
+  "why": "not_found"
+ },
+ "CoinSwitch": {
+  "url": "https://coinswitch.co/",
+  "why": "not_found"
+ },
+ "Confluent": {
+  "url": "https://www.ibm.com/careers/search?q=confluent",
+  "why": "not_found"
+ },
+ "Couchbase": {
+  "url": "https://www.couchbase.com/careers/",
+  "why": "not_found"
+ },
+ "Country Delight": {
+  "url": "https://www.cmt.com/",
+  "why": "not_found"
+ },
+ "Cult.fit": {
+  "url": "https://careers.cultfit.com/",
+  "why": "not_found"
+ },
+ "D. E. Shaw": {
+  "url": "https://www.deshaw.com/careers",
+  "why": "not_found"
+ },
+ "Dailyhunt": {
+  "url": "https://m.dailyhunt.in/",
+  "why": "not_found"
+ },
+ "Darwinbox": {
+  "url": "https://darwinbox.com/",
+  "why": "blocks"
+ },
+ "Dassault Systemes": {
+  "url": "https://www.3ds.com/careers",
+  "why": "not_found"
+ },
+ "Deel": {
+  "url": "https://www.deel.com/careers/",
+  "why": "not_found"
+ },
+ "DeepSource": {
+  "url": "https://deepsource.com/jobs",
+  "why": "not_found"
+ },
+ "Delhivery": {
+  "url": "https://www.delhivery.com/careers",
+  "why": "not_found"
+ },
+ "Dell Technologies": {
+  "url": "https://enterpriseplatform.dell.com/hcmUI/CandidateExperience/en/sites/careers",
+  "why": "not_found"
+ },
+ "Digit Insurance": {
+  "url": "https://careers.digitinsurance.in/",
+  "why": "not_found"
+ },
+ "Discover Financial": {
+  "url": "https://www.capitalone.com/about/capital-one-discover/",
+  "why": "not_found"
+ },
+ "DocuSign": {
+  "url": "https://careers.docusign.com/careers-home",
+  "why": "no_bots"
+ },
+ "Dolat Capital": {
+  "url": "https://www.dolatcapital.com/careers/",
+  "why": "not_found"
+ },
+ "DoorDash": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Dream11": {
+  "url": "https://www.dream11.com/",
+  "why": "not_found"
+ },
+ "Dunzo": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Easebuzz": {
+  "url": "https://easebuzz.in//careers/",
+  "why": "not_found"
+ },
+ "Edelweiss": {
+  "url": "https://careers.edelweiss.com/",
+  "why": "not_found"
+ },
+ "Electronic Arts": {
+  "url": "https://www.ea.com/",
+  "why": "not_found"
+ },
+ "Eli Lilly": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Ericsson": {
+  "url": "https://jobs.ericsson.com/careers",
+  "why": "no_bots"
+ },
+ "Eruditus": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Eternal": {
+  "url": "https://www.eternal.com/careers/",
+  "why": "not_found"
+ },
+ "Exotel": {
+  "url": "https://exotel.com/about-us/careers/",
+  "why": "not_found"
+ },
+ "FIS": {
+  "url": null,
+  "why": "not_found"
+ },
+ "FactSet": {
+  "url": "https://www.factset.com/careers",
+  "why": "not_found"
+ },
+ "FarEye": {
+  "url": "https://fareye.com/about/careers",
+  "why": "not_found"
+ },
+ "Fibe": {
+  "url": "https://www.fibe.in/careers/",
+  "why": "not_found"
+ },
+ "Fidelity Investments": {
+  "url": "https://jobs.fidelity.com/en/",
+  "why": "not_found"
+ },
+ "Flipkart": {
+  "url": "https://www.flipkartcareers.com/#!/joblist",
+  "why": "no_bots"
+ },
+ "FreshToHome": {
+  "url": "https://careers.freshtohome.co/",
+  "why": "not_found"
+ },
+ "Futures First": {
+  "url": "https://futuresfirst.com/careers/",
+  "why": "not_found"
+ },
+ "Fyle": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Gainsight": {
+  "url": "https://careers.gainsight.com/jobs",
+  "why": "no_bots"
+ },
+ "Games24x7": {
+  "url": "https://careers.games24x7.in/",
+  "why": "not_found"
+ },
+ "Gartner": {
+  "url": "https://jobs.gartner.com/",
+  "why": "not_found"
+ },
+ "Glean": {
+  "url": "https://www.glean.com/careers",
+  "why": "not_found"
+ },
+ "Gojek": {
+  "url": "https://careers.gojek.ai/",
+  "why": "not_found"
+ },
+ "Goldman Sachs": {
+  "url": "https://higher.gs.com/results?LOCATION=Bengaluru|Hyderabad",
+  "why": "blocks"
+ },
+ "Google": {
+  "url": "https://www.google.com/about/careers/applications/jobs/results/?location=India&q=software%20engineer&target_level=EARLY&sort_by=date",
+  "why": "blocks"
+ },
+ "Guidewire": {
+  "url": "https://www.guidewire.in/careers",
+  "why": "not_found"
+ },
+ "Gupshup": {
+  "url": "https://www.gupshup.ai/careers",
+  "why": "not_found"
+ },
+ "HDFC Bank": {
+  "url": "https://www.hdfc.bank.in/careers",
+  "why": "not_found"
+ },
+ "HSBC": {
+  "url": "https://www.hsbc.com/careers",
+  "why": "not_found"
+ },
+ "Haptik": {
+  "url": "https://www.haptik.ai/careers",
+  "why": "not_found"
+ },
+ "Harness": {
+  "url": "https://careers.harness.in/",
+  "why": "not_found"
+ },
+ "HashiCorp": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Hasura": {
+  "url": "https://hasura.io/",
+  "why": "not_found"
+ },
+ "HealthifyMe": {
+  "url": "https://www.healthifyme.com/careers/",
+  "why": "blocks"
+ },
+ "Hewlett Packard Enterprise": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Highspot": {
+  "url": "https://www.seismic.com/careers/",
+  "why": "not_found"
+ },
+ "Hiver": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Housing.com": {
+  "url": "https://careers.housing.com/",
+  "why": "not_found"
+ },
+ "IBM": {
+  "url": "https://www.ibm.com/careers",
+  "why": "not_found"
+ },
+ "ICICI Bank": {
+  "url": null,
+  "why": "not_found"
+ },
+ "INDmoney": {
+  "url": "https://careers.indmoney.com/",
+  "why": "not_found"
+ },
+ "Infineon": {
+  "url": "https://jobs.infineon.com/careers",
+  "why": "blocks"
+ },
+ "Info Edge": {
+  "url": "https://careers.infoedge.com/infoedge/",
+  "why": "not_found"
+ },
+ "Informatica": {
+  "url": "https://www.salesforce.com/company/careers/jobs/?search=informatica&pagesize=20",
+  "why": "not_found"
+ },
+ "Infra.Market": {
+  "url": "https://careers.inframarket.in/",
+  "why": "not_found"
+ },
+ "Innovaccer": {
+  "url": "https://innovaccer.com/careers",
+  "why": "not_found"
+ },
+ "Intercontinental Exchange": {
+  "url": "https://www.ice.com/index",
+  "why": "not_found"
+ },
+ "Intuit": {
+  "url": "https://www.intuit.com/careers/",
+  "why": "not_found"
+ },
+ "J.P. Morgan": {
+  "url": "https://www.jpmorganchase.com/careers?redirect=careers_jpm",
+  "why": "not_found"
+ },
+ "Jar": {
+  "url": null,
+  "why": "not_found"
+ },
+ "JioStar": {
+  "url": "https://careers.jiostar.in/",
+  "why": "not_found"
+ },
+ "Jumbotail": {
+  "url": "https://jumbotail.com/careers/",
+  "why": "not_found"
+ },
+ "Juniper Networks": {
+  "url": "https://www.barclaycardus.com/careers/?legacy=true&domainCPC=002",
+  "why": "not_found"
+ },
+ "Jupiter": {
+  "url": "https://careers.jupiter.com/",
+  "why": "not_found"
+ },
+ "Juspay": {
+  "url": "https://careers.juspay.com/",
+  "why": "not_found"
+ },
+ "Keysight": {
+  "url": "https://careers.keysight.com/external",
+  "why": "no_bots"
+ },
+ "Khatabook": {
+  "url": "https://khatabook.com:443/hiring/",
+  "why": "not_found"
+ },
+ "Kissflow": {
+  "url": "https://careers.kissflow.com/",
+  "why": "not_found"
+ },
+ "Kotak Mahindra Bank": {
+  "url": "https://careers.kotak.com/",
+  "why": "not_found"
+ },
+ "KreditBee": {
+  "url": "https://careers.kreditbee.com/",
+  "why": "not_found"
+ },
+ "Krutrim": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Kuku FM": {
+  "url": "https://kuku.app/careers/",
+  "why": "not_found"
+ },
+ "LG Soft India": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Lam Research": {
+  "url": "https://careers.lamresearch.com/careers",
+  "why": "blocks"
+ },
+ "LambdaTest": {
+  "url": "https://www.testmuai.com/career/",
+  "why": "not_found"
+ },
+ "Lattice Semiconductor": {
+  "url": "https://lattice.com/careers",
+  "why": "not_found"
+ },
+ "LeadSquared": {
+  "url": "https://www.leadsquared.com/careers/",
+  "why": "blocks"
+ },
+ "Leena AI": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Lenskart": {
+  "url": "https://ainterviews.com/job_board/lenskart_ho/",
+  "why": "not_found"
+ },
+ "Licious": {
+  "url": "https://www.licious.in:443/careers",
+  "why": "not_found"
+ },
+ "LinkedIn": {
+  "url": "https://careers.linkedin.com/",
+  "why": "not_found"
+ },
+ "Locus": {
+  "url": "https://www.locus.com/careers",
+  "why": "not_found"
+ },
+ "Lowe's": {
+  "url": "https://www.loweboats.com/",
+  "why": "not_found"
+ },
+ "Lululemon": {
+  "url": "https://careers.lululemon.com/en_US/careers",
+  "why": "not_found"
+ },
+ "M2P Fintech": {
+  "url": "https://careers.m2pfintech.com/",
+  "why": "not_found"
+ },
+ "MPL": {
+  "url": null,
+  "why": "not_found"
+ },
+ "MSCI": {
+  "url": "https://careers.msci.com/",
+  "why": "no_bots"
+ },
+ "Macquarie": {
+  "url": "https://recruitment.macquarie.com/en_US/careers",
+  "why": "not_found"
+ },
+ "Magicpin": {
+  "url": "https://www.magicpin.com/careers",
+  "why": "not_found"
+ },
+ "MakeMyTrip": {
+  "url": "https://careers.makemytrip.com/",
+  "why": "not_found"
+ },
+ "Marks and Spencer": {
+  "url": "https://jobs.marksandspencer.com/",
+  "why": "not_found"
+ },
+ "MathWorks": {
+  "url": "https://www.mathworks.com/company/jobs/opportunities.html",
+  "why": "not_found"
+ },
+ "McKesson": {
+  "url": "https://careers.mckesson.com/en",
+  "why": "not_found"
+ },
+ "MediBuddy": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Media.net": {
+  "url": "https://careers.medianet.com/",
+  "why": "not_found"
+ },
+ "MediaTek": {
+  "url": "https://www.mediatek.com/",
+  "why": "not_found"
+ },
+ "Mercari": {
+  "url": "https://careers.mercari.com/",
+  "why": "not_found"
+ },
+ "Mercedes-Benz Research and Development India": {
+  "url": "https://www.mercedes-benz.com/en/",
+  "why": "not_found"
+ },
+ "Meta": {
+  "url": "https://www.metacareers.com/locations/bangalore",
+  "why": "not_found"
+ },
+ "MicroStrategy": {
+  "url": "https://software.strategy.com/",
+  "why": "not_found"
+ },
+ "Microchip": {
+  "url": "https://www.microchip.com/en-us/about/careers",
+  "why": "not_found"
+ },
+ "Microsoft": {
+  "url": "https://careers.microsoft.com/v2/global/en/locations/india.html",
+  "why": "blocks"
+ },
+ "Millennium": {
+  "url": null,
+  "why": "not_found"
+ },
+ "MoEngage": {
+  "url": "https://www.moengage.com/careers/",
+  "why": "not_found"
+ },
+ "MobiKwik": {
+  "url": "https://careers.mobikwik.com/",
+  "why": "not_found"
+ },
+ "Moglix": {
+  "url": "https://careers.moglix.io/",
+  "why": "not_found"
+ },
+ "Moneyview": {
+  "url": "https://moneyview.in/careers",
+  "why": "blocks"
+ },
+ "Moody's": {
+  "url": "https://careers.moodys.com/en",
+  "why": "no_bots"
+ },
+ "Morningstar": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Multiplier": {
+  "url": "https://www.multiplier.ai/",
+  "why": "not_found"
+ },
+ "Myntra": {
+  "url": "https://careers.myntra.com/",
+  "why": "not_found"
+ },
+ "NK Securities": {
+  "url": null,
+  "why": "not_found"
+ },
+ "NXP": {
+  "url": "https://www.nxp.com/company/about-nxp/careers:CAREERS?tid=vanCAREERS",
+  "why": "not_found"
+ },
+ "Natwest": {
+  "url": "https://careers.natwest.io/",
+  "why": "not_found"
+ },
+ "Naukri": {
+  "url": "https://careers.infoedge.com/infoedge/",
+  "why": "not_found"
+ },
+ "Navi Technologies": {
+  "url": "https://www.navitechnologies.com/careers",
+  "why": "not_found"
+ },
+ "NetApp": {
+  "url": "https://careers.netapp.com/",
+  "why": "no_bots"
+ },
+ "Netcore Cloud": {
+  "url": "https://careers.netcore.com/",
+  "why": "not_found"
+ },
+ "Netskope": {
+  "url": "https://www.netskope.com/company/careers",
+  "why": "not_found"
+ },
+ "Nokia": {
+  "url": "https://jobs.nokia.com/en/sites/CX_1",
+  "why": "not_found"
+ },
+ "Nomura": {
+  "url": "https://careers.nomura.com/",
+  "why": "no_bots"
+ },
+ "Novartis": {
+  "url": "https://www.novartis.com/careers",
+  "why": "not_found"
+ },
+ "Nykaa": {
+  "url": "https://careers.nykaa.com/",
+  "why": "not_found"
+ },
+ "OYO": {
+  "url": "https://careers.oyo.in/",
+  "why": "not_found"
+ },
+ "OfBusiness": {
+  "url": "https://www.ofbcareers.com/",
+  "why": "not_found"
+ },
+ "OkCredit": {
+  "url": "https://careers.okcredit.com/",
+  "why": "not_found"
+ },
+ "Ola Cabs": {
+  "url": "https://www.olacabs.com/careers",
+  "why": "no_bots"
+ },
+ "Ola Electric": {
+  "url": "https://www.olaelectric.com/careers",
+  "why": "no_bots"
+ },
+ "OneCard": {
+  "url": "https://careers.onecard.com/",
+  "why": "not_found"
+ },
+ "Optiver": {
+  "url": "https://www.optiver.com/join-us/jobs/",
+  "why": "not_found"
+ },
+ "Optum": {
+  "url": "https://careers.unitedhealthgroup.com/",
+  "why": "no_bots"
+ },
+ "PayU": {
+  "url": "https://corporate.payu.com/",
+  "why": "not_found"
+ },
+ "Pepperfry": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Perfios": {
+  "url": "https://perfios.ai/careers/",
+  "why": "blocks"
+ },
+ "PharmEasy": {
+  "url": "https://pharmeasy.in/careers/",
+  "why": "blocks"
+ },
+ "PhonePe": {
+  "url": "https://www.phonepe.com/careers/",
+  "why": "not_found"
+ },
+ "Physics Wallah": {
+  "url": "https://careers.physicswallah.io/",
+  "why": "not_found"
+ },
+ "Pine Labs": {
+  "url": "https://www.pinelabs.com/careers",
+  "why": "not_found"
+ },
+ "Plivo": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Plutus Research": {
+  "url": "https://plutusresearch.com/careers/",
+  "why": "not_found"
+ },
+ "Pocket Aces": {
+  "url": "https://careers.pocketaces.com/",
+  "why": "not_found"
+ },
+ "PolicyBazaar": {
+  "url": "https://www.policybazaar.com/careers/",
+  "why": "not_found"
+ },
+ "Polygon Labs": {
+  "url": "https://careers.polygonlabs.io/",
+  "why": "not_found"
+ },
+ "Porter": {
+  "url": "https://porter.in/careers",
+  "why": "blocks"
+ },
+ "Practo": {
+  "url": "https://careers.practo.com/practo/",
+  "why": "not_found"
+ },
+ "Pristyn Care": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Pure Storage": {
+  "url": "https://www.everpuredata.com/company/careers.html",
+  "why": "not_found"
+ },
+ "Quadeye": {
+  "url": "https://www.quadeye.com/jobs",
+  "why": "not_found"
+ },
+ "Qualcomm": {
+  "url": "https://careers.qualcomm.com/careers?query=software&location=India",
+  "why": "blocks"
+ },
+ "QuantBox": {
+  "url": "https://www.quantbox.ai/careers",
+  "why": "not_found"
+ },
+ "Qure.ai": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Rakuten": {
+  "url": "https://www.rakuten.com/careers",
+  "why": "not_found"
+ },
+ "Rambus": {
+  "url": "https://www.rambus.com/careers/",
+  "why": "no_bots"
+ },
+ "Rapido": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Reliance Jio": {
+  "url": "https://careers.reliance.com/",
+  "why": "no_bots"
+ },
+ "Renesas": {
+  "url": "https://jobs.renesas.com/",
+  "why": "not_found"
+ },
+ "Rippling": {
+  "url": "https://www.rippling.com/careers",
+  "why": "not_found"
+ },
+ "Rocketlane": {
+  "url": "https://careers.kula.ai/rocketlane",
+  "why": "not_found"
+ },
+ "S&P Global": {
+  "url": null,
+  "why": "not_found"
+ },
+ "SAP": {
+  "url": "https://jobs.sap.com/key/sap-india.html",
+  "why": "no_bots"
+ },
+ "SAP Labs": {
+  "url": "https://jobs.sap.com/key/sap-india.html",
+  "why": "no_bots"
+ },
+ "STMicroelectronics": {
+  "url": "https://www.st.com/content/st_com/en/about/careers.html",
+  "why": "not_found"
+ },
+ "Sainsbury's": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Sandisk": {
+  "url": "https://www.sandisk.com/careers/jobs-at-sandisk",
+  "why": "not_found"
+ },
+ "Sanofi": {
+  "url": "https://jobs.sanofi.com/en",
+  "why": "not_found"
+ },
+ "Scaler": {
+  "url": "https://www.scaler.com/careers",
+  "why": "not_found"
+ },
+ "Seagate": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Setu": {
+  "url": "https://setu.co/careers",
+  "why": "no_bots"
+ },
+ "ShareChat": {
+  "url": "https://sharechat.com/careers",
+  "why": "not_found"
+ },
+ "Shiprocket": {
+  "url": "https://www.shiprocket.in:443/",
+  "why": "not_found"
+ },
+ "Shipsy": {
+  "url": "https://careers.shipsy.com/",
+  "why": "not_found"
+ },
+ "Siemens Digital Industries Software": {
+  "url": "https://www.siemens.com/en-us/company/jobs/",
+  "why": "not_found"
+ },
+ "Siemens Healthineers": {
+  "url": "https://www.siemens.com/en-us/company/jobs/",
+  "why": "not_found"
+ },
+ "Silicon Labs": {
+  "url": "https://careers.siliconlabs.io/",
+  "why": "not_found"
+ },
+ "Simplilearn": {
+  "url": "https://www.simplilearn.com/careers",
+  "why": "not_found"
+ },
+ "Skuad": {
+  "url": "https://www.google.com/about/careers/applications/",
+  "why": "not_found"
+ },
+ "Societe Generale": {
+  "url": "https://careers.societegenerale.com/",
+  "why": "not_found"
+ },
+ "Sony": {
+  "url": "https://www.sony.com/en_us/SCA/careers/overview.html",
+  "why": "not_found"
+ },
+ "Spinny": {
+  "url": "https://www.spinny.com/careers/",
+  "why": "blocks"
+ },
+ "Splunk": {
+  "url": "https://careers.cisco.com/global/en/splunk",
+  "why": "not_found"
+ },
+ "Sprinto": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Standard Chartered": {
+  "url": "https://jobs.standardchartered.com/",
+  "why": "no_bots"
+ },
+ "Sumo Logic": {
+  "url": "https://www.sumologic.com/company/careers",
+  "why": "not_found"
+ },
+ "Swiss Re": {
+  "url": "https://careers.swissre.com/",
+  "why": "no_bots"
+ },
+ "Synchrony": {
+  "url": "https://careers.synchrony.in/",
+  "why": "not_found"
+ },
+ "Synopsys": {
+  "url": "https://careers.synopsys.com/",
+  "why": "not_found"
+ },
+ "Take-Two Interactive": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Tally Solutions": {
+  "url": "https://tallysolutions.com/careers/",
+  "why": "not_found"
+ },
+ "Tata 1mg": {
+  "url": "https://www.1mg.com:443/",
+  "why": "not_found"
+ },
+ "Tata Digital": {
+  "url": "https://careers.tatadigital.com/",
+  "why": "not_found"
+ },
+ "Teachmint": {
+  "url": "https://www.teachmint.com/careers",
+  "why": "not_found"
+ },
+ "Tenable": {
+  "url": "https://www.tenable.com/careers?source=careers",
+  "why": "not_found"
+ },
+ "Teradata": {
+  "url": "https://careers.teradata.com/jobs",
+  "why": "not_found"
+ },
+ "Tesco": {
+  "url": "https://careers.tesco.com/en_GB/careers",
+  "why": "not_found"
+ },
+ "Testbook": {
+  "url": "https://testbook.com/careers",
+  "why": "not_found"
+ },
+ "Testsigma": {
+  "url": "https://testsigma.com:443/careers",
+  "why": "not_found"
+ },
+ "Texas Instruments": {
+  "url": "https://www.ti.com/",
+  "why": "not_found"
+ },
+ "Thermo Fisher Scientific": {
+  "url": "https://careers.thermofisherscientific.in/",
+  "why": "not_found"
+ },
+ "Times Internet": {
+  "url": "https://timesinternet.in/careers",
+  "why": "not_found"
+ },
+ "ToolJet": {
+  "url": "https://wellfound.com/company/tooljet/jobs",
+  "why": "not_found"
+ },
+ "Toplyne": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Travelers": {
+  "url": "https://careers.travelers.com/",
+  "why": "not_found"
+ },
+ "Trellix": {
+  "url": "https://careers.trellix.com/",
+  "why": "not_found"
+ },
+ "Trilogy Innovations": {
+  "url": "https://trilogyinnovations.com/about/careers/",
+  "why": "not_found"
+ },
+ "Twitter": {
+  "url": "https://x.ai/careers",
+  "why": "not_found"
+ },
+ "UBS": {
+  "url": "https://careers.ubs.com/",
+  "why": "not_found"
+ },
+ "Udaan": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Unbxd": {
+  "url": "https://netcoreunbxd.com:443/",
+  "why": "not_found"
+ },
+ "Uni Cards": {
+  "url": "https://careers.uni.com/",
+  "why": "not_found"
+ },
+ "UnitedHealth Group": {
+  "url": "https://careers.unitedhealthgroup.com/",
+  "why": "no_bots"
+ },
+ "Urban Company": {
+  "url": "https://careers.urbancompany.com/",
+  "why": "not_found"
+ },
+ "Urban Ladder": {
+  "url": "https://www.urbanladder.com/c/careers",
+  "why": "not_found"
+ },
+ "VMware": {
+  "url": "https://www.vmware.com/careers",
+  "why": "not_found"
+ },
+ "Vedantu": {
+  "url": "https://courses.vedantu.com/career-page/",
+  "why": "not_found"
+ },
+ "Veeam": {
+  "url": "https://careers.veeam.com/",
+  "why": "not_found"
+ },
+ "Veeva Systems": {
+  "url": "https://www.veeva.com/",
+  "why": "not_found"
+ },
+ "Veradigm": {
+  "url": "https://careers.veradigm.ai/",
+  "why": "not_found"
+ },
+ "Veritas": {
+  "url": "https://www.cohesity.com/careers/",
+  "why": "not_found"
+ },
+ "Vue.ai": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Wayfair": {
+  "url": "https://www.aboutwayfair.com/careers",
+  "why": "not_found"
+ },
+ "WebEngage": {
+  "url": "https://webengage.com/current-openings/",
+  "why": "not_found"
+ },
+ "Wells Fargo": {
+  "url": "https://www.wellsfargojobs.com/",
+  "why": "not_found"
+ },
+ "Winzo": {
+  "url": "https://careers.winzo.in/",
+  "why": "not_found"
+ },
+ "Yellow.ai": {
+  "url": null,
+  "why": "not_found"
+ },
+ "Yubi": {
+  "url": "https://careers.yubi.com/",
+  "why": "not_found"
+ },
+ "Zeotap": {
+  "url": "https://careers.zeotap.co/",
+  "why": "not_found"
+ },
+ "Zepto": {
+  "url": "https://careers.zepto.in/",
+  "why": "not_found"
+ },
+ "Zerodha": {
+  "url": "https://careers.zerodha.com/",
+  "why": "not_found"
+ },
+ "Zetwerk": {
+  "url": "https://www.zetwerk.com/careers/",
+  "why": "not_found"
+ },
+ "Zluri": {
+  "url": "https://careers.zluri.com/",
+  "why": "not_found"
+ },
+ "Zoho": {
+  "url": "https://www.zoho.com/careers/",
+  "why": "not_found"
+ },
+ "Zomato": {
+  "url": "https://www.eternal.com/careers/",
+  "why": "not_found"
+ },
+ "Zoom": {
+  "url": "https://www.careers.zoom.us/?cms_guid=false",
+  "why": "not_found"
+ },
+ "Zupee": {
+  "url": "https://careers.zupee.com/",
+  "why": "not_found"
+ },
+ "eBay": {
+  "url": "https://careers.ebay.in/",
+  "why": "not_found"
+ },
+ "eClinicalWorks": {
+  "url": "https://careers.eclinicalworks.in/",
+  "why": "not_found"
+ },
+ "iRage": {
+  "url": "https://www.irage.in/careers",
+  "why": "not_found"
+ },
+ "smallcase": {
+  "url": "https://app.pyjamahr.com/careers?company=smallcase&company_uuid=2615584222",
+  "why": "not_found"
+ },
+ "upGrad": {
+  "url": "https://www.upgrad.com/careers/",
+  "why": "blocks"
+ }
+}

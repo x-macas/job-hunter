@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Check by hand{% endblock %}
+{% macro row(i, tick) %}
+<li class="checkrow{% if i.name in done %} done{% endif %}" id="c-{{ i.slug }}">
+  {% if tick %}
+  <form method="post" action="{{ url_for('pages.check_tick') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="company" value="{{ i.name }}">
+    <input type="hidden" name="done" value="{{ '0' if i.name in done else '1' }}">
+    <button class="tick" aria-pressed="{{ 'true' if i.name in done else 'false' }}"
+            aria-label="{{ 'Untick' if i.name in done else 'Tick' }} {{ i.name }} as checked today">{% if i.name in done %}✓{% endif %}</button>
+  </form>
+  {% endif %}
+  <div class="checkname">
+    <strong>{{ i.name }}</strong>
+    {% if i.watch %}<span class="chip chip-big">Watch list</span>{% endif %}
+    {% if i.why %}<span class="small muted">{{ i.why }}</span>{% endif %}
+  </div>
+  <div class="checklinks">
+    <a class="btn" href="{{ i.url }}" target="_blank" rel="noopener noreferrer">{{ 'Find careers site' if i.guessed else 'Careers site' }}</a>
+    <a class="btn" href="{{ i.linkedin }}" target="_blank" rel="noopener noreferrer">LinkedIn, last 24 h</a>
+  </div>
+</li>
+{% endmacro %}
+{% block content %}
+<div class="pagehead">
+  <h1>Check by hand</h1>
+  <span class="muted">{% if left %}{{ left }} of {{ groups.first | length }} left for today{% else %}All done for today{% endif %}</span>
+</div>
+
+<p class="muted narrowtext">These companies block automated reading, ask bots to stay away, or aren't readable yet.
+  Open their links once a day, then tick them. "LinkedIn, last 24 h" shows that company's entry-level
+  software jobs in India posted today, newest first. Found one you like? Paste its link on the Today page.</p>
+
+<section class="card">
+  <h2>Check every day ({{ groups.first | length }})</h2>
+  <ul class="checklist">{% for i in groups.first %}{{ row(i, true) }}{% endfor %}</ul>
+</section>
+
+<details class="card">
+  <summary><h2 class="inline">Not readable yet ({{ groups.later | length }})</h2> <span class="small">I'm working through these; until then, check the ones you care about</span></summary>
+  <ul class="checklist">{% for i in groups.later %}{{ row(i, true) }}{% endfor %}</ul>
+</details>
+
+<details class="card">
+  <summary><h2 class="inline">Read by the website every 30 minutes ({{ groups.auto | length }})</h2> <span class="small">No need to check these; links are here if you want to look</span></summary>
+  <ul class="checklist">{% for i in groups.auto %}{{ row(i, false) }}{% endfor %}</ul>
+</details>
+{% endblock %}

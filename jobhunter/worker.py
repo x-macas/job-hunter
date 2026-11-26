@@ -22,7 +22,7 @@ import sys
 import time
 from datetime import date, datetime
 
-from . import activity, collect, ranking, rules, scoring, settings_store, telegram
+from . import activity, collect, handcheck, ranking, rules, scoring, settings_store, telegram
 from .config import DATA_DIR, DB_PATH, make_private_dirs
 from .db import connect, init_db
 from .sources import portals
@@ -211,6 +211,29 @@ def tick(conn, s) -> None:
     q = _run_row(conn, "quick")
     if not q or not q["last_started"] or now - q["last_started"] >= s["watch_interval_minutes"] * 60 - 60:
         _log(quick(conn, s))
+    hand_check_nudge(conn, s, hour)
+
+
+def hand_check_nudge(conn, s, hour: int) -> None:
+    """Once a day, at the evening nudge hour, remind about unticked companies on the Check page."""
+    if not s["hand_check_reminder"] or hour < s["nudge_hour"]:
+        return
+    r = _run_row(conn, "hand_nudge")
+    if r and r["last_started"] and date.fromtimestamp(r["last_started"]) == date.today():
+        return
+    _mark(conn, "hand_nudge", started=time.time())
+    first = handcheck.build(s)["first"]
+    left = [i["name"] for i in first if i["name"] not in handcheck.done_today(conn)]
+    if not left:
+        _mark(conn, "hand_nudge", ok=True, message="All checked.")
+        return
+    names = ", ".join(left[:5]) + (f" and {len(left) - 5} more" if len(left) > 5 else "")
+    try:
+        telegram.send(f"{len(left)} companies still to check by hand today: {names}. "
+                      "Open the Check page on the website.")
+        _mark(conn, "hand_nudge", ok=True, message=f"{len(left)} left.")
+    except telegram.TelegramError as e:
+        _mark(conn, "hand_nudge", ok=False, message=str(e))
 
 
 def main(argv: list[str]) -> int:
