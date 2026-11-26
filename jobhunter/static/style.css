@@ -7,6 +7,7 @@
   --danger: #B42318; --danger-soft: #FDECEA; --danger-ink: #FFFFFF;
   --good: #1E6B3A; --warn: #A44A0B; --warn-soft: #FCEBDD;
   --radius: 12px;
+  --chart: #2457D6;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
@@ -16,6 +17,7 @@
     --accent: #7FA2F5; --accent-ink: #0E1420; --accent-soft: #1F2B47; --accent-strong: #A9C0F8;
     --danger: #F2877E; --danger-soft: #3A1E1C; --danger-ink: #1B0D0C;
     --good: #7BD39A; --warn: #F0A56B; --warn-soft: #3A2716;
+    --chart: #6A8CEB;
     color-scheme: dark;
   }
 }
@@ -25,6 +27,7 @@
   --accent: #7FA2F5; --accent-ink: #0E1420; --accent-soft: #1F2B47; --accent-strong: #A9C0F8;
   --danger: #F2877E; --danger-soft: #3A1E1C; --danger-ink: #1B0D0C;
   --good: #7BD39A; --warn: #F0A56B; --warn-soft: #3A2716;
+  --chart: #6A8CEB;
   color-scheme: dark;
 }
 
@@ -203,3 +206,20 @@ a.btn { text-decoration: none; display: inline-flex; align-items: center; justif
 .grid2 > label select, .grid2 > label input { margin-top: 0; }
 .turn { border-top: 1px solid var(--line); padding: 12px 0; display: flex; flex-direction: column; gap: 8px; }
 .turn p { margin: 0; }
+
+/* Phase 5: Stats */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+.tile .big { font: 700 30px "Space Grotesk", Inter, sans-serif; margin: 4px 0 0; }
+.tile p { margin: 0; }
+.chart { width: 100%; height: auto; display: block; overflow: visible; }
+.chart .bar { fill: var(--chart); }
+.chart .col:hover .bar, .chart .row:hover .bar { fill: var(--accent-strong); }
+.chart .hit { fill: transparent; }
+.chart .grid { stroke: var(--line); stroke-width: 1; }
+.chart text { fill: var(--muted); font: 12px Inter, sans-serif; }
+.chart text.val { fill: var(--ink); font-weight: 600; }
+.chart text.name { fill: var(--ink); }
+.charts2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 20px; }
+table.plain { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.plain th, table.plain td { text-align: left; padding: 6px 8px; border-top: 1px solid var(--line); }

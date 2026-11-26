@@ -24,7 +24,7 @@ does the boring parts, and I spend about 15 minutes a day on it.
 | 2 | Applying: saved answers, cover notes, form filling, tracker | Done, being tried |
 | 3 | Emails: drafts, approvals, sending, follow-ups, replies, LinkedIn notes | Built, waits for Gmail |
 | 4 | Company info, interview prep, mock interview | Built |
-| 5 | Stats, goals, backups, phone access | |
+| 5 | Stats, skill gaps, goals and streak, evening nudge, backups, phone access | Built (phone access waits) |
 | 6 | A tweaked resume for each job (LaTeX) | |
 
 ## Built with
@@ -87,6 +87,15 @@ Playwright (form filling), Gmail over IMAP/SMTP with an app password.
    it only returns a score and short reasons. Job text is treated as data, never as instructions.
 3. **Ranking**: big companies get a boost and saved spots, fresh jobs a small boost,
    unknown pay at startups a small penalty. Top 20 go on the Today page.
+
+## Backups
+
+Once a day the website saves one `.tar.gz` in `~/job-hunter-backups` (Settings), on this laptop only:
+the database, the resume and a few small data files. The newest 30 are kept. Passwords and tokens are not
+in it, and it refuses a USB stick or a cloud-synced folder. **Back up now** is on the Stats page.
+
+To restore: stop the website (`systemctl --user stop job-hunter-web job-hunter-tick.timer`), unpack a backup
+into `data/` (`tar -xzf ~/job-hunter-backups/job-hunter-....tar.gz -C data/`), then start them again.
 
 ## Security
 

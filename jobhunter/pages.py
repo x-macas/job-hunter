@@ -19,7 +19,24 @@ MAX_RESUME_BYTES = 5 * 1024 * 1024
 
 @bp.route("/stats")
 def stats():
-    return render_template("stats.html")
+    from . import backup, stats as stats_mod
+    db = get_db()
+    s = settings_store.get_all(db)
+    return render_template("stats.html", d=stats_mod.page(db, s), last_backup=backup.latest(s),
+                           backup_dir=s["backup_dir"], backup_keep=s["backup_keep"])
+
+
+@bp.route("/backup", methods=["POST"])
+def backup_now():
+    from . import backup
+    db = get_db()
+    try:
+        path = backup.run(settings_store.get_all(db))
+        activity.log(db, "backup", f"Backup saved: {path.name}.")
+        flash(f"Backup saved: {path}")
+    except (backup.BackupError, OSError) as e:
+        flash(f"Backup failed: {e}", "error")
+    return redirect(url_for("pages.stats"))
 
 
 @bp.route("/log")

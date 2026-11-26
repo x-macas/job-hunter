@@ -227,8 +227,25 @@ def tick(conn, s) -> None:
     q = _run_row(conn, "quick")
     if not q or not q["last_started"] or now - q["last_started"] >= s["watch_interval_minutes"] * 60 - 60:
         _log(quick(conn, s))
-    hand_check_nudge(conn, s, hour)
+    evening_nudge(conn, s, hour)
     emails(conn, s)
+    daily_backup(conn, s)
+
+
+def daily_backup(conn, s) -> None:
+    """Once a day: a backup on this laptop (Settings: folder, how many to keep)."""
+    from . import backup
+    r = _run_row(conn, "backup")
+    if r and r["last_ok"] and r["last_finished"] and date.fromtimestamp(r["last_finished"]) == date.today():
+        return
+    _mark(conn, "backup", started=time.time())
+    try:
+        path = backup.run(s)
+        _mark(conn, "backup", ok=True, message=path.name)
+        activity.log(conn, "backup", f"Backup saved: {path.name}.")
+    except (backup.BackupError, OSError) as e:
+        _mark(conn, "backup", ok=False, message=str(e))
+        activity.log(conn, "backup", f"Backup failed: {e}")
 
 
 def emails(conn, s) -> None:
@@ -244,26 +261,43 @@ def emails(conn, s) -> None:
         _log(f"Emails wait: {e}")
 
 
-def hand_check_nudge(conn, s, hour: int) -> None:
-    """Once a day, at the evening nudge hour, remind about unticked companies on the Check page."""
-    if not s["hand_check_reminder"] or hour < s["nudge_hour"]:
-        return
-    r = _run_row(conn, "hand_nudge")
-    if r and r["last_started"] and date.fromtimestamp(r["last_started"]) == date.today():
-        return
-    _mark(conn, "hand_nudge", started=time.time())
-    first = handcheck.build(s)["first"]
-    left = [i["name"] for i in first if i["name"] not in handcheck.done_today(conn)]
-    if not left:
-        _mark(conn, "hand_nudge", ok=True, message="All checked.")
-        return
-    names = ", ".join(left[:5]) + (f" and {len(left) - 5} more" if len(left) > 5 else "")
+def evening_nudge(conn, s, hour: int, today: date | None = None) -> str | None:
+    """Once a day at the nudge hour (Settings): how today went, on Telegram.
+    Your goals, jobs waiting, and companies still to check by hand."""
+    from . import outreach, tracker
+    if hour < s["nudge_hour"]:
+        return None
+    r = _run_row(conn, "nudge")
+    if r and r["last_started"] and date.fromtimestamp(r["last_started"]) == (today or date.today()):
+        return None
+    _mark(conn, "nudge", started=time.time())
+    applied, sent = tracker.applied_today(conn), outreach.sent_today(conn)
+    waiting = conn.execute("SELECT COUNT(*) FROM jobs WHERE rule_ok = 1 AND status = 'new'").fetchone()[0]
+    drafts = conn.execute("SELECT COUNT(*) FROM emails WHERE status = 'draft'").fetchone()[0]
+    lines = []
+    if applied < s["goal_applications"] or sent < s["goal_emails"]:
+        lines.append(f"Today: {applied} of {s['goal_applications']} applications, "
+                     f"{sent} of {s['goal_emails']} emails.")
+        if waiting:
+            lines.append(f"{waiting} jobs are waiting on the Today page.")
+        if drafts:
+            lines.append(f"{drafts} email drafts are waiting in the Outbox.")
+    else:
+        lines.append(f"Goal done today: {applied} applications, {sent} emails. Nice.")
+    if s["hand_check_reminder"]:
+        first = handcheck.build(s)["first"]
+        done = handcheck.done_today(conn)
+        left = [i["name"] for i in first if i["name"] not in done]
+        if left:
+            names = ", ".join(left[:5]) + (f" and {len(left) - 5} more" if len(left) > 5 else "")
+            lines.append(f"{len(left)} companies still to check by hand: {names}.")
+    text = "\n".join(lines)
     try:
-        telegram.send(f"{len(left)} companies still to check by hand today: {names}. "
-                      "Open the Check page on the website.")
-        _mark(conn, "hand_nudge", ok=True, message=f"{len(left)} left.")
+        telegram.send(text)
+        _mark(conn, "nudge", ok=True, message=text[:300])
     except telegram.TelegramError as e:
-        _mark(conn, "hand_nudge", ok=False, message=str(e))
+        _mark(conn, "nudge", ok=False, message=str(e))
+    return text
 
 
 def main(argv: list[str]) -> int:

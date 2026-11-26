@@ -164,7 +164,7 @@ SETTINGS = [
     Setting("alert_min_score", "Only alert for jobs scoring at least", "Companies", "int", 45, min=0, max=100,
             help="Jobs below this still show on the website; they just don't send a Telegram message."),
     Setting("hand_check_reminder", "Remind me on Telegram to check companies by hand", "Companies", "bool", True,
-            help="Sent at the evening nudge time if some companies on the Check page aren't ticked yet."),
+            help="Added to the evening nudge if some companies on the Check page aren't ticked yet."),
     Setting("alert_max_age_days", "Only alert for jobs posted in the last (days)", "Companies", "int",
             2, min=1, max=7),
     Setting("sitemap_hours", "Read job lists (sitemaps) of companies like Optum and Nomura every (hours)",

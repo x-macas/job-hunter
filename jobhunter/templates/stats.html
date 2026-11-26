@@ -1,9 +1,92 @@
 {% extends "base.html" %}
 {% block title %}Stats{% endblock %}
+{% macro hchart(c, title) %}
+<svg class="chart" viewBox="0 0 {{ c.w }} {{ c.h }}" role="img" aria-label="{{ title }}">
+  {% for r in c.rows %}
+  <g class="row">
+    <title>{{ r.name }}: {{ r.v }}</title>
+    <rect class="hit" x="0" y="{{ r.y - 4 }}" width="{{ c.w }}" height="26"></rect>
+    <text class="name" x="{{ c.label_w - 10 }}" y="{{ r.ty }}" text-anchor="end" dominant-baseline="middle">{{ r.name[:28] }}</text>
+    {% if r.path %}<path class="bar" d="{{ r.path }}"></path>{% endif %}
+    <text class="val" x="{{ r.vx }}" y="{{ r.ty }}" dominant-baseline="middle">{{ r.v }}</text>
+  </g>
+  {% endfor %}
+</svg>
+{% endmacro %}
 {% block content %}
-<div class="pagehead"><h1>Stats</h1></div>
-<section class="empty">
-  <h2>No numbers yet</h2>
-  <p>Charts, reply rate, skill gaps and your daily streak come in Phase 5.</p>
+<div class="pagehead"><h1>Stats</h1><span class="muted">Your last 30 days</span></div>
+
+<div class="tiles">
+  <div class="tile"><p class="small muted">Applied today</p><p class="big">{{ d.applied_today }} <span class="small muted">of {{ d.goal_apps }}</span></p></div>
+  <div class="tile"><p class="small muted">Emails today</p><p class="big">{{ d.emails_today }} <span class="small muted">of {{ d.goal_emails }}</span></p></div>
+  <div class="tile"><p class="small muted">Streak (days goal met)</p><p class="big">{{ d.streak }}</p></div>
+  <div class="tile"><p class="small muted">Applied this week</p><p class="big">{{ d.applied_week }}</p></div>
+  <div class="tile"><p class="small muted">Reply rate</p><p class="big">{% if d.rate is none %}–{% else %}{{ d.rate }}%{% endif %}</p>
+    <p class="small muted">{{ d.replied }} of {{ d.emailed }} people</p></div>
+</div>
+
+<section class="card stack">
+  <h2>Applications per day</h2>
+  <p class="small muted">{{ d.apps_total }} in the last 30 days · {{ d.mails_total }} emails sent</p>
+  {% set c = d.apps_chart %}
+  <svg class="chart" viewBox="0 0 {{ c.w }} {{ c.h }}" role="img" aria-label="Applications per day, last 30 days">
+    {% for g in c.grid %}
+    <line class="grid" x1="{{ c.left }}" x2="{{ c.right }}" y1="{{ g.y }}" y2="{{ g.y }}"></line>
+    <text x="{{ c.left - 6 }}" y="{{ g.y }}" text-anchor="end" dominant-baseline="middle">{{ g.v }}</text>
+    {% endfor %}
+    {% for b in c.bars %}
+    <g class="col">
+      <title>{{ b.tip }}</title>
+      <rect class="hit" x="{{ b.hit_x }}" y="{{ c.plot_top }}" width="{{ b.hit_w }}" height="{{ c.plot_h }}"></rect>
+      {% if b.path %}<path class="bar" d="{{ b.path }}"></path>{% endif %}
+      {% if b.label %}<text class="val" x="{{ b.x }}" y="{{ b.y - 6 }}" text-anchor="middle">{{ b.label }}</text>{% endif %}
+      {% if b.tick %}<text x="{{ b.x }}" y="{{ c.base + 16 }}" text-anchor="middle">{{ b.tick }}</text>{% endif %}
+    </g>
+    {% endfor %}
+  </svg>
+  <details>
+    <summary class="small">Show as a table</summary>
+    <table class="plain"><tr><th>Day</th><th>Applications</th></tr>
+      {% for day, v in d.apps_rows | reverse %}<tr><td>{{ day.strftime('%a %d %b') }}</td><td>{{ v }}</td></tr>{% endfor %}
+    </table>
+  </details>
+</section>
+
+<div class="charts2">
+  <section class="card stack">
+    <h2>How far applications got</h2>
+    <p class="small muted">An application that got an interview also counts as emailed and replied.</p>
+    {{ hchart(d.funnel, "How far applications got") }}
+    {% if d.kinds %}
+    <table class="plain"><tr><th>Email to</th><th>Sent</th><th>Replied</th></tr>
+      {% for name, n, r in d.kinds %}<tr><td>{{ name }}</td><td>{{ n }}</td><td>{{ r }}</td></tr>{% endfor %}
+    </table>
+    {% endif %}
+  </section>
+  <section class="card stack">
+    <h2>Skills good jobs ask for that you don't list</h2>
+    <p class="small muted">From Claude's notes on jobs that passed your rules, last 30 days. Worth learning the top few.</p>
+    {% if d.gaps.rows %}{{ hchart(d.gaps, "Skill gaps") }}{% else %}<p class="muted">Not enough scored jobs yet.</p>{% endif %}
+  </section>
+  <section class="card stack">
+    <h2>Where your jobs come from</h2>
+    <p class="small muted">Jobs that passed your rules, last 7 days.</p>
+    {% if d.sources.rows %}{{ hchart(d.sources, "Job sources") }}{% else %}<p class="muted">No jobs yet.</p>{% endif %}
+  </section>
+  <section class="card stack">
+    <h2>Why you skipped jobs</h2>
+    <p class="small muted">Last 30 days. Claude uses these to score better.</p>
+    {% if d.skips.rows %}{{ hchart(d.skips, "Skip reasons") }}{% else %}<p class="muted">No skips yet.</p>{% endif %}
+  </section>
+</div>
+
+<section class="card stack">
+  <h2>Backups</h2>
+  <p class="small muted">One a day, on this laptop only ({{ backup_dir }}), newest {{ backup_keep }} kept. Passwords and tokens are not in them.</p>
+  <p>{% if last_backup %}Last backup: {{ last_backup[1] | when }} ({{ last_backup[0].name }}){% else %}No backup yet.{% endif %}</p>
+  <form method="post" action="{{ url_for('pages.backup_now') }}">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn">Back up now</button>
+  </form>
 </section>
 {% endblock %}
