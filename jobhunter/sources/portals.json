@@ -762,7 +762,10 @@
   "host": "careers.synopsys.com",
   "sitemap": "https://careers.synopsys.com/sitemap.xml",
   "style": "talentbrew",
-  "page": "https://careers.synopsys.com/"
+  "page": "https://careers.synopsys.com/",
+  "also": [
+   "Ansys"
+  ]
  },
  {
   "type": "sitemap",
@@ -787,5 +790,13 @@
   "sitemap": "https://www.optiver.com/sitemap.xml",
   "style": "team",
   "page": "https://www.optiver.com/working-at-optiver/career-opportunities/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Bloomberg",
+  "host": "bloomberg.avature.net",
+  "sitemap": "https://bloomberg.avature.net/careers/sitemap_index.xml",
+  "style": "avature",
+  "page": "https://www.bloomberg.com/company/what-we-do/"
  }
 ]

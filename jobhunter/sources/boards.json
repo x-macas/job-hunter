@@ -638,5 +638,10 @@
   "ats": "greenhouse",
   "slug": "multipliercareers",
   "name": "Multiplier"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "addepar1",
+  "name": "Addepar"
  }
 ]

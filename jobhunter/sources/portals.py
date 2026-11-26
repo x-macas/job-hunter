@@ -337,7 +337,8 @@ def sitemap_job(url: str, style: str) -> tuple[str, str, str] | None:
     talentbrew: /job/<city>/<title-words>/<org id>/<job id>
     rmk:        /job/<City>-<Title-Words>-<postcode or state>/<job id>/
     jid:        /job/<title-words>-in-<city>-<state>-india-jid-<job id>        (Renesas)
-    team:       /jobs/<team>/<city>/<title-words>/                            (Optiver)"""
+    team:       /jobs/<team>/<city>/<title-words>/                            (Optiver)
+    avature:    /careers/JobDetail/<Title-Words-City>/<job id>                (Bloomberg)"""
     path = urllib.parse.unquote(urllib.parse.urlsplit(url).path)
     if style == "talentbrew":
         m = re.search(r"/job/([^/]+)/([^/]+)/\d+/(\d+)/?$", path)
@@ -359,6 +360,20 @@ def sitemap_job(url: str, style: str) -> tuple[str, str, str] | None:
         if not m or not parse.is_india(m.group(2).replace("-", " ")):
             return None
         return f"{m.group(1)}/{m.group(2)}/{m.group(3)}", _nice_title(m.group(3).split("-")), m.group(2).title()
+    if style == "avature":
+        m = re.search(r"/JobDetail/([^/]+)/(\d+)/?$", path)
+        if not m:
+            return None
+        words = [w for w in m.group(1).split("-") if w]
+        if not parse.is_india(" ".join(words)):
+            return None
+        city = "India"
+        for n in (3, 2, 1):   # the city is at the end
+            if len(words) > n and " ".join(words[-n:]).lower() in parse.INDIA_WORDS + _CITY_EXTRA:
+                city, words = " ".join(words[-n:]), words[:-n]
+                break
+        title = _nice_title(words)
+        return (m.group(2), title, city) if title else None
     if style == "rmk":
         m = re.search(r"/job/([^/]+)/(\d+)/?$", path)
         if not m:

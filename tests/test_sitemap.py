@@ -190,3 +190,11 @@ def test_sitemap_more_link_styles():
     team = portals.sitemap_job("https://www.optiver.com/join-us/jobs/technology/mumbai/data-center-engineer/", "team")
     assert team == ("technology/mumbai/data-center-engineer", "Data Center Engineer", "Mumbai")
     assert portals.sitemap_job("https://www.optiver.com/join-us/jobs/technology/london/software-engineer/", "team") is None
+
+
+def test_sitemap_avature_style():
+    a = portals.sitemap_job("https://bloomberg.avature.net/careers/JobDetail/Senior-Software-Engineer-BPaaS-Pune/45852", "avature")
+    assert a == ("45852", "Senior Software Engineer BPaaS", "Pune")
+    assert portals.sitemap_job("https://bloomberg.avature.net/careers/JobDetail/Terminal-Sales-Account-Manager/46347", "avature") is None
+    nd = portals.sitemap_job("https://x.avature.net/careers/JobDetail/Software-Engineer-New-Delhi/7", "avature")
+    assert nd == ("7", "Software Engineer", "New Delhi")
