@@ -744,5 +744,21 @@
   "ats": "freshteam",
   "slug": "smallcase",
   "name": "smallcase"
+ },
+ {
+  "ats": "zohorecruit",
+  "slug": "go-yubi.zohorecruit.in",
+  "name": "Yubi"
+ },
+ {
+  "ats": "zohorecruit",
+  "slug": "qure.zohorecruit.in",
+  "name": "Qure.ai"
+ },
+ {
+  "ats": "zohorecruit",
+  "slug": "careers.zohocorp.com",
+  "name": "Zoho",
+  "country": "India"
  }
 ]

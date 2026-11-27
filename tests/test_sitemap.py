@@ -345,3 +345,24 @@ def test_kula_board(monkeypatch):
     assert jobs[1].job_type == "intern"
     with pytest.raises(FetchError):
         boards.fetch_board({"ats": "kula", "slug": "../api", "name": "Bad"})
+
+
+def test_zohorecruit_board(monkeypatch):
+    import html as h
+    import json as js
+
+    from jobhunter.sources import boards
+    data = [{"id": "1", "Posting_Title": "Software Engineer", "City": "Bengaluru", "Country": "India", "Publish": True,
+             "Job_Type": "Full time"},
+            {"id": "2", "Posting_Title": "Hidden", "City": "Pune", "Publish": False},
+            {"id": "3", "Job_Opening_Name": "SDE Intern", "Publish": "True", "Remote_Job": True}]
+    page = f'<input type="hidden" value="{h.escape(js.dumps(data))}" id="jobs">'
+    monkeypatch.setattr(boards, "fetch_bytes", lambda url: page.encode())
+    monkeypatch.setattr(boards, "check_public_url", lambda url: url)
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nAllow: /jobs\nDisallow: /\n"))
+    jobs = boards.fetch_board({"ats": "zohorecruit", "slug": "acme.zohorecruit.in", "name": "Acme", "country": "India"})
+    assert [(j.title, j.location, j.url) for j in jobs] == [
+        ("Software Engineer", "Bengaluru, India", "https://acme.zohorecruit.in/jobs/Careers/1/Software-Engineer"),
+        ("SDE Intern", "India (Remote)", "https://acme.zohorecruit.in/jobs/Careers/3/SDE-Intern")]
+    with pytest.raises(FetchError):
+        boards.fetch_board({"ats": "zohorecruit", "slug": "a/../b", "name": "Bad"})

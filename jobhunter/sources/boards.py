@@ -1,4 +1,4 @@
-"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling, Kula.
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling, Kula, Zoho Recruit.
 The first five have free public feeds; Jobvite and Freshteam are plain public web pages
 (their robots.txt allows the job list)."""
 
@@ -9,11 +9,11 @@ from pathlib import Path
 
 from .. import parse
 from . import RawJob, robots
-from .http import FetchError, fetch_bytes, fetch_json
+from .http import FetchError, check_public_url, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling", "kula")
+       "rippling", "kula", "zohorecruit")
 
 
 def default_boards() -> list[dict]:
@@ -55,6 +55,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _rippling(slug, name)
     if ats == "kula":
         return _kula(slug, name)
+    if ats == "zohorecruit":
+        return _zohorecruit(slug, name, board.get("page", "Careers"), board.get("country", ""))
     return []
 
 
@@ -352,5 +354,39 @@ def _kula(slug, name):
             company=name, title=title, url=f"https://careers.kula.ai{link.group(1)}", location=place,
             remote="remote" in kind.lower() and parse.is_open_remote(place + " remote", True),
             job_type=parse.job_type_from(title, kind),
+        ))
+    return jobs
+
+
+# ---------- Zoho Recruit careers pages (<company>.zohorecruit.com/jobs/Careers) ----------
+# robots.txt allows /jobs/. The page carries its whole job list in a hidden field.
+
+_ZR_JOBS = re.compile(r'<input type="hidden" value="([^"]*)" id="jobs"')
+
+
+def _zohorecruit(host, name, page="Careers", country=""):
+    if not re.fullmatch(r"[a-z0-9-]+(\.[a-z0-9-]+)+", host) or not re.fullmatch(r"[A-Za-z0-9_-]+", page):
+        raise FetchError(f"{name}: odd Zoho Recruit address {host}")
+    url = f"https://{host}/jobs/{page}"
+    if not re.fullmatch(r"[a-z0-9-]+\.zohorecruit\.(com|in|eu)", host):
+        check_public_url(url)          # the company's own domain: never a local or private address
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    m = _ZR_JOBS.search(fetch_bytes(url).decode("utf-8", "ignore"))
+    if not m:
+        raise FetchError(f"{name}: no job list on {url}")
+    jobs = []
+    for j in json.loads(html.unescape(m.group(1))):
+        if str(j.get("Publish")).lower() != "true" or not j.get("id"):
+            continue
+        title = (j.get("Posting_Title") or j.get("Job_Opening_Name") or "").strip()
+        place = ", ".join(str(j[k]) for k in ("City", "State", "Country") if j.get(k)) or country
+        remote = str(j.get("Remote_Job")).lower() == "true"
+        slug = re.sub(r"[^A-Za-z0-9]+", "-", title).strip("-")
+        jobs.append(RawJob(
+            source="zohorecruit", source_id=f"{host}:{j['id']}", source_name=f"{name} careers",
+            company=name, title=title[:200], url=f"https://{host}/jobs/{page}/{j['id']}/{slug}",
+            location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
+            job_type=parse.job_type_from(title, str(j.get("Job_Type") or "")),
         ))
     return jobs
