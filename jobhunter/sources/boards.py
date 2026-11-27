@@ -1,4 +1,4 @@
-"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling.
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling, Kula.
 The first five have free public feeds; Jobvite and Freshteam are plain public web pages
 (their robots.txt allows the job list)."""
 
@@ -13,7 +13,7 @@ from .http import FetchError, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling")
+       "rippling", "kula")
 
 
 def default_boards() -> list[dict]:
@@ -53,6 +53,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _recruiterbox(slug, name, board.get("page", ""))
     if ats == "rippling":
         return _rippling(slug, name)
+    if ats == "kula":
+        return _kula(slug, name)
     return []
 
 
@@ -320,3 +322,35 @@ def rippling_description(slug: str, job_id) -> str:
     d = fetch_json(RIPPLING_API.format(slug=slug) + f"/{job_id}")
     parts = (d.get("description") or {}) if isinstance(d, dict) else {}
     return parse.html_to_text("\n".join(str(v) for k, v in parts.items() if k != "company" and v))
+
+
+# ---------- Kula careers pages (careers.kula.ai/<slug>) ----------
+# The plain job page (robots.txt allows it; only Kula's /api/ is off limits). Each job is a card:
+# title, place, "Full time • On-Site", and a link /<slug>/<id>-<title>.
+
+_KULA_P = re.compile(r'<p class="chakra-text[^"]*">(.*?)</p>', re.S)
+
+
+def _kula(slug, name):
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", slug):
+        raise FetchError(f"{name}: odd Kula name {slug!r}")
+    url = f"https://careers.kula.ai/{slug}"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    page = fetch_bytes(url).decode("utf-8", "ignore")
+    jobs, seen = [], set()
+    for card in page.split('class="chakra-card')[1:]:
+        link = re.search(rf'href="(/{re.escape(slug)}/(\d+)-[^"/]*)"', card)
+        texts = [_clean(re.sub(r"<[^>]+>", " ", t)) for t in _KULA_P.findall(card)]
+        if not link or len(texts) < 2 or link.group(2) in seen:
+            continue
+        seen.add(link.group(2))
+        title, place = texts[0], texts[1]
+        kind = texts[2] if len(texts) > 2 else ""
+        jobs.append(RawJob(
+            source="kula", source_id=f"{slug}:{link.group(2)}", source_name=f"{name} careers",
+            company=name, title=title, url=f"https://careers.kula.ai{link.group(1)}", location=place,
+            remote="remote" in kind.lower() and parse.is_open_remote(place + " remote", True),
+            job_type=parse.job_type_from(title, kind),
+        ))
+    return jobs

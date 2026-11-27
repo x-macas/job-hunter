@@ -69,6 +69,7 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         "mynexthire": f"https://{slug}.mynexthire.com/employer/jobs?src=careers",
         "recruiterbox": src.get("page", ""),
         "rippling": f"https://ats.rippling.com/{slug}/jobs",
+        "kula": f"https://careers.kula.ai/{slug}",
     }.get(kind, "")
 
 

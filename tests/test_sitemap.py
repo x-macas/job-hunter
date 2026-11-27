@@ -324,3 +324,24 @@ def test_rippling_board(monkeypatch):
                                                                   ("SRE", "", "acme:u2")]
     assert boards.rippling_description("acme", "u1") == "Build APIs"
     assert handcheck.source_url({"ats": "rippling", "slug": "acme", "name": "Acme"}) == "https://ats.rippling.com/acme/jobs"
+
+
+KULA = """<div class="chakra-card css-1"><span class="css-3snkxd">Engineering</span>
+<p class="chakra-text css-a">Software Development Engineer 1</p><svg></svg><p class="chakra-text css-b">Bengaluru, Karnataka, India</p>
+<p class="chakra-text css-c">Full time<!-- --> • On-Site</p><a href="/acme/5565-software-development-engineer-1">Apply Now</a></div>
+<div class="chakra-card css-1"><p class="chakra-text css-a">Intern &amp; Trainee</p><p class="chakra-text css-b">Remote, India</p>
+<p class="chakra-text css-c">Internship • Remote</p><a href="/acme/77-intern">Apply</a></div>
+<div class="chakra-card css-1"><p class="chakra-text">Made with Kula</p><a href="https://kula.ai">x</a></div>"""
+
+
+def test_kula_board(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(boards, "fetch_bytes", lambda url: KULA.encode())
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /api/\n"))
+    jobs = boards.fetch_board({"ats": "kula", "slug": "acme", "name": "Acme"})
+    assert [(j.title, j.location, j.url, j.remote) for j in jobs] == [
+        ("Software Development Engineer 1", "Bengaluru, Karnataka, India", "https://careers.kula.ai/acme/5565-software-development-engineer-1", False),
+        ("Intern & Trainee", "Remote, India", "https://careers.kula.ai/acme/77-intern", True)]
+    assert jobs[1].job_type == "intern"
+    with pytest.raises(FetchError):
+        boards.fetch_board({"ats": "kula", "slug": "../api", "name": "Bad"})

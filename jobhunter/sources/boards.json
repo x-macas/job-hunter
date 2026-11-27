@@ -714,5 +714,35 @@
   "ats": "rippling",
   "slug": "rippling",
   "name": "Rippling"
+ },
+ {
+  "ats": "kula",
+  "slug": "cashfree",
+  "name": "Cashfree Payments"
+ },
+ {
+  "ats": "kula",
+  "slug": "acko",
+  "name": "Acko"
+ },
+ {
+  "ats": "kula",
+  "slug": "rocketlane",
+  "name": "Rocketlane"
+ },
+ {
+  "ats": "freshteam",
+  "slug": "zetwerk",
+  "name": "Zetwerk"
+ },
+ {
+  "ats": "freshteam",
+  "slug": "locus",
+  "name": "Locus"
+ },
+ {
+  "ats": "freshteam",
+  "slug": "smallcase",
+  "name": "smallcase"
  }
 ]
