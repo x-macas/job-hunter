@@ -811,5 +811,13 @@
   "ats": "zohorecruit",
   "slug": "vedantu.zohorecruit.in",
   "name": "Vedantu"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "xai",
+  "name": "xAI",
+  "also": [
+   "Twitter"
+  ]
  }
 ]

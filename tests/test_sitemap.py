@@ -386,3 +386,14 @@ def test_greenhouse_eu_boards(monkeypatch):
     assert calls == ["https://boards.eu.greenhouse.io/v1/boards/qb/jobs", "https://boards.eu.greenhouse.io/v1/boards/qb/jobs/7",
                      "https://boards-api.greenhouse.io/v1/boards/acme/jobs"]
     assert handcheck.source_url({"ats": "greenhouse", "slug": "qb@eu", "name": "QB"}) == "https://job-boards.eu.greenhouse.io/qb"
+
+
+def test_job_pages_from_a_list_page(monkeypatch):
+    site = {"type": "sitemap", "name": "EC", "host": "c.ec.in", "list_page": "https://c.ec.in/", "sitemap": "https://c.ec.in/",
+            "style": "jsonld", "job_link": r"/jobs/([a-z0-9-]+)/$", "country": "India"}
+    home = '<a href="/jobs/sde/">SDE</a> <a href="https://c.ec.in/jobs/sde/">again</a> <a href="https://evil.com/jobs/x/">x</a>'
+    page = '<script type="application/ld+json">{"@type":"JobPosting","title":"SDE"}</script>'
+    monkeypatch.setattr(portals, "_get_text", lambda url: home if url == "https://c.ec.in/" else page)
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    monkeypatch.setattr(portals.time, "sleep", lambda s: None)
+    assert [(j.title, j.location, j.url) for j in portals.fetch_portal(site)] == [("SDE", "India", "https://c.ec.in/jobs/sde/")]

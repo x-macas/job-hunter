@@ -516,10 +516,21 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
     return jobs
 
 
+def _list_links(p: dict) -> list[str]:
+    """Job links from a careers page itself, for sites with no sitemap (eClinicalWorks)."""
+    url = p["list_page"]
+    if urllib.parse.urlsplit(url).netloc != p["host"]:
+        raise FetchError(f"{p['name']}: list page is not on {p['host']}")
+    if not p.get("polite") and not robots.allowed(url):
+        raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+    found = re.findall(r'href="([^"#]+)"', _get_text(url))
+    return list(dict.fromkeys(urllib.parse.urljoin(url, html.unescape(x)) for x in found))
+
+
 def _sitemap(p: dict) -> list[RawJob]:
     rules = [] if p.get("polite") else robots.rules_for(p["host"])
     if p["style"] == "jsonld":
-        jobs = _job_pages(p, _sitemap_links(p), rules)
+        jobs = _job_pages(p, _list_links(p) if p.get("list_page") else _sitemap_links(p), rules)
         _remember_read(p)
         return jobs
     jobs = []

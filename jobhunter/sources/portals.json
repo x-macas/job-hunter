@@ -1123,5 +1123,16 @@
   "job_link": "/en/job-offers/[^/]+-([0-9A-Z]{8})-en$",
   "title_tail": 2,
   "page": "https://careers.societegenerale.com/en/search"
+ },
+ {
+  "type": "sitemap",
+  "name": "eClinicalWorks",
+  "host": "careers.eclinicalworks.in",
+  "list_page": "https://careers.eclinicalworks.in/",
+  "sitemap": "https://careers.eclinicalworks.in/",
+  "style": "jsonld",
+  "job_link": "/jobs/([a-z0-9-]+)/$",
+  "country": "India",
+  "page": "https://careers.eclinicalworks.in/"
  }
 ]
