@@ -58,6 +58,8 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         return src["list"]
     if kind == "jsonlist":
         return src["page"].replace("{id}", "")
+    if kind == "jibe":
+        return f"https://{src['host']}/careers-home/jobs?location={src.get('country', 'India')}"
     if kind == "srsite":
         return f"{src['base']}?country={src.get('country', 'India')}"
     return {

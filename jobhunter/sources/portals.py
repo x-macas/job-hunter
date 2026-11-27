@@ -92,6 +92,8 @@ def fetch_portal(p: dict, quick: bool = False) -> list[RawJob]:
         return _jsonlist(p)
     if kind == "srsite":
         return _srsite(p, quick)
+    if kind == "jibe":
+        return _jibe(p, quick)
     return []
 
 
@@ -745,5 +747,37 @@ def _srsite(p: dict, quick: bool = False) -> list[RawJob]:
                 job_type=parse.job_type_from(title),
             ))
         if not fresh:
+            break
+    return jobs
+
+
+# ---------- iCIMS "Jibe" careers sites (careers.amd.com, careers.docusign.com) ----------
+
+def _jibe(p: dict, quick: bool = False) -> list[RawJob]:
+    """The careers site's own job list: /api/jobs?location=India, newest first, 100 a page."""
+    jobs, seen = [], set()
+    for n in range(1, (1 if quick else 10) + 1):
+        url = (f"https://{p['host']}/api/jobs?location={urllib.parse.quote(p.get('country', 'India'))}"
+               f"&page={n}&limit=100&sortBy=posted_date&descending=true")
+        if not robots.allowed(url):
+            raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+        rows = (_req(url) or {}).get("jobs") or []
+        for r in rows:
+            j = r.get("data") or {}
+            job_id = str(j.get("req_id") or j.get("slug") or "")
+            if not job_id or job_id in seen:
+                continue
+            seen.add(job_id)
+            title = (j.get("title") or "").strip()
+            place = j.get("full_location") or ", ".join(x for x in (j.get("city"), j.get("state"), j.get("country")) if x)
+            jobs.append(RawJob(
+                source="jibe", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                company=p["name"], title=title[:200],
+                url=f"https://{p['host']}/careers-home/jobs/{urllib.parse.quote(str(j.get('slug') or job_id))}?lang=en-us",
+                location=place, description=parse.html_to_text(j.get("description") or "") or None,
+                posted_at=parse.iso_to_ts((j.get("posted_date") or "").replace("+0000", "+00:00")),
+                job_type=parse.job_type_from(title, (j.get("employment_type") or "").replace("_", " ")),
+            ))
+        if len(rows) < 100:
             break
     return jobs

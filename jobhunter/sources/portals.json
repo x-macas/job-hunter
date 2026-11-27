@@ -1200,5 +1200,15 @@
   "delay": 5,
   "max_pages": 60,
   "page": "https://jobs.keysight.com/"
+ },
+ {
+  "type": "jibe",
+  "name": "AMD",
+  "host": "careers.amd.com"
+ },
+ {
+  "type": "jibe",
+  "name": "DocuSign",
+  "host": "careers.docusign.com"
  }
 ]

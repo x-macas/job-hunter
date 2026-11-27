@@ -472,3 +472,19 @@ def test_job_pages_honor_crawl_delay(monkeypatch):
     monkeypatch.setattr(robots, "rules_for", lambda host: [])
     monkeypatch.setattr(portals.time, "sleep", waits.append)
     assert len(portals.fetch_portal(site)) == 2 and waits == [5.0, 5.0]
+
+
+def test_jibe_careers_site(monkeypatch):
+    asked = []
+
+    def req(url, body=None):
+        asked.append(url)
+        return {"jobs": [{"data": {"req_id": "92517", "slug": "92517", "title": "SoC Engineer", "full_location": "Hyderabad, India",
+                                   "posted_date": "2026-11-27T06:50:00+0000", "description": "<p>Chips</p>",
+                                   "employment_type": "FULL_TIME"}}]}
+    monkeypatch.setattr(portals, "_req", req)
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    j = portals.fetch_portal({"type": "jibe", "name": "AMD", "host": "careers.amd.com"})[0]
+    assert (j.title, j.location, j.url, j.description) == ("SoC Engineer", "Hyderabad, India",
+                                                          "https://careers.amd.com/careers-home/jobs/92517?lang=en-us", "Chips")
+    assert j.posted_at and "location=India" in asked[0] and len(asked) == 1
