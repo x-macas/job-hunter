@@ -847,5 +847,30 @@
   "host": "trellix.wd1.myworkdayjobs.com",
   "tenant": "trellix",
   "site": "EnterpriseCareers"
+ },
+ {
+  "type": "sitemap",
+  "name": "Seagate",
+  "host": "seagatecareers.com",
+  "sitemap": "https://seagatecareers.com/sitemap.xml",
+  "style": "rmk",
+  "page": "https://seagatecareers.com/"
+ },
+ {
+  "type": "workday",
+  "name": "S&P Global",
+  "host": "spgi.wd5.myworkdayjobs.com",
+  "tenant": "spgi",
+  "site": "SPGI_Careers"
+ },
+ {
+  "type": "workday",
+  "name": "Elevance Health",
+  "host": "elevancehealth.wd1.myworkdayjobs.com",
+  "tenant": "elevancehealth",
+  "site": "ANT",
+  "also": [
+   "Carelon"
+  ]
  }
 ]
