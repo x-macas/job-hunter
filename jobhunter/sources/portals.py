@@ -549,11 +549,11 @@ def _dig(obj, path: str):
 def _jsonlist(p: dict) -> list[RawJob]:
     """A plain public list of jobs as JSON. The entry in portals.json says which field is which:
     items (where the list is), id, title, location (a field, or 'regex:<field>:<pattern>'), description,
-    job_type_field, page."""
+    job_type_field, link (a field holding the job's own link), page, body (sent as a POST search, if given)."""
     url = p["url"]
     if not p.get("polite") and not robots.allowed(url):
         raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
-    data = _req(url)
+    data = _req(url, p.get("body"))   # some lists are asked for with a small search form (POST)
     items = _dig(data, p.get("items", "")) if p.get("items") else data
     jobs = []
     for j in items or []:
@@ -572,6 +572,8 @@ def _jsonlist(p: dict) -> list[RawJob]:
             loc = f"{loc}, India" if loc else "India"
         desc = parse.html_to_text(str(_dig(j, p["description"]) or "")) if p.get("description") else None
         jobs.append(RawJob(source="jsonlist", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
-                           company=p["name"], title=title[:200], url=p["page"].replace("{id}", urllib.parse.quote(job_id)),
+                           company=p["name"], title=title[:200],
+                           url=str(_dig(j, p["link"]) or "") if p.get("link") and str(_dig(j, p["link"]) or "").startswith("https://")
+                           else p["page"].replace("{id}", urllib.parse.quote(job_id)),
                            location=loc, description=desc, job_type=parse.job_type_from(title, str(_dig(j, p.get("job_type_field", "")) or "").replace("_", " "))))
     return [j for j in jobs if j.title]

@@ -926,5 +926,42 @@
   "page": "https://www.lambdatest.com/careers",
   "country": "India",
   "job_type_field": "jobType"
+ },
+ {
+  "type": "jsonlist",
+  "name": "Wayfair",
+  "host": "www.wayfair.com",
+  "url": "https://www.wayfair.com/a/careers/careers/job_search_data",
+  "body": {
+   "categoryIds": [],
+   "teamIds": [],
+   "locationIds": [],
+   "countryIds": [],
+   "teamCategoryIds": [],
+   "stateIds": [],
+   "selectedJobTypeIds": [],
+   "keywords": ""
+  },
+  "items": "jobListData",
+  "id": "requisitionId",
+  "title": "title",
+  "location": "location.name",
+  "description": "description",
+  "job_type_field": "jobTypeDisplayName",
+  "link": "applyLink",
+  "page": "https://www.wayfair.com/careers/jobs"
+ },
+ {
+  "type": "jsonlist",
+  "name": "Zerodha",
+  "host": "careers.zerodha.com",
+  "url": "https://careers.zerodha.com/api/jobs",
+  "items": "data",
+  "id": "name",
+  "title": "job_title",
+  "location": "location",
+  "description": "description",
+  "page": "https://careers.zerodha.com/",
+  "country": "India"
  }
 ]
