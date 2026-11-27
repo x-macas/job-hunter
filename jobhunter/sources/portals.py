@@ -98,6 +98,8 @@ def fetch_portal(p: dict, quick: bool = False) -> list[RawJob]:
         return _jibe(p, quick)
     if kind == "eightfold":
         return _eightfold(p, quick)
+    if kind == "mediatek":
+        return _mediatek(p, quick)
     return []
 
 
@@ -709,7 +711,7 @@ def _jsonlist(p: dict) -> list[RawJob]:
             loc = m.group(1).strip() if m else ""
         else:
             v = _dig(j, loc_rule)
-            loc = " / ".join(str(x) for x in v) if isinstance(v, list) else str(v or "")
+            loc = " / ".join(str(x) for x in v if x) if isinstance(v, list) else str(v or "")
         if p.get("country") == "India" and not parse.is_india(loc):
             loc = f"{loc}, India" if loc else "India"
         desc = parse.html_to_text(str(_dig(j, p["description"]) or "")) if p.get("description") else None
@@ -819,6 +821,42 @@ def _jibe(p: dict, quick: bool = False) -> list[RawJob]:
                 job_type=parse.job_type_from(title, (j.get("employment_type") or "").replace("_", " ")),
             ))
         if len(rows) < 100:
+            break
+    return jobs
+
+
+# ---------- MediaTek's own careers site (careers.mediatek.com/en/jobs) ----------
+# Its job search is /api/trpc/job.getJobs, which robots.txt allows (it only asks bots to skip /strapi/).
+
+def _mediatek(p: dict, quick: bool = False) -> list[RawJob]:
+    jobs, seen = [], set()
+    for n in range(1, (1 if quick else 5) + 1):
+        query = {"json": {"locales": "en_US", "page": n, "jobQueryInfo": {},
+                          "filters": {"categorys": [], "workExperiences": [], "locations": p["locations"], "programs": []},
+                          "sortBy": "publishedDate", "order": "DESC", "limit": 50}}
+        url = f"https://{p['host']}/api/trpc/job.getJobs?" + urllib.parse.urlencode({"input": json.dumps(query)})
+        if not robots.allowed(url):
+            raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+        data = ((_req(url) or {}).get("result") or {}).get("data", {}).get("json") or {}
+        rows = data.get("jobs") or []
+        for j in rows:
+            job_id = str(j.get("id") or "")
+            if not re.fullmatch(r"[A-Za-z0-9]+", job_id) or job_id in seen:
+                continue
+            seen.add(job_id)
+            props = j.get("properties") or {}
+            city = ((props.get("location") or {}).get("code") or "").strip()
+            exp = ((props.get("workExperience") or {}).get("code") or "").replace("Expe.", "experience")
+            text = parse.html_to_text(j.get("description") or "")
+            title = (j.get("title") or "").strip()
+            jobs.append(RawJob(
+                source="mediatek", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                company=p["name"], title=title[:200], url=f"https://{p['host']}/en/jobs/{job_id}",
+                location=f"{city}, India" if city else "India",
+                description=(f"{exp}\n\n{text}" if exp else text) or None,
+                posted_at=parse.iso_to_ts(j.get("publishedDate") or ""), job_type=parse.job_type_from(title),
+            ))
+        if len(rows) < 50:
             break
     return jobs
 

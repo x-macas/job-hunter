@@ -308,6 +308,24 @@ def test_pagelist_several_pages(monkeypatch):
                                                 ("Data", "https://c.j.com/jd?i=3")]
 
 
+def test_mediatek_reader(monkeypatch):
+    seen = []
+
+    def fake(url, body=None):
+        seen.append(url)
+        return {"result": {"data": {"json": {"jobs": [
+            {"id": "MTB1", "title": "Software Engineer", "description": "<p>C++</p>", "publishedDate": "2026-11-04T16:00:00.000+00:00",
+             "properties": {"location": {"code": "Bangalore\t"}, "workExperience": {"code": "More than 2 Years Work Expe."}}},
+            {"id": "../x", "title": "Odd"}]}}}}
+    monkeypatch.setattr(portals, "_req", fake)
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /strapi/\n"))
+    jobs = portals.fetch_portal({"type": "mediatek", "name": "MediaTek", "host": "careers.mediatek.com", "locations": ["1"]})
+    assert len(seen) == 1 and "job.getJobs" in seen[0]
+    assert [(j.title, j.location, j.url) for j in jobs] == [
+        ("Software Engineer", "Bangalore, India", "https://careers.mediatek.com/en/jobs/MTB1")]
+    assert jobs[0].description == "More than 2 Years Work experience\n\nC++" and jobs[0].posted_at
+
+
 def test_jsonlist_title_in_link(monkeypatch):
     monkeypatch.setattr(portals, "_req", lambda url, body=None: {"allJobs": [
         {"job_id": "a1", "job_title": "Sr. Devops Engineer / SRE", "location_city": ["Gurgaon", "Bangalore"]}]})

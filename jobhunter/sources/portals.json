@@ -1392,5 +1392,56 @@
   "link": "apply_url",
   "page": "https://futuresfirst.com/job-list/",
   "country": "India"
+ },
+ {
+  "type": "jsonlist",
+  "name": "Urban Company",
+  "host": "www.urbanclap.com",
+  "polite": true,
+  "url": "https://www.urbanclap.com/api/v2/platform-gateway/getAllJobs",
+  "body": {},
+  "items": "jobs",
+  "id": "job_id",
+  "title": "job_title",
+  "location": "location",
+  "description": "job_description",
+  "link": "apply_url",
+  "page": "https://careers.urbancompany.com/jobs",
+  "country": "India"
+ },
+ {
+  "type": "pagelist",
+  "name": "Scaler",
+  "host": "www.scaler.com",
+  "list": "https://www.scaler.com/careers",
+  "item": "<a href=\"(?P<link>/careers/(?P<id>[a-z0-9-]+))\"[^>]*>.*?opening__blocks__heading\">(?P<title>[^<]+)</h3>.*?opening__blocks__bottom\">\\s*<p class=\"opening__blocks__desc\">\\s*[^<]*?-\\s*(?P<place>[^<-]+?)\\s*-[^<-]*</p>",
+  "country": "India",
+  "also": [
+   "InterviewBit"
+  ]
+ },
+ {
+  "type": "jsonlist",
+  "name": "Lenskart",
+  "host": "ainterviews.com",
+  "polite": true,
+  "url": "https://ainterviews.com/api/job_board/lenskart_ho/jobs/",
+  "items": "jobs",
+  "id": "id",
+  "title": "title",
+  "location": "location",
+  "description": "description",
+  "job_type_field": "job_type",
+  "page": "https://ainterviews.com/job_board/lenskart_ho/job/{id}/",
+  "country": "India"
+ },
+ {
+  "type": "mediatek",
+  "name": "MediaTek",
+  "host": "careers.mediatek.com",
+  "locations": [
+   "0000168800",
+   "0000009297"
+  ]
  }
 ]
