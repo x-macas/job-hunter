@@ -60,6 +60,27 @@
 </section>
 
 <section class="card stack">
+  <h2>Hunter.io (find people to email)</h2>
+  {% if hunter %}
+    <p><strong class="good">Key saved.</strong> "Find people" on a job's page uses it.</p>
+    <form method="post"><input type="hidden" name="csrf" value="{{ csrf_token() }}"><input type="hidden" name="action" value="hunter_remove"><button class="btn">Remove key</button></form>
+  {% else %}
+    <ol class="steps">
+      <li>Sign up free at <a href="https://hunter.io/users/sign_up" target="_blank" rel="noopener noreferrer">hunter.io</a> (25 company searches a month).</li>
+      <li>Open <a href="https://hunter.io/api-keys" target="_blank" rel="noopener noreferrer">hunter.io/api-keys</a> and copy your key here.</li>
+    </ol>
+    <p class="small muted">Only company names and web addresses are sent to Hunter, nothing about you.</p>
+    <form method="post" class="row">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="hunter">
+      <label for="hk" class="sr-only">Hunter API key</label>
+      <input id="hk" name="key" type="password" autocomplete="off" placeholder="Hunter API key" class="grow">
+      <button class="btn pri">Save key</button>
+    </form>
+  {% endif %}
+</section>
+
+<section class="card stack">
   <h2>Adzuna (more Indian jobs)</h2>
   {% if adzuna %}<p><strong class="good">Keys saved.</strong> Paste new ones below to replace them.</p>{% endif %}
   <ol class="steps">

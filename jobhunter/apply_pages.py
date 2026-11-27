@@ -34,6 +34,7 @@ def apply_job(job_id):
                            tex=bool(tailor.source()), latex=tailor.compiler() is not None,
                            edits=tailor.saved_edits(db, job_id), tailored=tailor.pdf_path(job_id).exists(),
                            contacts=outreach.contacts_for(db, job_id), kinds=outreach.KINDS,
+                           found=__import__("jobhunter.people", fromlist=["x"]).for_job(db, job),
                            linkedin=cover.get(db, job_id, "linkedin"),
                            official_email=outreach.official_apply_email(job),
                            unanswered=unanswered, fill_log=cover.get(db, job_id, "fill_log"),

@@ -68,8 +68,11 @@ Playwright (form filling), Gmail over IMAP/SMTP with an app password.
 
 ## How emails work
 
-- I add the people myself on a job's page (HR, hiring manager, employee, alumni). The website never takes an
-  address from a job post's text; the only other address it uses is a job's official apply email (a mailto: apply link).
+- People to email come from a contact search: the company's own website (the careers@/hr@/jobs@ addresses it
+  publishes) and Hunter.io (free key: names, job titles and work emails, with how sure it is). Found people
+  are suggestions on the job's page; I add the ones I want. I can also add people myself, and a job's official
+  apply email is offered too. An address is never taken from a job post's text.
+- Each day the website looks up people for the top few jobs on its own (Settings), and saves what it finds.
 - Claude writes a short, plain draft with my resume attached. It waits in the Outbox until I approve it.
 - After I approve 2 emails of one kind without changing them, that kind sends on its own: new drafts wait
   30 minutes (so I can still stop them), then go out. If I change or reject one, it needs 2 approvals again.

@@ -208,3 +208,20 @@ CREATE TABLE IF NOT EXISTS mock_turns (
     ts        REAL NOT NULL,
     PRIMARY KEY (job_id, n)
 );
+
+-- People found by the contact search (company website, Hunter.io). Suggestions only:
+-- you add the ones you want as contacts for a job.
+CREATE TABLE IF NOT EXISTS found_people (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    company     TEXT NOT NULL,
+    domain      TEXT NOT NULL,
+    name        TEXT NOT NULL DEFAULT '',
+    email       TEXT NOT NULL DEFAULT '',
+    position    TEXT NOT NULL DEFAULT '',
+    kind        TEXT NOT NULL DEFAULT 'hr',
+    confidence  INTEGER NOT NULL DEFAULT 0,
+    source      TEXT NOT NULL DEFAULT '',
+    ts          REAL NOT NULL
+);
+CREATE INDEX IF NOT EXISTS found_people_company ON found_people (company);
+CREATE INDEX IF NOT EXISTS found_people_domain ON found_people (domain);

@@ -229,6 +229,7 @@ def tick(conn, s) -> None:
         _log(quick(conn, s))
     evening_nudge(conn, s, hour)
     emails(conn, s)
+    find_people_daily(conn, s)
     daily_backup(conn, s)
 
 
@@ -246,6 +247,31 @@ def daily_backup(conn, s) -> None:
     except (backup.BackupError, OSError) as e:
         _mark(conn, "backup", ok=False, message=str(e))
         activity.log(conn, "backup", f"Backup failed: {e}")
+
+
+def find_people_daily(conn, s) -> None:
+    """Once a day: look up people for today's top jobs (company website, then Hunter.io)."""
+    from . import people
+    if not s["find_people_per_day"]:
+        return
+    r = _run_row(conn, "people")
+    if r and r["last_started"] and date.fromtimestamp(r["last_started"]) == date.today():
+        return
+    _mark(conn, "people", started=time.time())
+    done, seen = 0, set()
+    for job in conn.execute("SELECT j.* FROM picks p JOIN jobs j ON j.id = p.job_id WHERE p.day = ? "
+                            "AND j.status = 'new' ORDER BY p.rank", (date.today().isoformat(),)).fetchall():
+        if done >= s["find_people_per_day"] or job["company"] in seen:
+            continue
+        seen.add(job["company"])
+        try:
+            if people.for_job(conn, job):
+                continue
+            people.find(conn, job, s)
+            done += 1
+        except people.PeopleError as e:
+            _log(f"People search for {job['company']}: {e}")
+    _mark(conn, "people", ok=True, message=f"Looked up {done} companies.")
 
 
 def emails(conn, s) -> None:

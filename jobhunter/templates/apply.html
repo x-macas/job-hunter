@@ -74,6 +74,22 @@
     <button class="btn">Add it</button>
   </form>
   {% endif %}
+  <form method="post" action="{{ url_for('pages.find_people', job_id=job.id) }}" class="row">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <button class="btn">{{ 'Search again' if found else 'Find people at ' ~ job.company }}</button>
+    {% if found %}<input type="hidden" name="refresh" value="1">{% endif %}
+    <span class="small muted">Looks at the company's own website, and Hunter.io if you added a key.</span>
+  </form>
+  {% set added = contacts | map(attribute='email') | list %}
+  {% for f in found if f.email not in added %}
+  <form method="post" action="{{ url_for('pages.add_contact', job_id=job.id) }}" class="row qa">
+    <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+    <input type="hidden" name="found" value="{{ f.id }}">
+    <span class="grow"><strong>{{ f.name or f.email }}</strong> · {{ kinds[f.kind] }}
+      <span class="small muted">· {{ f.email }}{% if f.position %} · {{ f.position }}{% endif %} · {{ f.source }}</span></span>
+    <button class="btn">Add</button>
+  </form>
+  {% endfor %}
   {% for c in contacts %}
   <div class="row qa">
     <span class="grow"><strong>{{ c.name or c.email }}</strong> · {{ kinds[c.kind] }} <span class="small muted">· {{ c.email }}{% if c.how %} · {{ c.how }}{% endif %}</span></span>

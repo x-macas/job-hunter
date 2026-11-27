@@ -388,6 +388,19 @@ def connections():
             activity.log(db, "security", "Gmail disconnected.")
             flash("Gmail disconnected. The app password is deleted from this laptop. "
                   "You can also delete it in your Google account.")
+        elif action == "hunter":
+            from . import people
+            try:
+                people.save_hunter_key(request.form.get("key", ""))
+                activity.log(db, "security", "Hunter.io key saved.")
+                flash("Hunter.io key saved. 'Find people' on a job's page now uses it.")
+            except people.PeopleError as e:
+                flash(str(e), "error")
+        elif action == "hunter_remove":
+            from . import people
+            people.KEY_FILE.unlink(missing_ok=True)
+            activity.log(db, "security", "Hunter.io key removed.")
+            flash("Hunter.io key removed.")
         elif action == "adzuna":
             app_id, key = request.form.get("app_id", "").strip(), request.form.get("app_key", "").strip()
             if not (re.fullmatch(r"[A-Za-z0-9]{4,40}", app_id) and re.fullmatch(r"[A-Za-z0-9]{10,80}", key)):
@@ -400,7 +413,8 @@ def connections():
         return redirect(url_for("pages.connections"))
     from . import gmail
     tg = telegram.load()
-    return render_template("connections.html", tg=tg, gmail=gmail.load().get("email"),
+    from . import people
+    return render_template("connections.html", tg=tg, gmail=gmail.load().get("email"), hunter=bool(people.hunter_key()),
                            adzuna=(SECRETS_DIR / "adzuna.json").exists())
 
 

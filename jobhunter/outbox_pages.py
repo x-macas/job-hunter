@@ -19,7 +19,14 @@ def add_contact(job_id):
     job = _job(db, job_id)
     if job is None:
         return redirect(url_for("pages.today"))
-    if request.form.get("official") == "1":
+    if request.form.get("found", "").isdigit():
+        from . import people
+        row = db.execute("SELECT * FROM found_people WHERE id = ? AND company = ?",
+                         (int(request.form["found"]), job["company"])).fetchone()
+        error = (outreach.add_contact(db, job_id, row["name"], row["email"], row["kind"],
+                                      f"{row['position']} · {row['source']}".strip(" ·"))
+                 if row else "That suggestion is gone.")
+    elif request.form.get("official") == "1":
         address = outreach.official_apply_email(job)
         error = outreach.add_contact(db, job_id, "", address or "", "hr", "Official apply email") if address \
             else "This job has no official apply email."
@@ -27,6 +34,23 @@ def add_contact(job_id):
         error = outreach.add_contact(db, job_id, request.form.get("name", ""), request.form.get("email", ""),
                                      request.form.get("kind", ""), request.form.get("how", ""))
     flash(error or "Added.", "error" if error else "message")
+    return redirect(url_for("pages.apply_job", job_id=job_id) + "#people")
+
+
+@bp.route("/job/<int:job_id>/find-people", methods=["POST"])
+def find_people(job_id):
+    from . import people
+    db = get_db()
+    job = _job(db, job_id)
+    if job is None:
+        return redirect(url_for("pages.today"))
+    try:
+        found = people.find(db, job, settings_store.get_all(db), refresh=request.form.get("refresh") == "1")
+        activity.log(db, "email", f"Contact search for {job['company']}: {len(found)} found.")
+        flash(f"Found {len(found)} people at {job['company']}." if found else
+              f"Nobody found at {job['company']} yet. Add a Hunter.io key on Connections for more.")
+    except people.PeopleError as e:
+        flash(str(e), "error")
     return redirect(url_for("pages.apply_job", job_id=job_id) + "#people")
 
 
