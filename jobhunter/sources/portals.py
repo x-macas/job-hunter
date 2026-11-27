@@ -494,7 +494,7 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
         budget -= 1
         page = ""
         try:
-            page = _get_text(link)[:3_000_000]
+            page = _get_text(link + p.get("page_suffix", ""))[:3_000_000]   # iCIMS: "?in_iframe=1" shows the job itself
             ld = _ld_job(page)
         except FetchError as e:
             if not re.search(r"HTTP (404|410)$", str(e)):
@@ -725,33 +725,33 @@ def _jsonlist(p: dict) -> list[RawJob]:
 # ---------- a plain careers page that lists its jobs in the HTML ----------
 
 def _pagelist(p: dict) -> list[RawJob]:
-    """The entry in portals.json gives the page ('list') and a pattern ('item') with named parts:
+    """The entry in portals.json gives the page ('list', or a few pages) and a pattern ('item') with named parts:
     title, and link or id (then 'page' makes the link, with {id} filled in), and place if the page shows it.
     Links must stay on the page's own site."""
-    url = p["list"]
-    if not robots.allowed(url):
-        raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
-    page = _get_text(url)
-    host = urllib.parse.urlsplit(url).netloc.lower()
     jobs, seen = [], set()
-    for m in re.finditer(p["item"], page, re.S):
-        g = m.groupdict()
-        title = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", g.get("title") or ""))).strip()
-        if g.get("link"):
-            link = urllib.parse.urljoin(url, html.unescape(g["link"]))
-            if urllib.parse.urlsplit(link).netloc.lower() != host or not link.startswith("https://"):
+    for url in ([p["list"]] if isinstance(p["list"], str) else p["list"]):
+        if not robots.allowed(url):
+            raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+        page = _get_text(url)
+        host = urllib.parse.urlsplit(url).netloc.lower()
+        for m in re.finditer(p["item"], page, re.S):
+            g = m.groupdict()
+            title = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", g.get("title") or ""))).strip()
+            if g.get("link"):
+                link = urllib.parse.urljoin(url, html.unescape(g["link"]))
+                if urllib.parse.urlsplit(link).netloc.lower() != host or not link.startswith("https://"):
+                    continue
+            else:
+                link = p["page"].replace("{id}", urllib.parse.quote(g.get("id") or ""))
+            job_id = g.get("id") or link
+            if not title or job_id in seen:
                 continue
-        else:
-            link = p["page"].replace("{id}", urllib.parse.quote(g.get("id") or ""))
-        job_id = g.get("id") or link
-        if not title or job_id in seen:
-            continue
-        seen.add(job_id)
-        loc = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", g.get("place") or ""))).strip() or p.get("place", "")
-        if p.get("country") == "India" and not parse.is_india(loc):
-            loc = f"{loc}, India" if loc else "India"
-        jobs.append(RawJob(source="pagelist", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
-                           company=p["name"], title=title[:200], url=link, location=loc, job_type=parse.job_type_from(title)))
+            seen.add(job_id)
+            loc = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", g.get("place") or ""))).strip() or p.get("place", "")
+            if p.get("country") == "India" and not parse.is_india(loc):
+                loc = f"{loc}, India" if loc else "India"
+            jobs.append(RawJob(source="pagelist", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                               company=p["name"], title=title[:200], url=link, location=loc, job_type=parse.job_type_from(title)))
     return jobs
 
 
@@ -795,6 +795,8 @@ def _jibe(p: dict, quick: bool = False) -> list[RawJob]:
     """The careers site's own job list: /api/jobs?location=India, newest first, 100 a page."""
     jobs, seen = [], set()
     for n in range(1, (1 if quick else 10) + 1):
+        if n > 1 and p.get("delay"):
+            time.sleep(float(p["delay"]))     # robots.txt crawl-delay
         url = (f"https://{p['host']}/api/jobs?location={urllib.parse.quote(p.get('country', 'India'))}"
                f"&page={n}&limit=100&sortBy=posted_date&descending=true")
         if not robots.allowed(url):

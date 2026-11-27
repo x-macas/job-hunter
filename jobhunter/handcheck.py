@@ -55,7 +55,7 @@ def source_url(src: dict, facets: dict | None = None) -> str:
     if kind == "avature":
         return src["base"] + "/SearchJobs/"
     if kind in ("cards", "pagelist"):
-        return src["list"]
+        return src["list"] if isinstance(src["list"], str) else src.get("page") or src["list"][0]
     if kind == "jsonlist":
         return src["page"].replace("{id}", "")
     if kind == "eightfold":
@@ -81,6 +81,7 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         "gem": f"https://jobs.gem.com/{slug}",
         "recruitee": f"https://{slug}.recruitee.com/",
         "jazzhr": f"https://{slug}.applytojob.com/apply",
+        "keka": f"https://{slug}.keka.com/careers/",
         "zohorecruit": f"https://{slug}/jobs/{src.get('page', 'Careers')}",
     }.get(kind, "")
 

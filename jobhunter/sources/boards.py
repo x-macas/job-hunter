@@ -1,4 +1,4 @@
-"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling, Kula, Zoho Recruit, Pinpoint, Gem.
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling, Kula, Zoho Recruit, Pinpoint, Gem, Recruitee, JazzHR, Keka.
 The first five have free public feeds; Jobvite and Freshteam are plain public web pages
 (their robots.txt allows the job list)."""
 
@@ -13,7 +13,7 @@ from .http import FetchError, check_public_url, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee", "jazzhr")
+       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee", "jazzhr", "keka")
 
 
 def default_boards() -> list[dict]:
@@ -63,6 +63,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _recruitee(slug, name)
     if ats == "jazzhr":
         return _jazzhr(slug, name)
+    if ats == "keka":
+        return _keka(slug, name)
     if ats == "zohorecruit":
         return _zohorecruit(slug, name, board.get("page", "Careers"), board.get("country", ""))
     return []
@@ -481,6 +483,37 @@ def _recruitee(slug, name):
             description=text.strip() or None,
             posted_at=parse.iso_to_ts((j.get("published_at") or "").replace(" UTC", "+00:00").replace(" ", "T", 1)),
             job_type=parse.job_type_from(j.get("title") or "", (j.get("employment_type_code") or "").replace("_", " ")),
+        ))
+    return jobs
+
+
+# ---------- Keka Hire (<company>.keka.com/careers) ----------
+# Keka's robots.txt allows everything under /careers, which is where the job list lives.
+
+def _keka(slug, name):
+    _slug_ok(slug, name)
+    url = f"https://{slug}.keka.com/careers/api/jobs/default/active"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    jobs = []
+    for j in fetch_json(url) or []:
+        places = j.get("jobLocations") or []
+        place = "; ".join(", ".join(x for x in ((p.get("city") or p.get("name") or "").strip(),
+                                                 (p.get("countryName") or "").strip()) if x)
+                          for p in places if isinstance(p, dict))
+        exp = str(j.get("experience") or "").strip()
+        text = parse.html_to_text(j.get("description") or "").strip()
+        if exp:
+            text = f"Experience: {exp}{'' if 'year' in exp.lower() else ' years'}\n\n{text}"
+        remote = "remote" in place.lower()
+        jobs.append(RawJob(
+            source="keka", source_id=f"{slug}:{j['id']}", source_name=f"{name} careers",
+            company=name, title=html.unescape(j.get("title") or "").strip(),
+            url=f"https://{slug}.keka.com/careers/jobdetails/{j['id']}",
+            location=place, remote=remote and parse.is_open_remote(place, True),
+            description=text or None,
+            posted_at=parse.iso_to_ts(j.get("publishedOn") or ""),
+            job_type=parse.job_type_from(j.get("title") or "", "part time" if str(j.get("jobType")) == "1" else ""),
         ))
     return jobs
 

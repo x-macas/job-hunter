@@ -297,6 +297,17 @@ def test_pagelist_reader(monkeypatch):
         portals.fetch_portal({"type": "pagelist", "name": "IR", "host": "www.ir.in", "list": "https://www.ir.in/careers.php", "item": "x"})
 
 
+def test_pagelist_several_pages(monkeypatch):
+    pages = {"https://c.j.com/a": '<a href="jd?i=1">SDE ( 11 )</a><a href="jd?i=2">QA ( 12 )</a>',
+             "https://c.j.com/b": '<a href="jd?i=1">SDE ( 11 )</a><a href="jd?i=3">Data ( 13 )</a>'}
+    monkeypatch.setattr(portals, "_get_text", lambda url, **k: pages[url])
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    jobs = portals.fetch_portal({"type": "pagelist", "name": "J", "host": "c.j.com", "list": list(pages),
+                                 "item": r'<a href="(?P<link>[^"]+)">(?P<title>[^<(]+?)\s*\(\s*(?P<id>\d+)\s*\)</a>'})
+    assert [(j.title, j.url) for j in jobs] == [("SDE", "https://c.j.com/jd?i=1"), ("QA", "https://c.j.com/jd?i=2"),
+                                                ("Data", "https://c.j.com/jd?i=3")]
+
+
 def test_jsonlist_title_in_link(monkeypatch):
     monkeypatch.setattr(portals, "_req", lambda url, body=None: {"allJobs": [
         {"job_id": "a1", "job_title": "Sr. Devops Engineer / SRE", "location_city": ["Gurgaon", "Bangalore"]}]})
@@ -471,6 +482,25 @@ def test_recruitee_board(monkeypatch):
     assert j.posted_at
     with pytest.raises(FetchError):
         boards.fetch_board({"ats": "recruitee", "slug": "a.b", "name": "Bad"})
+
+
+def test_keka_board(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /\nAllow: /careers\n"))
+    seen = []
+
+    def fake(url):
+        seen.append(url)
+        return [{"id": 95, "title": "Backend &amp; Infra Engineer", "description": "<p>Go</p>", "experience": "0 - 1",
+                 "jobLocations": [{"city": "Bengaluru", "countryName": "India"}, {"name": "Pune", "countryName": "India"}],
+                 "jobType": 2, "publishedOn": "2026-11-11T06:27:24.503Z"}]
+    monkeypatch.setattr(boards, "fetch_json", fake)
+    jobs = boards.fetch_board({"ats": "keka", "slug": "t", "name": "T"})
+    assert seen == ["https://t.keka.com/careers/api/jobs/default/active"]
+    j = jobs[0]
+    assert (j.title, j.location, j.url) == ("Backend & Infra Engineer", "Bengaluru, India; Pune, India",
+                                            "https://t.keka.com/careers/jobdetails/95")
+    assert j.description == "Experience: 0 - 1 years\n\nGo" and j.posted_at
 
 
 def test_jazzhr_board(monkeypatch):

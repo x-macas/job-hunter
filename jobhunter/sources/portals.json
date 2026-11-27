@@ -1301,5 +1301,63 @@
   "item": "<div class=\"vc_tta-panel\" id=\"(?P<id>[A-Za-z0-9-]+)\"[^>]*>.*?<span class=\"vc_tta-title-text\">(?P<title>[^<]+)</span>",
   "page": "https://plutusresearch.com/careers/#{id}",
   "country": "India"
+ },
+ {
+  "type": "sitemap",
+  "name": "Rambus",
+  "host": "careers-rambus.icims.com",
+  "sitemap": "https://careers-rambus.icims.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "^https://careers\\-rambus\\.icims\\.com/jobs/(\\d+)/[^/]+/job$",
+  "page_suffix": "?in_iframe=1",
+  "delay": 2,
+  "page": "https://careers-rambus.icims.com/jobs/search?ss=1"
+ },
+ {
+  "type": "sitemap",
+  "name": "MSCI",
+  "host": "globalcareers-msci.icims.com",
+  "sitemap": "https://globalcareers-msci.icims.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "^https://globalcareers\\-msci\\.icims\\.com/jobs/(\\d+)/[^/]+/job$",
+  "page_suffix": "?in_iframe=1",
+  "delay": 2,
+  "page": "https://globalcareers-msci.icims.com/jobs/search?ss=1"
+ },
+ {
+  "type": "sitemap",
+  "name": "Seismic",
+  "host": "careers-seismic.icims.com",
+  "sitemap": "https://careers-seismic.icims.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "^https://careers\\-seismic\\.icims\\.com/jobs/(\\d+)/[^/]+/job$",
+  "page_suffix": "?in_iframe=1",
+  "delay": 2,
+  "page": "https://careers-seismic.icims.com/jobs/search?ss=1",
+  "also": [
+   "Highspot"
+  ]
+ },
+ {
+  "type": "jibe",
+  "name": "Gainsight",
+  "host": "careers.gainsight.com",
+  "delay": 5
+ },
+ {
+  "type": "pagelist",
+  "name": "Reliance Jio",
+  "host": "careers.jio.com",
+  "also": [
+   "Jio Platforms"
+  ],
+  "list": [
+   "https://careers.jio.com/frmfuncwisejob.aspx?func=09Bqkj0vwzk=&desc=tBOU2f2ubJIKJJaEorlljoC0jBhJb9cLpWXiiP5HyBU=&flag=/wASbQn4xyQ=",
+   "https://careers.jio.com/frmfuncwisejob.aspx?func=2pGaMqAexDY=&desc=am1AraTXtX4/W/EJK6dzzw==&flag=/wASbQn4xyQ=",
+   "https://careers.jio.com/frmfuncwisejob.aspx?func=xiFo6zLluvo=&desc=B5SsmjDFtUxY18QQ2oFGsx6HRqdDb3BD&flag=/wASbQn4xyQ="
+  ],
+  "item": "<a id=\"MainContent_lstJoblist_hylUser_\\d+\" href=\"(?P<link>frmjobdescription\\.aspx\\?[^\"]+)\">(?P<title>[^<]+?)\\s*\\(\\s*(?P<id>\\d+)\\s*\\)</a>.*?_Label2_\\d+\">(?P<place>[^<]*)</span>",
+  "country": "India",
+  "page": "https://careers.jio.com/frmJobCategories.aspx"
  }
 ]
