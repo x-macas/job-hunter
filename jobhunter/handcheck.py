@@ -56,6 +56,8 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         return src["base"] + "/SearchJobs/"
     if kind == "cards":
         return src["list"]
+    if kind == "jsonlist":
+        return src["page"].replace("{id}", "")
     return {
         "greenhouse": f"https://job-boards.greenhouse.io/{slug}",
         "lever": f"https://jobs.lever.co/{slug}",

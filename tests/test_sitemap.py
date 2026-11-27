@@ -264,3 +264,16 @@ def test_mynexthire_and_recruiterbox(monkeypatch):
     r = boards.fetch_board({"ats": "recruiterbox", "slug": "1", "name": "Ex", "page": "https://ex.com/careers/"})[0]
     assert (r.title, r.location, r.url, r.description) == ("Backend Engineer", "Bengaluru, Karnataka, India",
                                                            "https://ex.com/careers/#ab", "Go")
+
+
+def test_jsonlist_reader(monkeypatch):
+    monkeypatch.setattr(portals, "_req", lambda url, body=None: {"data": {"jobs": [
+        {"id": "A1", "title": "SDET 1", "excerpt": "QA · 📍 Noida 🕐 Full-Time", "jobType": "full_time", "description": "<p>Tests</p>"},
+        {"id": "A2", "title": "Intern", "excerpt": "Remote", "jobType": "intern"}]}})
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    jobs = portals.fetch_portal({"type": "jsonlist", "name": "LT", "host": "x.com", "url": "https://x.com/jobs", "items": "data.jobs",
+                                 "id": "id", "title": "title", "location": "regex:excerpt:📍\\s*([^🕐·]+)",
+                                 "description": "description", "job_type_field": "jobType", "page": "https://lt.com/careers#{id}",
+                                 "country": "India"})
+    assert [(j.title, j.location, j.job_type, j.url) for j in jobs] == [
+        ("SDET 1", "Noida", "full_time", "https://lt.com/careers#A1"), ("Intern", "India", "intern", "https://lt.com/careers#A2")]

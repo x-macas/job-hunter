@@ -912,5 +912,19 @@
   "name": "Tesco",
   "host": "careers.tesco.com",
   "base": "https://careers.tesco.com/careers"
+ },
+ {
+  "type": "jsonlist",
+  "name": "LambdaTest",
+  "host": "api.nova-testmuai.com",
+  "url": "https://api.nova-testmuai.com/v1/public/testmu-ai/jobs",
+  "items": "",
+  "id": "id",
+  "title": "title",
+  "location": "regex:excerpt:📍\\s*([^🕐·]+)",
+  "description": "description",
+  "page": "https://www.lambdatest.com/careers",
+  "country": "India",
+  "job_type_field": "jobType"
  }
 ]
