@@ -885,5 +885,26 @@
   "name": "Electronic Arts",
   "host": "jobs.ea.com",
   "base": "https://jobs.ea.com/en_US/careers"
+ },
+ {
+  "type": "workday",
+  "name": "Thermo Fisher Scientific",
+  "host": "thermofisher.wd5.myworkdayjobs.com",
+  "tenant": "thermofisher",
+  "site": "ThermofisherCareers"
+ },
+ {
+  "type": "workday",
+  "name": "Synchrony",
+  "host": "synchronyfinancial.wd5.myworkdayjobs.com",
+  "tenant": "synchronyfinancial",
+  "site": "Careers"
+ },
+ {
+  "type": "cards",
+  "name": "Fidelity Investments",
+  "host": "jobs.fidelity.com",
+  "list": "https://jobs.fidelity.com/in/jobs/",
+  "country": "India"
  }
 ]

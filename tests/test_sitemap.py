@@ -233,3 +233,17 @@ def test_avature_search_reader(monkeypatch):
     monkeypatch.setattr(robots, "rules_for", lambda host: [])
     jobs = portals.fetch_portal({"type": "avature", "name": "EA", "host": "jobs.x.com", "base": "https://jobs.x.com/en_US/careers"})
     assert [(j.title, j.location, j.source_id) for j in jobs] == [("Software Engineer I", "Hyderabad, India", "jobs.x.com:214211")]
+
+
+CARDS = """<div class="card card-job" data-id="11"><h2 class="card-title"><a class="stretched-link" href="/in/jobs/11/sde/">SDE &amp; Backend</a></h2>
+<ul><li class="list-inline-item"><span>Technology</span> <span>Posted Nov 26</span></li><li class="list-inline-item"> Chennai, TN </li></ul></div>
+<div class="card card-job" data-id="12"><h2 class="card-title"><a href="/in/jobs/12/x/">Analyst</a></h2><li class="list-inline-item">Bangalore, KA</li></div>"""
+
+
+def test_cards_reader(monkeypatch):
+    monkeypatch.setattr(portals, "_get_text", lambda url: CARDS)
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    jobs = portals.fetch_portal({"type": "cards", "name": "Fid", "host": "j.com", "list": "https://j.com/in/jobs/", "country": "India"})
+    assert [(j.title, j.location, j.url) for j in jobs] == [("SDE & Backend", "Chennai, TN, India", "https://j.com/in/jobs/11/sde/"),
+                                                            ("Analyst", "Bangalore, KA", "https://j.com/in/jobs/12/x/")]
+    assert jobs[0].posted_at and not jobs[1].posted_at

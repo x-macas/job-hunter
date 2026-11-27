@@ -83,6 +83,8 @@ def fetch_portal(p: dict, quick: bool = False) -> list[RawJob]:
         return _sitemap(p)
     if kind == "avature":
         return _avature(p, quick)
+    if kind == "cards":
+        return _cards(p)
     return []
 
 
@@ -493,4 +495,41 @@ def _avature(p: dict, quick: bool = False) -> list[RawJob]:
         if not new:
             break
         offset += len({r[1] for r in rows})    # the site decides how many it shows per page
+    return jobs
+
+
+
+# ---------- simple job-card pages (Fidelity India...) ----------
+
+def _cards(p: dict) -> list[RawJob]:
+    """A careers page that shows the newest jobs as cards (title, link, place, posted date).
+    Only the first page: read every check, so new jobs are caught as they appear."""
+    url = p["list"]
+    if not p.get("polite") and not robots.allowed(url):
+        raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+    page = _get_text(url)
+    base = "https://" + urllib.parse.urlsplit(url).netloc
+    jobs = []
+    chunks = page.split('class="card card-job"')[1:]
+    for c in chunks:
+        m = re.search(r'href="(/[^"]+/jobs/(\d+)/[^"]*)"[^>]*>(.*?)</a>', c, re.S)
+        if not m:
+            continue
+        link, job_id, title = m.group(1), m.group(2), html.unescape(re.sub(r"<[^>]+>", "", m.group(3))).strip()
+        items = [html.unescape(re.sub(r"<[^>]+>|\s+", " ", x)).strip() for x in re.findall(r'list-inline-item">(.*?)</li>', c, re.S)]
+        loc = next((x for x in items if parse.is_india(x) or re.search(r",\s*[A-Z]{2}$", x)), p.get("country", ""))
+        posted = next((x for x in " ".join(items).split("  ") if x.strip().startswith("Posted")), "")
+        when = None
+        mm = re.search(r"Posted (\w{3}) (\d{1,2})", posted)
+        if mm:
+            try:
+                d = datetime.strptime(f"{mm.group(1)} {mm.group(2)} {datetime.now().year}", "%b %d %Y")
+                when = d.replace(year=d.year - 1).timestamp() if d > datetime.now() else d.timestamp()
+            except ValueError:
+                pass
+        if loc and not parse.is_india(loc) and p.get("country") == "India":
+            loc += ", India"
+        jobs.append(RawJob(source="cards", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                           company=p["name"], title=title[:200], url=base + link, location=loc, posted_at=when,
+                           job_type=parse.job_type_from(title)))
     return jobs
