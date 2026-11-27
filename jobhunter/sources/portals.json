@@ -4,7 +4,10 @@
   "name": "Salesforce",
   "host": "salesforce.wd12.myworkdayjobs.com",
   "tenant": "salesforce",
-  "site": "External_Career_Site"
+  "site": "External_Career_Site",
+  "also": [
+   "Informatica"
+  ]
  },
  {
   "type": "workday",
@@ -108,7 +111,10 @@
   "name": "Cohesity",
   "host": "cohesity.wd5.myworkdayjobs.com",
   "tenant": "cohesity",
-  "site": "Cohesity_Careers"
+  "site": "Cohesity_Careers",
+  "also": [
+   "Veritas"
+  ]
  },
  {
   "type": "oraclehcm",
@@ -604,7 +610,10 @@
   "name": "Capital One",
   "host": "capitalone.wd12.myworkdayjobs.com",
   "tenant": "capitalone",
-  "site": "Capital_One"
+  "site": "Capital_One",
+  "also": [
+   "Discover Financial"
+  ]
  },
  {
   "type": "workday",
