@@ -775,5 +775,21 @@
   "ats": "mynexthire",
   "slug": "angelone",
   "name": "Angel One"
+ },
+ {
+  "ats": "zohorecruit",
+  "slug": "yellow.zohorecruit.in",
+  "name": "Yellow.ai",
+  "page": "careers"
+ },
+ {
+  "ats": "workable",
+  "slug": "leena-ai",
+  "name": "Leena AI"
+ },
+ {
+  "ats": "mynexthire",
+  "slug": "coindcx",
+  "name": "CoinDCX"
  }
 ]

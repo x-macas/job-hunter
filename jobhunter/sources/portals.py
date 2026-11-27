@@ -470,7 +470,7 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
     for link in links:
         if link in mine or budget <= 0 or not pat.search(link):
             continue
-        if urllib.parse.urlsplit(link).netloc != p["host"] or not robots.allowed_by(rules, link):
+        if urllib.parse.urlsplit(link).netloc.lower() != p["host"] or not robots.allowed_by(rules, link):
             continue
         budget -= 1
         try:
@@ -521,7 +521,7 @@ def _sitemap(p: dict) -> list[RawJob]:
         return jobs
     jobs = []
     for link in _sitemap_links(p):
-        if urllib.parse.urlsplit(link).netloc != p["host"] or not robots.allowed_by(rules, link):
+        if urllib.parse.urlsplit(link).netloc.lower() != p["host"] or not robots.allowed_by(rules, link):
             continue
         found = sitemap_job(link, p["style"])
         if not found:

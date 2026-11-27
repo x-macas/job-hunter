@@ -1079,5 +1079,30 @@
   "job_link": "/careers/[a-z0-9-]+-(\\d+)$",
   "country": "India",
   "page": "https://www.deshawindia.com/careers"
+ },
+ {
+  "type": "workday",
+  "name": "Eli Lilly",
+  "host": "lilly.wd115.myworkdayjobs.com",
+  "tenant": "lilly",
+  "site": "LLY"
+ },
+ {
+  "type": "sitemap",
+  "name": "MediBuddy",
+  "host": "medibuddy.hire.trakstar.com",
+  "sitemap": "https://medibuddy.hire.trakstar.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/jobs/([a-z0-9]+)$",
+  "page": "https://medibuddy.hire.trakstar.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "MoEngage",
+  "host": "moengage.hire.trakstar.com",
+  "sitemap": "https://moengage.hire.trakstar.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/jobs/([a-z0-9]+)$",
+  "page": "https://moengage.hire.trakstar.com/"
  }
 ]
