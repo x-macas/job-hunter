@@ -81,6 +81,8 @@ def fetch_portal(p: dict, quick: bool = False) -> list[RawJob]:
         return _atlassian(p)
     if kind == "sitemap":
         return _sitemap(p)
+    if kind == "avature":
+        return _avature(p, quick)
     return []
 
 
@@ -458,3 +460,37 @@ def due(p: dict, hours: int, now: float | None = None) -> bool:
 
 
 sitemap_due = due
+
+
+
+# ---------- Avature search pages (EA...) ----------
+
+_AV_ROW = re.compile(r'<a class="link link_result" href="([^"]+/JobDetail/[^"]+?/(\d+))"[^>]*>\s*(.*?)\s*</a>'
+                     r'.*?class="list-item-location">\s*(.*?)\s*</span>', re.S)
+
+
+def _avature(p: dict, quick: bool = False) -> list[RawJob]:
+    """An Avature careers site's public job search page: title, place and link for each job."""
+    base = p["base"].rstrip("/")
+    jobs, seen, offset = [], set(), 0
+    for _ in range(2 if quick else 25):
+        url = f"{base}/SearchJobs/?jobRecordsPerPage=50&jobOffset={offset}"
+        if not p.get("polite") and not robots.allowed(url):
+            raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+        rows = _AV_ROW.findall(_get_text(url))
+        new = 0
+        for link, job_id, title, loc in rows:
+            if job_id in seen:
+                continue
+            seen.add(job_id)
+            new += 1
+            loc, title = html.unescape(re.sub(r"<[^>]+>", " ", loc)).strip(), html.unescape(title).strip()
+            if not parse.is_india(loc):
+                continue
+            jobs.append(RawJob(source="avature", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                               company=p["name"], title=title[:200], url=html.unescape(link), location=loc,
+                               job_type=parse.job_type_from(title)))
+        if not new:
+            break
+        offset += len({r[1] for r in rows})    # the site decides how many it shows per page
+    return jobs

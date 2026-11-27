@@ -52,6 +52,8 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         return "https://www.atlassian.com/company/careers/all-jobs"
     if kind == "sitemap":
         return src["page"]
+    if kind == "avature":
+        return src["base"] + "/SearchJobs/"
     return {
         "greenhouse": f"https://job-boards.greenhouse.io/{slug}",
         "lever": f"https://jobs.lever.co/{slug}",

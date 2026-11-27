@@ -219,3 +219,17 @@ def test_polite_sitemap_skips_robots(monkeypatch, tmp_path):
     _fake_site(monkeypatch, tmp_path, ["https://c.com/job/noida/software-engineer/1/11"],
                robots_text="User-agent: *\nDisallow: /\n")
     assert [j.title for j in portals.fetch_portal(dict(SITE, polite=True))] == ["Software Engineer"]
+
+
+AV_PAGE = """<h3><a class="link link_result" href="https://jobs.x.com/en_US/careers/JobDetail/Software-Engineer-I/214211">
+ Software Engineer I </a></h3><div><span class="list-item-location">Hyderabad, India</span></div>
+<h3><a class="link link_result" href="https://jobs.x.com/en_US/careers/JobDetail/Game-Designer/1">Game Designer</a></h3>
+<span class="list-item-location">Austin, Texas</span>"""
+
+
+def test_avature_search_reader(monkeypatch):
+    pages = iter([AV_PAGE, AV_PAGE])
+    monkeypatch.setattr(portals, "_get_text", lambda url: next(pages))
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    jobs = portals.fetch_portal({"type": "avature", "name": "EA", "host": "jobs.x.com", "base": "https://jobs.x.com/en_US/careers"})
+    assert [(j.title, j.location, j.source_id) for j in jobs] == [("Software Engineer I", "Hyderabad, India", "jobs.x.com:214211")]

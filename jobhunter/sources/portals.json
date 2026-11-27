@@ -879,5 +879,11 @@
   "host": "bdx.wd1.myworkdayjobs.com",
   "tenant": "bdx",
   "site": "EXTERNAL_CAREER_SITE_INDIA"
+ },
+ {
+  "type": "avature",
+  "name": "Electronic Arts",
+  "host": "jobs.ea.com",
+  "base": "https://jobs.ea.com/en_US/careers"
  }
 ]
