@@ -287,12 +287,12 @@ def _ld_page(title, city, country="India"):
 
 def test_job_pages_style_opens_each_new_page_once(monkeypatch):
     site = {"type": "sitemap", "name": "TD", "host": "c.td.com", "sitemap": "https://c.td.com/sitemap.xml",
-            "style": "jsonld", "job_link": r"/jobs/(\d+)/", "pages_per_run": 2}
+            "style": "jsonld", "job_link": r"/jobs/(\d+)/", "pages_per_run": 2, "title_tail": 2}
     xml = "<urlset>" + "".join(f"<url><loc>https://c.td.com/{u}</loc></url>" for u in
                                ["", "jobs/1/sde", "jobs/2/sre", "jobs/3/qa", "private/jobs/4/x", "jobs/5/x"]) + "</urlset>"
     pages = {"https://c.td.com/jobs/1/sde": _ld_page("Software Engineer", "Hyderabad"),
              "https://c.td.com/jobs/2/sre": _ld_page("SRE", "San Diego", "United States"),
-             "https://c.td.com/jobs/3/qa": _ld_page("QA &amp; Test", "Pune"), "https://c.td.com/jobs/5/x": None}
+             "https://c.td.com/jobs/3/qa": _ld_page("QA &amp; Test - IT - Pune, India", "Pune"), "https://c.td.com/jobs/5/x": None}
     opened = []
 
     def get(url):

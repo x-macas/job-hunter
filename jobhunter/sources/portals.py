@@ -486,7 +486,10 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
                 posted = datetime.fromisoformat(str(ld.get("datePosted", ""))[:10]).timestamp()
             except ValueError:
                 pass
-            mine[link] = {"t": html.unescape(str(ld.get("title", "")))[:200], "l": place, "r": remote, "p": posted}
+            title = html.unescape(str(ld.get("title", ""))).strip()
+            if p.get("title_tail") and title.count(" - ") >= p["title_tail"]:
+                title = title.rsplit(" - ", p["title_tail"])[0]   # "Title - Category - City" -> "Title"
+            mine[link] = {"t": title[:200], "l": place, "r": remote, "p": posted}
         else:
             mine[link] = {"t": "", "l": "", "r": False, "p": None}   # not a job page: don't open it again
         time.sleep(1)

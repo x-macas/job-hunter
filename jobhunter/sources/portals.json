@@ -1104,5 +1104,24 @@
   "style": "jsonld",
   "job_link": "/jobs/([a-z0-9]+)$",
   "page": "https://moengage.hire.trakstar.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Mercedes-Benz Research and Development India",
+  "host": "jobs.mercedes-benz.com",
+  "sitemap": "https://jobs.mercedes-benz.com/sitemap_index.xml",
+  "style": "jsonld",
+  "job_link": "^https://jobs\\.mercedes-benz\\.com/en/[^/]+-(\\d+)-mer[0-9a-z]+$",
+  "page": "https://jobs.mercedes-benz.com/en"
+ },
+ {
+  "type": "sitemap",
+  "name": "Societe Generale",
+  "host": "careers.societegenerale.com",
+  "sitemap": "https://careers.societegenerale.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/en/job-offers/[^/]+-([0-9A-Z]{8})-en$",
+  "title_tail": 2,
+  "page": "https://careers.societegenerale.com/en/search"
  }
 ]
