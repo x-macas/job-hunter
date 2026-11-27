@@ -1,4 +1,4 @@
-"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling, Kula, Zoho Recruit.
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling, Kula, Zoho Recruit, Pinpoint, Gem.
 The first five have free public feeds; Jobvite and Freshteam are plain public web pages
 (their robots.txt allows the job list)."""
 
@@ -13,7 +13,7 @@ from .http import FetchError, check_public_url, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling", "kula", "zohorecruit")
+       "rippling", "kula", "zohorecruit", "pinpoint", "gem")
 
 
 def default_boards() -> list[dict]:
@@ -55,6 +55,10 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _rippling(slug, name)
     if ats == "kula":
         return _kula(slug, name)
+    if ats == "pinpoint":
+        return _pinpoint(slug, name)
+    if ats == "gem":
+        return _gem(slug, name)
     if ats == "zohorecruit":
         return _zohorecruit(slug, name, board.get("page", "Careers"), board.get("country", ""))
     return []
@@ -395,5 +399,56 @@ def _zohorecruit(host, name, page="Careers", country=""):
             company=name, title=title[:200], url=f"https://{host}/jobs/{page}/{j['id']}/{slug}",
             location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
             job_type=parse.job_type_from(title, str(j.get("Job_Type") or "")),
+        ))
+    return jobs
+
+
+# ---------- Pinpoint (<company>.pinpointhq.com) and Gem (jobs.gem.com/<board>) ----------
+# Both publish a plain JSON list of open jobs for their careers pages; robots.txt allows it.
+
+def _slug_ok(slug, name):
+    if not re.fullmatch(r"[A-Za-z0-9_-]+", slug):
+        raise FetchError(f"{name}: odd board name {slug!r}")
+
+
+def _pinpoint(slug, name):
+    _slug_ok(slug, name)
+    url = f"https://{slug}.pinpointhq.com/postings.json"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    jobs = []
+    for j in (fetch_json(url) or {}).get("data") or []:
+        loc = j.get("location") or {}
+        place = ", ".join(x for x in (loc.get("city"), loc.get("province"), loc.get("name")) if x)
+        remote = j.get("workplace_type") == "remote"
+        text = "\n\n".join(parse.html_to_text(j.get(k) or "") for k in
+                             ("description", "key_responsibilities", "skills_knowledge_expertise"))
+        jobs.append(RawJob(
+            source="pinpoint", source_id=f"{slug}:{j['id']}", source_name=f"{name} careers",
+            company=name, title=(j.get("title") or "").strip(), url=j.get("url") or "",
+            location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
+            description=text.strip() or None, salary_text=j.get("compensation") or "",
+            job_type=parse.job_type_from(j.get("title") or "", j.get("employment_type_text") or ""),
+        ))
+    return jobs
+
+
+def _gem(slug, name):
+    _slug_ok(slug, name)
+    url = f"https://api.gem.com/job_board/v0/{slug}/job_posts/"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    data = fetch_json(url)
+    jobs = []
+    for j in data if isinstance(data, list) else []:
+        place = ((j.get("location") or {}).get("name") or "").strip()
+        remote = j.get("location_type") == "remote"
+        jobs.append(RawJob(
+            source="gem", source_id=f"{slug}:{j['id']}", source_name=f"{name} careers",
+            company=name, title=(j.get("title") or "").strip(), url=j.get("absolute_url") or "",
+            location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
+            description=j.get("content_plain") or None,
+            posted_at=parse.iso_to_ts(j.get("first_published_at")),
+            job_type=parse.job_type_from(j.get("title") or "", (j.get("employment_type") or "").replace("_", " ")),
         ))
     return jobs

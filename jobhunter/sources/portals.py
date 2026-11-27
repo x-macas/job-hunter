@@ -681,7 +681,8 @@ def _jsonlist(p: dict) -> list[RawJob]:
             m = re.search(pattern, str(_dig(j, field) or ""))
             loc = m.group(1).strip() if m else ""
         else:
-            loc = str(_dig(j, loc_rule) or "")
+            v = _dig(j, loc_rule)
+            loc = " / ".join(str(x) for x in v) if isinstance(v, list) else str(v or "")
         if p.get("country") == "India" and not parse.is_india(loc):
             loc = f"{loc}, India" if loc else "India"
         desc = parse.html_to_text(str(_dig(j, p["description"]) or "")) if p.get("description") else None

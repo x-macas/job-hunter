@@ -819,5 +819,18 @@
   "also": [
    "Twitter"
   ]
+ },
+ {
+  "ats": "pinpoint",
+  "slug": "hiverhq",
+  "name": "Hiver"
+ },
+ {
+  "ats": "gem",
+  "slug": "promptql",
+  "name": "Hasura",
+  "also": [
+   "PromptQL"
+  ]
  }
 ]

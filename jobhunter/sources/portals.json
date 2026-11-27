@@ -1134,5 +1134,18 @@
   "job_link": "/jobs/([a-z0-9-]+)/$",
   "country": "India",
   "page": "https://careers.eclinicalworks.in/"
+ },
+ {
+  "type": "jsonlist",
+  "name": "M2P Fintech",
+  "host": "careers.m2pfintech.com",
+  "url": "https://careers.m2pfintech.com/api/job-list",
+  "items": "data",
+  "id": "job_id",
+  "title": "job_title",
+  "location": "location",
+  "job_type_field": "employee_type",
+  "page": "https://careers.m2pfintech.com/view-jobs/#{id}",
+  "country": "India"
  }
 ]

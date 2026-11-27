@@ -397,3 +397,25 @@ def test_job_pages_from_a_list_page(monkeypatch):
     monkeypatch.setattr(robots, "rules_for", lambda host: [])
     monkeypatch.setattr(portals.time, "sleep", lambda s: None)
     assert [(j.title, j.location, j.url) for j in portals.fetch_portal(site)] == [("SDE", "India", "https://c.ec.in/jobs/sde/")]
+
+
+def test_pinpoint_and_gem_boards(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+
+    def fake(url):
+        if "pinpointhq" in url:
+            return {"data": [{"id": "1", "title": "AI SDE 2", "url": "https://h.pinpointhq.com/en/postings/x",
+                              "location": {"city": "Bengaluru", "name": "India"}, "workplace_type": "onsite",
+                              "description": "<p>Build</p>", "employment_type_text": "Full Time"}]}
+        return [{"id": "g1", "title": "Forward Deployed Engineer", "absolute_url": "https://jobs.gem.com/p/g1",
+                 "location": {"name": "Bangalore, India"}, "location_type": "hybrid", "content_plain": "Ship it",
+                 "first_published_at": "2026-11-20T00:00:00Z", "employment_type": "full_time"}]
+    monkeypatch.setattr(boards, "fetch_json", fake)
+    p = boards.fetch_board({"ats": "pinpoint", "slug": "h", "name": "H"})[0]
+    assert (p.title, p.location, p.url, p.description) == ("AI SDE 2", "Bengaluru, India", "https://h.pinpointhq.com/en/postings/x", "Build")
+    g = boards.fetch_board({"ats": "gem", "slug": "p", "name": "P"})[0]
+    assert (g.title, g.location, g.url, g.description) == ("Forward Deployed Engineer", "Bangalore, India", "https://jobs.gem.com/p/g1", "Ship it")
+    assert g.posted_at
+    with pytest.raises(FetchError):
+        boards.fetch_board({"ats": "gem", "slug": "../x", "name": "Bad"})
