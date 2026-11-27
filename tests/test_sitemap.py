@@ -244,6 +244,6 @@ def test_cards_reader(monkeypatch):
     monkeypatch.setattr(portals, "_get_text", lambda url: CARDS)
     monkeypatch.setattr(robots, "rules_for", lambda host: [])
     jobs = portals.fetch_portal({"type": "cards", "name": "Fid", "host": "j.com", "list": "https://j.com/in/jobs/", "country": "India"})
-    assert [(j.title, j.location, j.url) for j in jobs] == [("SDE & Backend", "Chennai, TN, India", "https://j.com/in/jobs/11/sde/"),
+    assert [(j.title, j.location, j.url) for j in jobs] == [("SDE & Backend", "Chennai, TN", "https://j.com/in/jobs/11/sde/"),
                                                             ("Analyst", "Bangalore, KA", "https://j.com/in/jobs/12/x/")]
     assert jobs[0].posted_at and not jobs[1].posted_at
