@@ -847,5 +847,10 @@
   "ats": "recruitee",
   "slug": "zeotap",
   "name": "Zeotap"
+ },
+ {
+  "ats": "jazzhr",
+  "slug": "changejar",
+  "name": "Jar"
  }
 ]

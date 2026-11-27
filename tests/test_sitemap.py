@@ -455,6 +455,19 @@ def test_recruitee_board(monkeypatch):
         boards.fetch_board({"ats": "recruitee", "slug": "a.b", "name": "Bad"})
 
 
+def test_jazzhr_board(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    item = ('<li class="list-group-item"><h3 class=\'list-group-item-heading\'><a href="https://{h}.applytojob.com/apply/{i}/x">'
+            ' {t} </a></h3><ul class=\'list-inline list-group-item-text\'><li><i class=\'fa fa-map-marker\'></i>{p}</li></ul></li>')
+    page = ("<ul class='list-group'>" + item.format(h="jar", i="Ab1", t="SDE &amp; Intern", p="Bengaluru, Karnataka, India")
+            + item.format(h="other", i="Zz9", t="Not ours", p="Pune") + item.format(h="jar", i="Ab1", t="Dup", p="X") + "</ul></div>")
+    monkeypatch.setattr(boards, "fetch_bytes", lambda url, **k: page.encode())
+    jobs = boards.fetch_board({"ats": "jazzhr", "slug": "jar", "name": "Jar"})
+    assert [(j.title, j.location, j.url) for j in jobs] == [
+        ("SDE & Intern", "Bengaluru, Karnataka, India", "https://jar.applytojob.com/apply/Ab1/x")]
+
+
 def test_job_pages_labelled_fields(monkeypatch):
     site = {"type": "sitemap", "name": "AV", "host": "c.av.com", "sitemap": "https://c.av.com/s.xml", "style": "jsonld",
             "job_link": r"/JobDetail/[^/]+/(\d+)$", "place_fields": ["City", "Country/Region"]}

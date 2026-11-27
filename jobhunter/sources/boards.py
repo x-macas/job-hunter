@@ -13,7 +13,7 @@ from .http import FetchError, check_public_url, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee")
+       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee", "jazzhr")
 
 
 def default_boards() -> list[dict]:
@@ -61,6 +61,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _gem(slug, name)
     if ats == "recruitee":
         return _recruitee(slug, name)
+    if ats == "jazzhr":
+        return _jazzhr(slug, name)
     if ats == "zohorecruit":
         return _zohorecruit(slug, name, board.get("page", "Careers"), board.get("country", ""))
     return []
@@ -481,3 +483,34 @@ def _recruitee(slug, name):
             job_type=parse.job_type_from(j.get("title") or "", (j.get("employment_type_code") or "").replace("_", " ")),
         ))
     return jobs
+
+
+# ---------- JazzHR (<company>.applytojob.com/apply) ----------
+# A plain page listing every open job with its city; robots.txt allows it.
+
+_JAZZ_JOB = re.compile(r"""<h3 class='list-group-item-heading'>\s*<a href="(https://([a-z0-9-]+)\.applytojob\.com/apply/"""
+                       r"""([A-Za-z0-9]+)/[^"]*)">(.*?)</a>(.*?)(?=<li class="list-group-item"|</ul>\s*</div>|$)""", re.S)
+_JAZZ_PLACE = re.compile(r"fa-map-marker'></i>([^<]*)<")
+
+
+def _jazzhr(slug, name):
+    _slug_ok(slug, name)
+    url = f"https://{slug}.applytojob.com/apply"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    page = fetch_bytes(url).decode("utf-8", "ignore")
+    jobs, seen = [], set()
+    for link, host, job_id, title, rest in _JAZZ_JOB.findall(page):
+        if host != slug.lower() or job_id in seen:
+            continue
+        seen.add(job_id)
+        title = _clean(html.unescape(re.sub(r"<[^>]+>", " ", title)))
+        m = _JAZZ_PLACE.search(rest)
+        place = _clean(html.unescape(m.group(1))) if m else ""
+        jobs.append(RawJob(
+            source="jazzhr", source_id=f"{slug}:{job_id}", source_name=f"{name} careers",
+            company=name, title=title, url=link, location=place,
+            remote="remote" in place.lower() and parse.is_open_remote(place, True),
+            job_type=parse.job_type_from(title, ""),
+        ))
+    return [j for j in jobs if j.title]
