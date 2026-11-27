@@ -15,6 +15,9 @@ def no_real_accounts(tmp_path, monkeypatch):
     monkeypatch.setattr(tailor, "OUT_DIR", tmp_path / "resumes")
     monkeypatch.setattr(telegram, "FILE", tmp_path / "telegram.json")
     monkeypatch.setattr(formfill, "PROFILE_DIR", tmp_path / "browser-profile")
+    from jobhunter.sources import portals
+    monkeypatch.setattr(portals, "JOB_PAGES_FILE", tmp_path / "job_pages.json")
+    monkeypatch.setattr(portals, "READS_FILE", tmp_path / "sitemap_reads.json")
 
 
 @pytest.fixture

@@ -586,7 +586,11 @@
   "name": "Hewlett Packard Enterprise",
   "host": "hpe.wd5.myworkdayjobs.com",
   "tenant": "hpe",
-  "site": "WFMathpe"
+  "site": "WFMathpe",
+  "also": [
+   "Juniper Networks",
+   "HPE"
+  ]
  },
  {
   "type": "workday",
@@ -921,7 +925,7 @@
   "items": "",
   "id": "id",
   "title": "title",
-  "location": "regex:excerpt:📍\\s*([^🕐·]+)",
+  "location": "regex:excerpt:\ud83d\udccd\\s*([^\ud83d\udd50\u00b7]+)",
   "description": "description",
   "page": "https://www.lambdatest.com/careers",
   "country": "India",
@@ -963,5 +967,28 @@
   "description": "description",
   "page": "https://careers.zerodha.com/",
   "country": "India"
+ },
+ {
+  "type": "sitemap",
+  "name": "Teradata",
+  "host": "careers.teradata.com",
+  "sitemap": "https://careers.teradata.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/jobs/(\\d+)/",
+  "page": "https://careers.teradata.com/jobs"
+ },
+ {
+  "type": "workday",
+  "name": "Microchip",
+  "host": "microchiphr.wd5.myworkdayjobs.com",
+  "tenant": "microchiphr",
+  "site": "External"
+ },
+ {
+  "type": "workday",
+  "name": "Rakuten",
+  "host": "rakuten.wd1.myworkdayjobs.com",
+  "tenant": "rakuten",
+  "site": "RakutenSymphony"
  }
 ]

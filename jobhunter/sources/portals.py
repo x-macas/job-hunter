@@ -15,6 +15,9 @@ portals.json lists them. Types:
               title and city from each link, and a link we haven't seen before
               is a new job. It's a big file, so it's read every few hours
               (Settings), not every 30 minutes.
+              One exception, style "jsonld": when the links carry no city
+              (Teradata), each NEW job page is opened once, slowly, for its
+              city; the robots.txt of those sites allows that.
 """
 
 import gzip
@@ -417,8 +420,101 @@ def _sitemap_links(p: dict) -> list[str]:
     return [html.unescape(x) for x in re.findall(r"<loc>\s*([^<\s]+)\s*</loc>", text)]
 
 
+JOB_PAGES_FILE = DATA_DIR / "job_pages.json"
+_LD = re.compile(r"<script[^>]*application/ld\+json[^>]*>(.*?)</script>", re.S | re.I)
+
+
+def _ld_job(page: str) -> dict | None:
+    """The JobPosting block that careers pages put in for Google (schema.org)."""
+    for block in _LD.findall(page):
+        try:
+            d = json.loads(block.strip())
+        except ValueError:
+            continue
+        for x in d if isinstance(d, list) else d.get("@graph", [d]) if isinstance(d, dict) else []:
+            if isinstance(x, dict) and x.get("@type") == "JobPosting":
+                return x
+    return None
+
+
+def _ld_place(job: dict) -> tuple[str, bool]:
+    """('Hyderabad, Telangana, India', remote?) from a JobPosting block."""
+    places = job.get("jobLocation") or []
+    places = places if isinstance(places, list) else [places]
+    names = []
+    for pl in places:
+        a = (pl or {}).get("address") or {} if isinstance(pl, dict) else {}
+        if isinstance(a, dict):
+            country = a.get("addressCountry")
+            country = country.get("name", "") if isinstance(country, dict) else country or ""
+            bits = [str(a.get(k) or "") for k in ("addressLocality", "addressRegion")] + [str(country)]
+            names.append(", ".join(b for b in bits if b))
+    remote = str(job.get("jobLocationType", "")).upper() == "TELECOMMUTE"
+    return " / ".join(n for n in names if n)[:200], remote
+
+
+def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
+    """style "jsonld": the sitemap links have no city, so we open each job page once
+    (new links only, at most a few per run, one at a time) and read the JobPosting
+    block the page has for Google. What we read is saved, so a job page is never
+    opened twice."""
+    pat = re.compile(p["job_link"])
+    with _READS_LOCK:
+        try:
+            saved = json.loads(JOB_PAGES_FILE.read_text())
+        except (OSError, ValueError):
+            saved = {}
+    live = set(links)
+    mine = {u: v for u, v in saved.get(p["host"], {}).items() if u in live}   # drop jobs taken down
+    budget = int(p.get("pages_per_run", 100))
+    for link in links:
+        if link in mine or budget <= 0 or not pat.search(link):
+            continue
+        if urllib.parse.urlsplit(link).netloc != p["host"] or not robots.allowed_by(rules, link):
+            continue
+        budget -= 1
+        try:
+            ld = _ld_job(_get_text(link)[:3_000_000])
+        except FetchError:
+            continue
+        if ld:
+            place, remote = _ld_place(ld)
+            posted = None
+            try:
+                posted = datetime.fromisoformat(str(ld.get("datePosted", ""))[:10]).timestamp()
+            except ValueError:
+                pass
+            mine[link] = {"t": html.unescape(str(ld.get("title", "")))[:200], "l": place, "r": remote, "p": posted}
+        else:
+            mine[link] = {"t": "", "l": "", "r": False, "p": None}   # not a job page: don't open it again
+        time.sleep(1)
+    with _READS_LOCK:
+        try:
+            saved = json.loads(JOB_PAGES_FILE.read_text())
+        except (OSError, ValueError):
+            saved = {}
+        saved[p["host"]] = mine
+        write_private_file(JOB_PAGES_FILE, json.dumps(saved).encode())
+    jobs = []
+    for link, v in mine.items():
+        if not v["t"] or not parse.is_india(v["l"]):
+            continue
+        m = pat.search(link)
+        job_id = m.group(1) if m and m.groups() else urllib.parse.urlsplit(link).path
+        jobs.append(RawJob(
+            source="sitemap", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+            company=p["name"], title=v["t"], url=link, location=v["l"], remote=v["r"], posted_at=v["p"],
+            job_type=parse.job_type_from(v["t"]),
+        ))
+    return jobs
+
+
 def _sitemap(p: dict) -> list[RawJob]:
     rules = [] if p.get("polite") else robots.rules_for(p["host"])
+    if p["style"] == "jsonld":
+        jobs = _job_pages(p, _sitemap_links(p), rules)
+        _remember_read(p)
+        return jobs
     jobs = []
     for link in _sitemap_links(p):
         if urllib.parse.urlsplit(link).netloc != p["host"] or not robots.allowed_by(rules, link):

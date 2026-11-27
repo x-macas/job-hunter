@@ -172,6 +172,10 @@ SETTINGS = [
             help="These sites ask bots to stay off their job search but list every job in a sitemap. "
                  "It's a big file and the sites update it about once a day, so twice a day is plenty."),
 
+    Setting("job_pages_per_run", "For job lists without cities (like Teradata): open at most this many new job pages per read",
+            "Companies", "int", 150, min=10, max=500,
+            help="Each new job page is opened once, one per second, to read its city. Pages already read are never opened again."),
+
     Setting("read_no_bots_sites", "Also read careers sites whose robots.txt asks bots to stay away", "Companies", "bool",
             True, help="These sites don't block, they only ask. Turn off to leave them to your hand check. "
                        "Sites that really block (bot checks, access denied) are never read."),

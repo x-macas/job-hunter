@@ -109,7 +109,7 @@ def watch(conn, s) -> str:
     jobs = collect.fetch_all(s, log=_log, only_boards=targets) if targets else []
     for p in watch_portals:
         try:
-            jobs += portals.fetch_portal(p)
+            jobs += portals.fetch_portal({**p, "pages_per_run": s["job_pages_per_run"]})
         except Exception as e:  # one broken careers site must not stop the others
             _log(f"{p['name']} careers failed: {e}")
     new = collect.save(conn, jobs, s, added_by="watch")

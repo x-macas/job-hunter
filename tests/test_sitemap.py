@@ -277,3 +277,31 @@ def test_jsonlist_reader(monkeypatch):
                                  "country": "India"})
     assert [(j.title, j.location, j.job_type, j.url) for j in jobs] == [
         ("SDET 1", "Noida", "full_time", "https://lt.com/careers#A1"), ("Intern", "India", "intern", "https://lt.com/careers#A2")]
+
+
+def _ld_page(title, city, country="India"):
+    return (f'<html><script type="application/ld+json">{{"@context":"https://schema.org","@type":"JobPosting",'
+            f'"title":"{title}","datePosted":"2026-11-20","jobLocation":{{"@type":"Place","address":'
+            f'{{"addressLocality":"{city}","addressCountry":"{country}"}}}}}}</script></html>')
+
+
+def test_job_pages_style_opens_each_new_page_once(monkeypatch):
+    site = {"type": "sitemap", "name": "TD", "host": "c.td.com", "sitemap": "https://c.td.com/sitemap.xml",
+            "style": "jsonld", "job_link": r"/jobs/(\d+)/", "pages_per_run": 2}
+    xml = "<urlset>" + "".join(f"<url><loc>https://c.td.com/{u}</loc></url>" for u in
+                               ["", "jobs/1/sde", "jobs/2/sre", "jobs/3/qa", "private/jobs/4/x", "jobs/5/x"]) + "</urlset>"
+    pages = {"https://c.td.com/jobs/1/sde": _ld_page("Software Engineer", "Hyderabad"),
+             "https://c.td.com/jobs/2/sre": _ld_page("SRE", "San Diego", "United States"),
+             "https://c.td.com/jobs/3/qa": _ld_page("QA &amp; Test", "Pune"), "https://c.td.com/jobs/5/x": "<html>gone</html>"}
+    opened = []
+    monkeypatch.setattr(portals, "_get_text", lambda url: xml if url.endswith("sitemap.xml") else opened.append(url) or pages[url])
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /private/\n"))
+    monkeypatch.setattr(portals.time, "sleep", lambda s: None)
+    jobs = portals.fetch_portal(site)
+    assert opened == ["https://c.td.com/jobs/1/sde", "https://c.td.com/jobs/2/sre"]     # only 2 per read
+    assert [(j.title, j.location, j.source_id) for j in jobs] == [("Software Engineer", "Hyderabad, India", "c.td.com:1")]
+    jobs = portals.fetch_portal(site)
+    assert opened[2:] == ["https://c.td.com/jobs/3/qa", "https://c.td.com/jobs/5/x"]    # never the blocked one, never twice
+    assert [j.title for j in jobs] == ["Software Engineer", "QA & Test"] and jobs[1].posted_at
+    portals.fetch_portal(site)
+    assert len(opened) == 4
