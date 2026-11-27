@@ -906,5 +906,11 @@
   "host": "jobs.fidelity.com",
   "list": "https://jobs.fidelity.com/in/jobs/",
   "country": "India"
+ },
+ {
+  "type": "avature",
+  "name": "Tesco",
+  "host": "careers.tesco.com",
+  "base": "https://careers.tesco.com/careers"
  }
 ]

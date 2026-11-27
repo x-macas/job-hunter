@@ -467,8 +467,8 @@ sitemap_due = due
 
 # ---------- Avature search pages (EA...) ----------
 
-_AV_ROW = re.compile(r'<a class="link link_result" href="([^"]+/JobDetail/[^"]+?/(\d+))"[^>]*>\s*(.*?)\s*</a>'
-                     r'.*?class="list-item-location">\s*(.*?)\s*</span>', re.S)
+_AV_ROW = re.compile(r'<a class="link[^"]*" href="([^"]+/JobDetail/(?:[^"/]+/)?(\d+))"[^>]*>\s*(.*?)\s*</a>'
+                     r'.{0,1500}?class="list-item-location">\s*(.*?)\s*</span>', re.S)
 
 
 def _avature(p: dict, quick: bool = False) -> list[RawJob]:
