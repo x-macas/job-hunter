@@ -34,18 +34,22 @@ Playwright (form filling), Gmail over IMAP/SMTP with an app password.
 
 ## Job sources
 
-- 169 company job boards (Greenhouse, including its European site, Lever, Ashby, SmartRecruiters,
+- 174 company job boards (Greenhouse, including its European site, Lever, Ashby, SmartRecruiters,
   Workable, Jobvite, Freshteam, mynexthire, Recruiterbox, Rippling, Kula, Pinpoint, Gem, Recruitee,
-  JazzHR and Zoho Recruit job pages)
-- 139 company careers sites read directly: Workday (Walmart, Salesforce, Citi, Nvidia, Adobe, ModMed,
-  Medtronic, Amgen, Eli Lilly...), Oracle Recruiting (JPMorgan, Oracle, Uber, BNY...), Amazon, Atlassian,
-  Avature (EA, Tesco), Eightfold (Microsoft, Qualcomm, Ericsson...), iCIMS Jibe (AMD, DocuSign), SAP's
-  own site and a few companies' own public job lists or plain job pages (Wayfair, Zerodha, MakeMyTrip,
-  Fidelity, iRage).
+  JazzHR, Keka, PyjamaHR and Zoho Recruit job pages)
+- 148 company careers sites read directly: Workday (Walmart, Salesforce, Citi, Nvidia, Adobe, ModMed,
+  Medtronic, Amgen, Eli Lilly...), Oracle Recruiting (JPMorgan, Oracle, Uber, BNY, Kotak...), Amazon,
+  Atlassian, Avature (EA, Tesco), Eightfold (Microsoft, Qualcomm, Ericsson...), iCIMS Jibe (AMD, DocuSign,
+  Booking.com), SAP's own site, MediaTek's own site and a few companies' own public job lists or plain job
+  pages (Wayfair, Zerodha, MakeMyTrip, Fidelity, iRage, Jio, Scaler).
   India-only searches, at most 3 requests at a time, with polite retries.
-- 17 companies whose sitemap lists their job pages but not the city (Teradata, D. E. Shaw India, Dassault,
-  Quadeye, Times Internet, and sites on Trakstar Hire like Easebuzz and MoEngage): each new job page is
-  opened once, one per second, for its title and city, and never opened again.
+- 20 companies whose sitemap lists their job pages but not the city (Teradata, D. E. Shaw India, Dassault,
+  Quadeye, Times Internet, iCIMS sites like Rambus and MSCI, and sites on Trakstar Hire like Easebuzz and
+  MoEngage): each new job page is opened once, one per second or slower, for its title and city, and
+  never opened again.
+- 3 companies whose robots.txt asks bots to stay away but don't block (Futures First, Urban Company,
+  Lenskart). They are read only if Settings allow it ("Also read careers sites whose robots.txt asks
+  bots to stay away"), and only every few hours. Sites that really block are never read.
 - **Every 30 minutes** a quick check reads the newest jobs on every company site and sends a
   Telegram alert for new ones that fit. The full lists are read once each morning.
 - 14 companies whose job search asks bots to stay away, but whose robots.txt points to a sitemap
