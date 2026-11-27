@@ -813,7 +813,7 @@ def _jibe(p: dict, quick: bool = False) -> list[RawJob]:
             jobs.append(RawJob(
                 source="jibe", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
                 company=p["name"], title=title[:200],
-                url=f"https://{p['host']}/careers-home/jobs/{urllib.parse.quote(str(j.get('slug') or job_id))}?lang=en-us",
+                url=f"https://{p['host']}/{p.get('path', 'careers-home')}/jobs/{urllib.parse.quote(str(j.get('slug') or job_id))}?lang=en-us",
                 location=place, description=parse.html_to_text(j.get("description") or "") or None,
                 posted_at=parse.iso_to_ts((j.get("posted_date") or "").replace("+0000", "+00:00")),
                 job_type=parse.job_type_from(title, (j.get("employment_type") or "").replace("_", " ")),

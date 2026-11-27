@@ -1359,5 +1359,15 @@
   "item": "<a id=\"MainContent_lstJoblist_hylUser_\\d+\" href=\"(?P<link>frmjobdescription\\.aspx\\?[^\"]+)\">(?P<title>[^<]+?)\\s*\\(\\s*(?P<id>\\d+)\\s*\\)</a>.*?_Label2_\\d+\">(?P<place>[^<]*)</span>",
   "country": "India",
   "page": "https://careers.jio.com/frmJobCategories.aspx"
+ },
+ {
+  "type": "jibe",
+  "name": "Booking.com",
+  "host": "jobs.booking.com",
+  "path": "booking",
+  "delay": 5,
+  "also": [
+   "Booking Holdings"
+  ]
  }
 ]
