@@ -1027,5 +1027,38 @@
   "style": "jsonld",
   "job_link": "^https://www\\.3ds\\.com/careers/jobs/[a-z0-9-]+-(\\d+)$",
   "page": "https://www.3ds.com/careers/jobs"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Albertsons",
+  "host": "eofd.fa.us6.oraclecloud.com",
+  "site": "CX_1001"
+ },
+ {
+  "type": "sitemap",
+  "name": "Testbook",
+  "host": "testbook.hire.trakstar.com",
+  "sitemap": "https://testbook.hire.trakstar.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/jobs/([a-z0-9]+)$",
+  "page": "https://testbook.hire.trakstar.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Easebuzz",
+  "host": "easebuzz.hire.trakstar.com",
+  "sitemap": "https://easebuzz.hire.trakstar.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/jobs/([a-z0-9]+)$",
+  "page": "https://easebuzz.hire.trakstar.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "PayU",
+  "host": "payu.hire.trakstar.com",
+  "sitemap": "https://payu.hire.trakstar.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/jobs/([a-z0-9]+)$",
+  "page": "https://payu.hire.trakstar.com/"
  }
 ]

@@ -428,7 +428,7 @@ def _ld_job(page: str) -> dict | None:
     """The JobPosting block that careers pages put in for Google (schema.org)."""
     for block in _LD.findall(page):
         try:
-            d = json.loads(block.strip())
+            d = json.loads(block.strip(), strict=False)   # some sites leave raw line breaks in the text
         except ValueError:
             continue
         for x in d if isinstance(d, list) else d.get("@graph", [d]) if isinstance(d, dict) else []:
@@ -475,8 +475,10 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
         budget -= 1
         try:
             ld = _ld_job(_get_text(link)[:3_000_000])
-        except FetchError:
-            continue
+        except FetchError as e:
+            if not re.search(r"HTTP (404|410)$", str(e)):
+                continue          # try again next time
+            ld = None             # the job is closed: remember that, don't open it again
         if ld:
             place, remote = _ld_place(ld)
             posted = None

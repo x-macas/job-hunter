@@ -292,9 +292,17 @@ def test_job_pages_style_opens_each_new_page_once(monkeypatch):
                                ["", "jobs/1/sde", "jobs/2/sre", "jobs/3/qa", "private/jobs/4/x", "jobs/5/x"]) + "</urlset>"
     pages = {"https://c.td.com/jobs/1/sde": _ld_page("Software Engineer", "Hyderabad"),
              "https://c.td.com/jobs/2/sre": _ld_page("SRE", "San Diego", "United States"),
-             "https://c.td.com/jobs/3/qa": _ld_page("QA &amp; Test", "Pune"), "https://c.td.com/jobs/5/x": "<html>gone</html>"}
+             "https://c.td.com/jobs/3/qa": _ld_page("QA &amp; Test", "Pune"), "https://c.td.com/jobs/5/x": None}
     opened = []
-    monkeypatch.setattr(portals, "_get_text", lambda url: xml if url.endswith("sitemap.xml") else opened.append(url) or pages[url])
+
+    def get(url):
+        if url.endswith("sitemap.xml"):
+            return xml
+        opened.append(url)
+        if pages[url] is None:
+            raise FetchError(f"{url}: HTTP 404")
+        return pages[url]
+    monkeypatch.setattr(portals, "_get_text", get)
     monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /private/\n"))
     monkeypatch.setattr(portals.time, "sleep", lambda s: None)
     jobs = portals.fetch_portal(site)
