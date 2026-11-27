@@ -247,3 +247,20 @@ def test_cards_reader(monkeypatch):
     assert [(j.title, j.location, j.url) for j in jobs] == [("SDE & Backend", "Chennai, TN", "https://j.com/in/jobs/11/sde/"),
                                                             ("Analyst", "Bangalore, KA", "https://j.com/in/jobs/12/x/")]
     assert jobs[0].posted_at and not jobs[1].posted_at
+
+
+def test_mynexthire_and_recruiterbox(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    monkeypatch.setattr(boards, "_post_json", lambda url, body: {"reqDetailsBOList": [
+        {"reqId": 7, "reqTitle": "SDE 1", "expMin": 0, "expMax": 1, "locationList": [{"office": "Bangalore"}],
+         "jdDisplay": "Build APIs.", "approvedOn": "2026-11-20T05:23:41.966+0000", "employmentType": "full_time"}]})
+    j = boards.fetch_board({"ats": "mynexthire", "slug": "acme", "name": "Acme"})[0]
+    assert (j.title, j.location, j.source_id) == ("SDE 1", "Bangalore", "acme:7")
+    assert j.description.startswith("Experience: 0-1 years") and j.posted_at
+    monkeypatch.setattr(boards, "fetch_json", lambda url: [
+        {"id": 9, "hash_id": "ab", "title": "Backend Engineer", "allows_remote": False, "position_type": "Full-time",
+         "location": {"city": "Bengaluru", "state": "Karnataka", "country": "India"}, "description": "<p>Go</p>"}])
+    r = boards.fetch_board({"ats": "recruiterbox", "slug": "1", "name": "Ex", "page": "https://ex.com/careers/"})[0]
+    assert (r.title, r.location, r.url, r.description) == ("Backend Engineer", "Bengaluru, Karnataka, India",
+                                                           "https://ex.com/careers/#ab", "Go")

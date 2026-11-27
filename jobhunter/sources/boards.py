@@ -12,7 +12,7 @@ from . import RawJob, robots
 from .http import FetchError, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
-ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam")
+ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox")
 
 
 def default_boards() -> list[dict]:
@@ -46,6 +46,10 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _jobvite(slug, name)
     if ats == "freshteam":
         return _freshteam(slug, name, board.get("polite", False))
+    if ats == "mynexthire":
+        return _mynexthire(slug, name, board.get("polite", False))
+    if ats == "recruiterbox":
+        return _recruiterbox(slug, name, board.get("page", ""))
     return []
 
 
@@ -225,5 +229,64 @@ def _freshteam(slug, name, polite=False):
             company=name, title=title, url=f"https://{host}{href}", location=loc,
             remote=remote == "true" and parse.is_open_remote(loc + " remote", True),
             job_type=parse.job_type_from(title),
+        ))
+    return jobs
+
+
+def _post_json(url: str, body: dict):
+    import urllib.error
+    import urllib.request
+    from .http import USER_AGENT
+    req = urllib.request.Request(url, data=json.dumps(body).encode(), headers={
+        "User-Agent": USER_AGENT, "Content-Type": "application/json", "Accept": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as f:
+            return json.loads(f.read(20 * 1024 * 1024))
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+        raise FetchError(f"{url}: {e}") from e
+
+
+def _mynexthire(slug, name, polite=False):
+    """mynexthire (used by ShareChat, Licious, Amagi...): one call returns every open job with its description."""
+    url = f"https://{slug}.mynexthire.com/employer/careers/reqlist/get"
+    if not polite and not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    data = _post_json(url, {"source": "careers", "code": "", "filterByBuId": -1})
+    jobs = []
+    for j in data.get("reqDetailsBOList") or []:
+        title = (j.get("reqTitle") or j.get("designation") or "").strip()
+        places = [x.get("office", "") for x in j.get("locationList") or []] or [j.get("location") or ""]
+        loc = "; ".join(x for x in places if x)
+        if loc and not parse.is_india(loc):
+            loc += ", India"            # an Indian company's offices
+        years = ""
+        if j.get("expMin") is not None:
+            years = f"Experience: {j['expMin']:g}-{(j.get('expMax') or j['expMin']):g} years\n\n"
+        jobs.append(RawJob(
+            source="mynexthire", source_id=f"{slug}:{j['reqId']}", source_name=f"{name} careers", company=name,
+            title=title, url=f"https://{slug}.mynexthire.com/employer/jobs?src=careers&reqId={j['reqId']}",
+            location=loc, description=years + (j.get("jdDisplay") or ""),
+            posted_at=parse.iso_to_ts((j.get("approvedOn") or "").replace("+0000", "+00:00")),
+            job_type=parse.job_type_from(title, (j.get("employmentType") or "").replace("_", " ")),
+        ))
+    return jobs
+
+
+def _recruiterbox(widget_id, name, page=""):
+    """Recruiterbox job widget (Exotel...): the public list of openings the company's careers page shows."""
+    url = f"https://app.recruiterbox.com/widget/{widget_id}/openings/"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    jobs = []
+    for j in fetch_json(url) or []:
+        loc = j.get("location") or {}
+        place = ", ".join(x for x in (loc.get("city"), loc.get("state"), loc.get("country")) if x)
+        remote = bool(j.get("allows_remote"))
+        jobs.append(RawJob(
+            source="recruiterbox", source_id=f"{widget_id}:{j['id']}", source_name=f"{name} careers", company=name,
+            title=(j.get("title") or "").strip(), url=(page.rstrip("/") + "/#" + str(j.get("hash_id") or j["id"])) if page
+            else url, location=place, remote=remote and parse.is_open_remote(place + " remote", True),
+            description=parse.html_to_text(j.get("description")),
+            job_type=parse.job_type_from(j.get("title") or "", j.get("position_type") or ""),
         ))
     return jobs

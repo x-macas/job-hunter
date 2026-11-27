@@ -683,5 +683,26 @@
   "ats": "lever",
   "slug": "Sprinto",
   "name": "Sprinto"
+ },
+ {
+  "ats": "mynexthire",
+  "slug": "sharechat",
+  "name": "ShareChat"
+ },
+ {
+  "ats": "mynexthire",
+  "slug": "licious",
+  "name": "Licious"
+ },
+ {
+  "ats": "mynexthire",
+  "slug": "amagi",
+  "name": "Amagi"
+ },
+ {
+  "ats": "recruiterbox",
+  "slug": "2176",
+  "name": "Exotel",
+  "page": "https://exotel.com/careers/"
  }
 ]

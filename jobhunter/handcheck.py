@@ -64,6 +64,8 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         "workable": f"https://apply.workable.com/{slug}/",
         "jobvite": f"https://jobs.jobvite.com/{slug}/jobs",
         "freshteam": f"https://{slug if '.' in slug else slug + '.freshteam.com'}/jobs",
+        "mynexthire": f"https://{slug}.mynexthire.com/employer/jobs?src=careers",
+        "recruiterbox": src.get("page", ""),
     }.get(kind, "")
 
 
