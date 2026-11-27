@@ -791,5 +791,25 @@
   "ats": "mynexthire",
   "slug": "coindcx",
   "name": "CoinDCX"
+ },
+ {
+  "ats": "freshteam",
+  "slug": "bharatpe",
+  "name": "BharatPe"
+ },
+ {
+  "ats": "freshteam",
+  "slug": "deepsource",
+  "name": "DeepSource"
+ },
+ {
+  "ats": "zohorecruit",
+  "slug": "kissflow.zohorecruit.in",
+  "name": "Kissflow"
+ },
+ {
+  "ats": "zohorecruit",
+  "slug": "vedantu.zohorecruit.in",
+  "name": "Vedantu"
  }
 ]
