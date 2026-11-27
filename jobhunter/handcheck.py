@@ -58,6 +58,8 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         return src["list"]
     if kind == "jsonlist":
         return src["page"].replace("{id}", "")
+    if kind == "srsite":
+        return f"{src['base']}?country={src.get('country', 'India')}"
     return {
         "greenhouse": (f"https://job-boards.eu.greenhouse.io/{slug[:-3]}" if slug.endswith("@eu")
                        else f"https://job-boards.greenhouse.io/{slug}"),

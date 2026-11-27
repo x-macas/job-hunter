@@ -444,3 +444,31 @@ def test_job_pages_labelled_fields(monkeypatch):
     monkeypatch.setattr(portals.time, "sleep", lambda s: None)
     jobs = portals.fetch_portal(site)
     assert [(j.title, j.location) for j in jobs] == [("SDE", "Bengaluru, India"), ("PM", "Pune")]
+
+
+def test_sap_style_careers_site(monkeypatch):
+    rows = ('{\\"id\\":\\"744000163994949\\",\\"title\\":\\"Senior Developer\\",\\"url\\":\\"/en/jobs/744000163994949/senior-developer/\\",'
+            '\\"score\\":1.9,\\"teams\\":\\"IT\\",\\"locations\\":\\"Bangalore, India\\",\\"displayDate\\":\\"2026-11-27T09:26:16.27Z\\"}')
+    pages = {1: rows, 2: rows, 3: ""}
+    asked = []
+
+    def get(url):
+        asked.append(url)
+        return pages[int(url.rsplit("=", 1)[1])]
+    monkeypatch.setattr(portals, "_get_text", get)
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /*?q=\n"))
+    jobs = portals.fetch_portal({"type": "srsite", "name": "SAP", "host": "jobs.sap.com", "base": "https://jobs.sap.com/en/jobs/"})
+    assert [(j.title, j.location, j.url) for j in jobs] == [
+        ("Senior Developer", "Bangalore, India", "https://jobs.sap.com/en/jobs/744000163994949/senior-developer/")]
+    assert jobs[0].posted_at and asked[0] == "https://jobs.sap.com/en/jobs/?country=India&page=1" and len(asked) == 2
+
+
+def test_job_pages_honor_crawl_delay(monkeypatch):
+    waits = []
+    site = {"type": "sitemap", "name": "K", "host": "j.k.com", "sitemap": "https://j.k.com/s.xml", "style": "jsonld",
+            "job_link": r"/jobs/(\d+)$", "delay": 5, "max_pages": 2}
+    xml = "<urlset>" + "".join(f"<url><loc>https://j.k.com/jobs/{i}</loc></url>" for i in range(5)) + "</urlset>"
+    monkeypatch.setattr(portals, "_get_text", lambda url: xml if url.endswith("s.xml") else _ld_page("SDE", "Pune"))
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    monkeypatch.setattr(portals.time, "sleep", waits.append)
+    assert len(portals.fetch_portal(site)) == 2 and waits == [5.0, 5.0]

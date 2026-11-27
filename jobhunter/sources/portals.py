@@ -90,6 +90,8 @@ def fetch_portal(p: dict, quick: bool = False) -> list[RawJob]:
         return _cards(p)
     if kind == "jsonlist":
         return _jsonlist(p)
+    if kind == "srsite":
+        return _srsite(p, quick)
     return []
 
 
@@ -476,7 +478,8 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
             saved = {}
     live = set(links)
     mine = {u: v for u, v in saved.get(p["host"], {}).items() if u in live}   # drop jobs taken down
-    budget = int(p.get("pages_per_run", 100))
+    budget = min(int(p.get("pages_per_run", 100)), int(p.get("max_pages", 10_000)))
+    wait = max(1.0, float(p.get("delay", 1)))     # robots.txt crawl-delay, when a site asks for one
     for link in links:
         if link in mine or budget <= 0 or not pat.search(link):
             continue
@@ -510,7 +513,7 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
             mine[link] = {"t": title[:200], "l": _labelled(page, p["place_fields"]), "r": False, "p": None}
         else:
             mine[link] = {"t": "", "l": "", "r": False, "p": None}   # not a job page: don't open it again
-        time.sleep(1)
+        time.sleep(wait)
     with _READS_LOCK:
         try:
             saved = json.loads(JOB_PAGES_FILE.read_text())
@@ -710,3 +713,37 @@ def _jsonlist(p: dict) -> list[RawJob]:
                            else p["page"].replace("{id}", urllib.parse.quote(job_id)),
                            location=loc, description=desc, job_type=parse.job_type_from(title, str(_dig(j, p.get("job_type_field", "")) or "").replace("_", " "))))
     return [j for j in jobs if j.title]
+
+
+# ---------- careers sites that embed their job list in the page (SAP, built on SmartRecruiters) ----------
+
+_SR_JOB = re.compile(r'\{"id":"(\d+)","title":"((?:[^"\\]|\\.)*)","url":"([^"]+)"[^{}]*?"locations":"((?:[^"\\]|\\.)*)"'
+                     r'(?:,"displayDate":"([^"]*)")?')
+
+
+def _srsite(p: dict, quick: bool = False) -> list[RawJob]:
+    """jobs.sap.com/en/jobs/?country=India&page=N: each page carries 12 jobs as data inside the page."""
+    jobs, seen = [], set()
+    for n in range(1, (3 if quick else 30) + 1):
+        url = f"{p['base']}?country={urllib.parse.quote(p.get('country', 'India'))}&page={n}"
+        if urllib.parse.urlsplit(url).netloc != p["host"]:
+            raise FetchError(f"{p['name']}: list is not on {p['host']}")
+        if not robots.allowed(url):
+            raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+        text = _get_text(url).replace('\\"', '"')
+        fresh = 0
+        for job_id, title, link, loc, date in _SR_JOB.findall(text):
+            if job_id in seen:
+                continue
+            seen.add(job_id)
+            fresh += 1
+            title = json.loads(f'"{title}"').strip()
+            jobs.append(RawJob(
+                source="srsite", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                company=p["name"], title=title[:200], url=urllib.parse.urljoin(url, link),
+                location=json.loads(f'"{loc}"'), posted_at=parse.iso_to_ts(date) if date else None,
+                job_type=parse.job_type_from(title),
+            ))
+        if not fresh:
+            break
+    return jobs

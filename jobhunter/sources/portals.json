@@ -1179,5 +1179,26 @@
   "host": "automationanywhere.wd5.myworkdayjobs.com",
   "tenant": "automationanywhere",
   "site": "AutomationAnywhereJobs"
+ },
+ {
+  "type": "srsite",
+  "name": "SAP",
+  "host": "jobs.sap.com",
+  "base": "https://jobs.sap.com/en/jobs/",
+  "country": "India",
+  "also": [
+   "SAP Labs"
+  ]
+ },
+ {
+  "type": "sitemap",
+  "name": "Keysight",
+  "host": "jobs.keysight.com",
+  "sitemap": "http://jobs.keysight.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "^https://jobs\\.keysight\\.com/jobs/(\\d+)\\?lang=en-us$",
+  "delay": 5,
+  "max_pages": 60,
+  "page": "https://jobs.keysight.com/"
  }
 ]
