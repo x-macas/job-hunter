@@ -1261,5 +1261,28 @@
   "host": "veradigm.wd12.myworkdayjobs.com",
   "tenant": "veradigm",
   "site": "VR"
+ },
+ {
+  "type": "jsonlist",
+  "name": "MakeMyTrip",
+  "host": "careers.makemytrip.com",
+  "url": "https://careers.makemytrip.com/api/jobs",
+  "items": "allJobs",
+  "id": "job_id",
+  "title": "job_title",
+  "location": "location_city",
+  "job_type_field": "employee_type",
+  "page": "https://careers.makemytrip.com/opportunity/{id}/{title_slug}",
+  "country": "India"
+ },
+ {
+  "type": "workday",
+  "name": "Sony",
+  "host": "sonyglobal.wd1.myworkdayjobs.com",
+  "tenant": "sonyglobal",
+  "site": "SonyGlobalCareers",
+  "also": [
+   "Sony India Software Centre"
+  ]
  }
 ]

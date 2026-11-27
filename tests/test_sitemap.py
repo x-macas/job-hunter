@@ -279,6 +279,17 @@ def test_jsonlist_reader(monkeypatch):
         ("SDET 1", "Noida", "full_time", "https://lt.com/careers#A1"), ("Intern", "India", "intern", "https://lt.com/careers#A2")]
 
 
+def test_jsonlist_title_in_link(monkeypatch):
+    monkeypatch.setattr(portals, "_req", lambda url, body=None: {"allJobs": [
+        {"job_id": "a1", "job_title": "Sr. Devops Engineer / SRE", "location_city": ["Gurgaon", "Bangalore"]}]})
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    j = portals.fetch_portal({"type": "jsonlist", "name": "M", "host": "c.m.com", "url": "https://c.m.com/api/jobs", "items": "allJobs",
+                              "id": "job_id", "title": "job_title", "location": "location_city",
+                              "page": "https://c.m.com/opportunity/{id}/{title_slug}", "country": "India"})[0]
+    assert j.location == "Gurgaon / Bangalore"
+    assert j.url == "https://c.m.com/opportunity/a1/sr.-devops-engineer---sre"
+
+
 def _ld_page(title, city, country="India"):
     return (f'<html><script type="application/ld+json">{{"@context":"https://schema.org","@type":"JobPosting",'
             f'"title":"{title}","datePosted":"2026-11-20","jobLocation":{{"@type":"Place","address":'

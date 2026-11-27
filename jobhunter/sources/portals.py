@@ -688,7 +688,7 @@ def _dig(obj, path: str):
 def _jsonlist(p: dict) -> list[RawJob]:
     """A plain public list of jobs as JSON. The entry in portals.json says which field is which:
     items (where the list is), id, title, location (a field, or 'regex:<field>:<pattern>'), description,
-    job_type_field, link (a field holding the job's own link), page, body (sent as a POST search, if given)."""
+    job_type_field, link (a field holding the job's own link), page ({id} and {title_slug} are filled in), body (sent as a POST search, if given)."""
     url = p["url"]
     if not p.get("polite") and not robots.allowed(url):
         raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
@@ -714,7 +714,8 @@ def _jsonlist(p: dict) -> list[RawJob]:
         jobs.append(RawJob(source="jsonlist", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
                            company=p["name"], title=title[:200],
                            url=str(_dig(j, p["link"]) or "") if p.get("link") and str(_dig(j, p["link"]) or "").startswith("https://")
-                           else p["page"].replace("{id}", urllib.parse.quote(job_id)),
+                           else p["page"].replace("{id}", urllib.parse.quote(job_id))
+                           .replace("{title_slug}", urllib.parse.quote(re.sub(r"[/\s]", "-", title.lower()))),
                            location=loc, description=desc, job_type=parse.job_type_from(title, str(_dig(j, p.get("job_type_field", "")) or "").replace("_", " "))))
     return [j for j in jobs if j.title]
 
