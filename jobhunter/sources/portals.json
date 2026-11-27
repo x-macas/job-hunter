@@ -934,7 +934,7 @@
   "items": "",
   "id": "id",
   "title": "title",
-  "location": "regex:excerpt:\ud83d\udccd\\s*([^\ud83d\udd50\u00b7]+)",
+  "location": "regex:excerpt:📍\\s*([^🕐·]+)",
   "description": "description",
   "page": "https://www.lambdatest.com/careers",
   "country": "India",
@@ -1254,5 +1254,12 @@
   "name": "American Express",
   "host": "egug.fa.us2.oraclecloud.com",
   "site": "CX_1"
+ },
+ {
+  "type": "workday",
+  "name": "Veradigm",
+  "host": "veradigm.wd12.myworkdayjobs.com",
+  "tenant": "veradigm",
+  "site": "VR"
  }
 ]

@@ -832,5 +832,20 @@
   "also": [
    "PromptQL"
   ]
+ },
+ {
+  "ats": "smartrecruiters",
+  "slug": "shipsy",
+  "name": "Shipsy"
+ },
+ {
+  "ats": "zohorecruit",
+  "slug": "zupee.zohorecruit.in",
+  "name": "Zupee"
+ },
+ {
+  "ats": "recruitee",
+  "slug": "zeotap",
+  "name": "Zeotap"
  }
 ]

@@ -421,6 +421,29 @@ def test_pinpoint_and_gem_boards(monkeypatch):
         boards.fetch_board({"ats": "gem", "slug": "../x", "name": "Bad"})
 
 
+def test_recruitee_board(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    seen = []
+
+    def fake(url):
+        seen.append(url)
+        return {"offers": [
+            {"id": 7, "title": "Backend Engineer", "city": "bengaluru", "country": "India", "remote": False,
+             "careers_url": "https://jobs.z.com/o/be", "status": "published", "description": "<p>APIs</p>",
+             "requirements": "<p>Go</p>", "published_at": "2026-11-20 10:00:00 UTC", "employment_type_code": "fulltime_permanent"},
+            {"id": 8, "title": "Old", "status": "closed"}]}
+    monkeypatch.setattr(boards, "fetch_json", fake)
+    jobs = boards.fetch_board({"ats": "recruitee", "slug": "z", "name": "Z"})
+    assert seen == ["https://z.recruitee.com/api/offers/"]
+    assert len(jobs) == 1
+    j = jobs[0]
+    assert (j.title, j.location, j.url, j.description) == ("Backend Engineer", "Bengaluru, India", "https://jobs.z.com/o/be", "APIs\n\nGo")
+    assert j.posted_at
+    with pytest.raises(FetchError):
+        boards.fetch_board({"ats": "recruitee", "slug": "a.b", "name": "Bad"})
+
+
 def test_job_pages_labelled_fields(monkeypatch):
     site = {"type": "sitemap", "name": "AV", "host": "c.av.com", "sitemap": "https://c.av.com/s.xml", "style": "jsonld",
             "job_link": r"/JobDetail/[^/]+/(\d+)$", "place_fields": ["City", "Country/Region"]}

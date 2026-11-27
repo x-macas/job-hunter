@@ -13,7 +13,7 @@ from .http import FetchError, check_public_url, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling", "kula", "zohorecruit", "pinpoint", "gem")
+       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee")
 
 
 def default_boards() -> list[dict]:
@@ -59,6 +59,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _pinpoint(slug, name)
     if ats == "gem":
         return _gem(slug, name)
+    if ats == "recruitee":
+        return _recruitee(slug, name)
     if ats == "zohorecruit":
         return _zohorecruit(slug, name, board.get("page", "Careers"), board.get("country", ""))
     return []
@@ -450,5 +452,32 @@ def _gem(slug, name):
             description=j.get("content_plain") or None,
             posted_at=parse.iso_to_ts(j.get("first_published_at")),
             job_type=parse.job_type_from(j.get("title") or "", (j.get("employment_type") or "").replace("_", " ")),
+        ))
+    return jobs
+
+
+# ---------- Recruitee (<company>.recruitee.com) ----------
+# The careers page reads its jobs from a plain JSON list; robots.txt allows it.
+
+def _recruitee(slug, name):
+    _slug_ok(slug, name)
+    url = f"https://{slug}.recruitee.com/api/offers/"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    jobs = []
+    for j in (fetch_json(url) or {}).get("offers") or []:
+        if j.get("status", "published") != "published":
+            continue
+        city = (j.get("city") or "").strip().title()
+        place = ", ".join(x for x in (city, (j.get("country") or "").strip()) if x)
+        remote = bool(j.get("remote"))
+        text = "\n\n".join(parse.html_to_text(j.get(k) or "") for k in ("description", "requirements"))
+        jobs.append(RawJob(
+            source="recruitee", source_id=f"{slug}:{j['id']}", source_name=f"{name} careers",
+            company=name, title=(j.get("title") or "").strip(), url=j.get("careers_url") or "",
+            location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
+            description=text.strip() or None,
+            posted_at=parse.iso_to_ts((j.get("published_at") or "").replace(" UTC", "+00:00").replace(" ", "T", 1)),
+            job_type=parse.job_type_from(j.get("title") or "", (j.get("employment_type_code") or "").replace("_", " ")),
         ))
     return jobs

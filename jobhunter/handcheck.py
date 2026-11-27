@@ -79,6 +79,7 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         "kula": f"https://careers.kula.ai/{slug}",
         "pinpoint": f"https://{slug}.pinpointhq.com/",
         "gem": f"https://jobs.gem.com/{slug}",
+        "recruitee": f"https://{slug}.recruitee.com/",
         "zohorecruit": f"https://{slug}/jobs/{src.get('page', 'Careers')}",
     }.get(kind, "")
 
