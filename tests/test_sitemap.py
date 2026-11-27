@@ -279,6 +279,24 @@ def test_jsonlist_reader(monkeypatch):
         ("SDET 1", "Noida", "full_time", "https://lt.com/careers#A1"), ("Intern", "India", "intern", "https://lt.com/careers#A2")]
 
 
+def test_pagelist_reader(monkeypatch):
+    page = ('<li class="role" data-loc="Mumbai"><a href="jd.php?id=1">Quant Developer</a></li>'
+            '<li class="role" data-loc="Gift City"><a href="jd.php?id=2">Trader &amp; Analyst</a></li>'
+            '<li class="role" data-loc="X"><a href="https://evil.com/jd.php?id=3">Elsewhere</a></li>'
+            '<li class="role" data-loc="Mumbai"><a href="jd.php?id=1">Quant Developer</a></li>')
+    monkeypatch.setattr(portals, "_get_text", lambda url, **k: page)
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    jobs = portals.fetch_portal({"type": "pagelist", "name": "IR", "host": "www.ir.in", "list": "https://www.ir.in/careers.php",
+                                 "item": r'<li class="role" data-loc="(?P<place>[^"]*)"><a href="(?P<link>[^"]*?(?:id=(?P<id>\d+))?)">(?P<title>[^<]+)</a>',
+                                 "country": "India"})
+    assert [(j.title, j.location, j.url) for j in jobs] == [
+        ("Quant Developer", "Mumbai", "https://www.ir.in/jd.php?id=1"),
+        ("Trader & Analyst", "Gift City, India", "https://www.ir.in/jd.php?id=2")]
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /careers\n"))
+    with pytest.raises(FetchError):
+        portals.fetch_portal({"type": "pagelist", "name": "IR", "host": "www.ir.in", "list": "https://www.ir.in/careers.php", "item": "x"})
+
+
 def test_jsonlist_title_in_link(monkeypatch):
     monkeypatch.setattr(portals, "_req", lambda url, body=None: {"allJobs": [
         {"job_id": "a1", "job_title": "Sr. Devops Engineer / SRE", "location_city": ["Gurgaon", "Bangalore"]}]})

@@ -90,6 +90,8 @@ def fetch_portal(p: dict, quick: bool = False) -> list[RawJob]:
         return _cards(p)
     if kind == "jsonlist":
         return _jsonlist(p)
+    if kind == "pagelist":
+        return _pagelist(p)
     if kind == "srsite":
         return _srsite(p, quick)
     if kind == "jibe":
@@ -718,6 +720,39 @@ def _jsonlist(p: dict) -> list[RawJob]:
                            .replace("{title_slug}", urllib.parse.quote(re.sub(r"[/\s]", "-", title.lower()))),
                            location=loc, description=desc, job_type=parse.job_type_from(title, str(_dig(j, p.get("job_type_field", "")) or "").replace("_", " "))))
     return [j for j in jobs if j.title]
+
+
+# ---------- a plain careers page that lists its jobs in the HTML ----------
+
+def _pagelist(p: dict) -> list[RawJob]:
+    """The entry in portals.json gives the page ('list') and a pattern ('item') with named parts:
+    title, and link or id (then 'page' makes the link, with {id} filled in), and place if the page shows it.
+    Links must stay on the page's own site."""
+    url = p["list"]
+    if not robots.allowed(url):
+        raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+    page = _get_text(url)
+    host = urllib.parse.urlsplit(url).netloc.lower()
+    jobs, seen = [], set()
+    for m in re.finditer(p["item"], page, re.S):
+        g = m.groupdict()
+        title = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", g.get("title") or ""))).strip()
+        if g.get("link"):
+            link = urllib.parse.urljoin(url, html.unescape(g["link"]))
+            if urllib.parse.urlsplit(link).netloc.lower() != host or not link.startswith("https://"):
+                continue
+        else:
+            link = p["page"].replace("{id}", urllib.parse.quote(g.get("id") or ""))
+        job_id = g.get("id") or link
+        if not title or job_id in seen:
+            continue
+        seen.add(job_id)
+        loc = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", g.get("place") or ""))).strip() or p.get("place", "")
+        if p.get("country") == "India" and not parse.is_india(loc):
+            loc = f"{loc}, India" if loc else "India"
+        jobs.append(RawJob(source="pagelist", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                           company=p["name"], title=title[:200], url=link, location=loc, job_type=parse.job_type_from(title)))
+    return jobs
 
 
 # ---------- careers sites that embed their job list in the page (SAP, built on SmartRecruiters) ----------

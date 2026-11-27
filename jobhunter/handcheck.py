@@ -54,7 +54,7 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         return src["page"]
     if kind == "avature":
         return src["base"] + "/SearchJobs/"
-    if kind == "cards":
+    if kind in ("cards", "pagelist"):
         return src["list"]
     if kind == "jsonlist":
         return src["page"].replace("{id}", "")

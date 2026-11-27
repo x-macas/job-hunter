@@ -1284,5 +1284,22 @@
   "also": [
    "Sony India Software Centre"
   ]
+ },
+ {
+  "type": "pagelist",
+  "name": "iRage",
+  "host": "www.irage.in",
+  "list": "https://www.irage.in/recruitment.php",
+  "item": "<li class=\"recruit-role\"[^>]*?data-location=\"(?P<place>[^\"]*)\"[^>]*>.*?<a href=\"(?P<link>job_descriptions\\.php\\?jd_id=(?P<id>\\d+))\">(?P<title>[^<]+)</a>",
+  "country": "India"
+ },
+ {
+  "type": "pagelist",
+  "name": "Plutus Research",
+  "host": "plutusresearch.com",
+  "list": "https://plutusresearch.com/careers/",
+  "item": "<div class=\"vc_tta-panel\" id=\"(?P<id>[A-Za-z0-9-]+)\"[^>]*>.*?<span class=\"vc_tta-title-text\">(?P<title>[^<]+)</span>",
+  "page": "https://plutusresearch.com/careers/#{id}",
+  "country": "India"
  }
 ]
