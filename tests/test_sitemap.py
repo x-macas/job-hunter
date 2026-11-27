@@ -488,3 +488,16 @@ def test_jibe_careers_site(monkeypatch):
     assert (j.title, j.location, j.url, j.description) == ("SoC Engineer", "Hyderabad, India",
                                                           "https://careers.amd.com/careers-home/jobs/92517?lang=en-us", "Chips")
     assert j.posted_at and "location=India" in asked[0] and len(asked) == 1
+
+
+def test_eightfold_careers_site(monkeypatch):
+    asked, waits = [], []
+    page = {"data": {"positions": [{"id": 5631, "name": "Software Engineer", "locations": ["India,  Karnataka,Bangalore"],
+                                    "postedTs": 1795772274, "positionUrl": "/careers/job/5631", "workLocationOption": "onsite"}]
+                     + [{"id": 100 + i, "name": f"Job {i}", "locations": ["Pune,MH,India"]} for i in range(9)]}}
+    monkeypatch.setattr(portals, "_req", lambda url, body=None: asked.append(url) or (page if len(asked) == 1 else {"data": {"positions": []}}))
+    monkeypatch.setattr(robots, "rules_for", lambda host: robots.parse_rules("User-agent: *\nDisallow: /\nAllow: /api/pcsx\n"))
+    monkeypatch.setattr(portals.time, "sleep", waits.append)
+    jobs = portals.fetch_portal({"type": "eightfold", "name": "E", "host": "jobs.e.com", "domain": "e.com", "delay": 5})
+    assert (jobs[0].title, jobs[0].location, jobs[0].url) == ("Software Engineer", "India, Karnataka, Bangalore", "https://jobs.e.com/careers/job/5631")
+    assert len(jobs) == 10 and len(asked) == 2 and waits == [5.0] and "location=India" in asked[0]

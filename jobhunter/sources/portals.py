@@ -94,6 +94,8 @@ def fetch_portal(p: dict, quick: bool = False) -> list[RawJob]:
         return _srsite(p, quick)
     if kind == "jibe":
         return _jibe(p, quick)
+    if kind == "eightfold":
+        return _eightfold(p, quick)
     return []
 
 
@@ -779,5 +781,38 @@ def _jibe(p: dict, quick: bool = False) -> list[RawJob]:
                 job_type=parse.job_type_from(title, (j.get("employment_type") or "").replace("_", " ")),
             ))
         if len(rows) < 100:
+            break
+    return jobs
+
+
+# ---------- Eightfold careers sites, where robots.txt allows the search (jobs.ericsson.com) ----------
+
+def _eightfold(p: dict, quick: bool = False) -> list[RawJob]:
+    """/api/pcsx/search?location=India, newest first, 10 jobs a page."""
+    jobs, seen = [], set()
+    for n in range(0, min(2 if quick else 15, int(p.get("max_pages", 15)))):
+        if n and p.get("delay"):
+            time.sleep(float(p["delay"]))     # a site that rate-limits gets a pause between pages
+        url = (f"https://{p['host']}/api/pcsx/search?domain={urllib.parse.quote(p['domain'])}&query="
+               f"&location={urllib.parse.quote(p.get('country', 'India'))}&start={n * 10}&sort_by=timestamp")
+        if not robots.allowed(url):
+            raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
+        rows = ((_req(url) or {}).get("data") or {}).get("positions") or []
+        for j in rows:
+            job_id = str(j.get("id") or "")
+            if not job_id or job_id in seen:
+                continue
+            seen.add(job_id)
+            places = j.get("locations") or j.get("standardizedLocations") or []
+            place = " / ".join(re.sub(r",\s*", ", ", x) for x in places[:4])
+            remote = j.get("workLocationOption") == "remote"
+            title = (j.get("name") or "").strip()
+            jobs.append(RawJob(
+                source="eightfold", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
+                company=p["name"], title=title[:200], url=urllib.parse.urljoin(f"https://{p['host']}/", j.get("positionUrl") or ""),
+                location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
+                posted_at=float(j["postedTs"]) if j.get("postedTs") else None, job_type=parse.job_type_from(title),
+            ))
+        if len(rows) < 10:
             break
     return jobs

@@ -1210,5 +1210,43 @@
   "type": "jibe",
   "name": "DocuSign",
   "host": "careers.docusign.com"
+ },
+ {
+  "type": "eightfold",
+  "name": "Ericsson",
+  "host": "jobs.ericsson.com",
+  "domain": "ericsson.com"
+ },
+ {
+  "type": "eightfold",
+  "name": "Microsoft",
+  "host": "apply.careers.microsoft.com",
+  "domain": "microsoft.com",
+  "delay": 5,
+  "max_pages": 5
+ },
+ {
+  "type": "eightfold",
+  "name": "Qualcomm",
+  "host": "careers.qualcomm.com",
+  "domain": "qualcomm.com"
+ },
+ {
+  "type": "eightfold",
+  "name": "Lam Research",
+  "host": "careers.lamresearch.com",
+  "domain": "lamresearch.com"
+ },
+ {
+  "type": "eightfold",
+  "name": "Infineon",
+  "host": "jobs.infineon.com",
+  "domain": "infineon.com"
+ },
+ {
+  "type": "eightfold",
+  "name": "Applied Materials",
+  "host": "careers.appliedmaterials.com",
+  "domain": "appliedmaterials.com"
  }
 ]
