@@ -709,5 +709,10 @@
   "ats": "lever",
   "slug": "veeva",
   "name": "Veeva Systems"
+ },
+ {
+  "ats": "rippling",
+  "slug": "rippling",
+  "name": "Rippling"
  }
 ]

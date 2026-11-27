@@ -1,4 +1,4 @@
-"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam.
+"""Company job boards: Greenhouse, Lever, Ashby, SmartRecruiters, Workable, Jobvite, Freshteam, Rippling.
 The first five have free public feeds; Jobvite and Freshteam are plain public web pages
 (their robots.txt allows the job list)."""
 
@@ -12,7 +12,8 @@ from . import RawJob, robots
 from .http import FetchError, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
-ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox")
+ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
+       "rippling")
 
 
 def default_boards() -> list[dict]:
@@ -50,6 +51,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _mynexthire(slug, name, board.get("polite", False))
     if ats == "recruiterbox":
         return _recruiterbox(slug, name, board.get("page", ""))
+    if ats == "rippling":
+        return _rippling(slug, name)
     return []
 
 
@@ -290,3 +293,30 @@ def _recruiterbox(widget_id, name, page=""):
             job_type=parse.job_type_from(j.get("title") or "", j.get("position_type") or ""),
         ))
     return jobs
+
+
+# ---------- Rippling's job boards (ats.rippling.com) ----------
+
+RIPPLING_API = "https://api.rippling.com/platform/api/ats/v1/board/{slug}/jobs"
+
+
+def _rippling(slug, name):
+    """The public list behind ats.rippling.com/<slug>/jobs. It has title and place only;
+    the description is read later, only for jobs that pass your rules."""
+    data = fetch_json(RIPPLING_API.format(slug=slug))
+    jobs = []
+    for j in data if isinstance(data, list) else []:
+        place = ((j.get("workLocation") or {}).get("label") or "").strip()
+        jobs.append(RawJob(
+            source="rippling", source_id=f"{slug}:{j['uuid']}", source_name="Rippling",
+            company=name, title=(j.get("name") or "").strip(), url=j.get("url") or "",
+            location=place, remote=parse.is_open_remote(place),
+            job_type=parse.job_type_from(j.get("name") or ""),
+        ))
+    return jobs
+
+
+def rippling_description(slug: str, job_id) -> str:
+    d = fetch_json(RIPPLING_API.format(slug=slug) + f"/{job_id}")
+    parts = (d.get("description") or {}) if isinstance(d, dict) else {}
+    return parse.html_to_text("\n".join(str(v) for k, v in parts.items() if k != "company" and v))

@@ -305,3 +305,22 @@ def test_job_pages_style_opens_each_new_page_once(monkeypatch):
     assert [j.title for j in jobs] == ["Software Engineer", "QA & Test"] and jobs[1].posted_at
     portals.fetch_portal(site)
     assert len(opened) == 4
+
+
+def test_rippling_board(monkeypatch):
+    from jobhunter.sources import boards
+    calls = []
+
+    def fake(url):
+        calls.append(url)
+        if url.endswith("/jobs"):
+            return [{"uuid": "u1", "name": "Software Engineer", "url": "https://ats.rippling.com/acme/jobs/u1",
+                     "workLocation": {"label": "Bangalore, India"}},
+                    {"uuid": "u2", "name": "SRE", "url": "https://ats.rippling.com/acme/jobs/u2", "workLocation": None}]
+        return {"description": {"company": "<p>About us</p>", "role": "<p>Build <b>APIs</b></p>"}}
+    monkeypatch.setattr(boards, "fetch_json", fake)
+    jobs = boards.fetch_board({"ats": "rippling", "slug": "acme", "name": "Acme"})
+    assert [(j.title, j.location, j.source_id) for j in jobs] == [("Software Engineer", "Bangalore, India", "acme:u1"),
+                                                                  ("SRE", "", "acme:u2")]
+    assert boards.rippling_description("acme", "u1") == "Build APIs"
+    assert handcheck.source_url({"ats": "rippling", "slug": "acme", "name": "Acme"}) == "https://ats.rippling.com/acme/jobs"
