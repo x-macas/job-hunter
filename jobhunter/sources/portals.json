@@ -1248,5 +1248,11 @@
   "name": "Applied Materials",
   "host": "careers.appliedmaterials.com",
   "domain": "appliedmaterials.com"
+ },
+ {
+  "type": "oraclehcm",
+  "name": "American Express",
+  "host": "egug.fa.us2.oraclecloud.com",
+  "site": "CX_1"
  }
 ]
