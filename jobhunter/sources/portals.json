@@ -1172,5 +1172,12 @@
    "Additional office locations"
   ],
   "page": "https://recruitment.macquarie.com/en_US/careers"
+ },
+ {
+  "type": "workday",
+  "name": "Automation Anywhere",
+  "host": "automationanywhere.wd5.myworkdayjobs.com",
+  "tenant": "automationanywhere",
+  "site": "AutomationAnywhereJobs"
  }
 ]
