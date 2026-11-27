@@ -453,6 +453,16 @@ def _ld_place(job: dict) -> tuple[str, bool]:
     return " / ".join(n for n in names if n)[:200], remote
 
 
+_OG_TITLE = re.compile(r'<meta property="og:title" content="([^"]+)"')
+_FIELD = re.compile(r'field__label"\s*>\s*([^<]+?)\s*</div>\s*<div class="[^"]*field__value">\s*([^<]*?)\s*</div>')
+
+
+def _labelled(page: str, labels: list[str]) -> str:
+    """'Milpitas, United States' from labelled fields on a job page (Avature's City / Country fields)."""
+    fields = {html.unescape(k).strip().lower(): html.unescape(v).strip() for k, v in _FIELD.findall(page)}
+    return ", ".join(fields[x.lower()] for x in labels if fields.get(x.lower()))[:200]
+
+
 def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
     """style "jsonld": the sitemap links have no city, so we open each job page once
     (new links only, at most a few per run, one at a time) and read the JobPosting
@@ -473,14 +483,18 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
         if urllib.parse.urlsplit(link).netloc.lower() != p["host"] or not robots.allowed_by(rules, link):
             continue
         budget -= 1
+        page = ""
         try:
-            ld = _ld_job(_get_text(link)[:3_000_000])
+            page = _get_text(link)[:3_000_000]
+            ld = _ld_job(page)
         except FetchError as e:
             if not re.search(r"HTTP (404|410)$", str(e)):
                 continue          # try again next time
             ld = None             # the job is closed: remember that, don't open it again
         if ld:
             place, remote = _ld_place(ld)
+            if not place and p.get("place_fields"):
+                place = _labelled(page, p["place_fields"])
             posted = None
             try:
                 posted = datetime.fromisoformat(str(ld.get("datePosted", ""))[:10]).timestamp()
@@ -490,6 +504,10 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
             if p.get("title_tail") and title.count(" - ") >= p["title_tail"]:
                 title = title.rsplit(" - ", p["title_tail"])[0]   # "Title - Category - City" -> "Title"
             mine[link] = {"t": title[:200], "l": place, "r": remote, "p": posted}
+        elif ld is None and p.get("place_fields") and _OG_TITLE.search(page):
+            # no job block, but the page names its job and place (Macquarie)
+            title = html.unescape(_OG_TITLE.search(page).group(1)).strip()
+            mine[link] = {"t": title[:200], "l": _labelled(page, p["place_fields"]), "r": False, "p": None}
         else:
             mine[link] = {"t": "", "l": "", "r": False, "p": None}   # not a job page: don't open it again
         time.sleep(1)

@@ -1147,5 +1147,30 @@
   "job_type_field": "employee_type",
   "page": "https://careers.m2pfintech.com/view-jobs/#{id}",
   "country": "India"
+ },
+ {
+  "type": "sitemap",
+  "name": "Sandisk",
+  "host": "avature.sandisk.com",
+  "sitemap": "https://avature.sandisk.com/Careers/sitemap_index.xml",
+  "style": "jsonld",
+  "job_link": "^https://avature\\.sandisk\\.com/Careers/JobDetail/[^/]+/(\\d+)$",
+  "place_fields": [
+   "City",
+   "Country/Region"
+  ],
+  "page": "https://avature.sandisk.com/Careers"
+ },
+ {
+  "type": "sitemap",
+  "name": "Macquarie",
+  "host": "recruitment.macquarie.com",
+  "sitemap": "https://recruitment.macquarie.com/careers/sitemap_index.xml",
+  "style": "jsonld",
+  "job_link": "^https://recruitment\\.macquarie\\.com/en_US/careers/JobDetail/[^/]+/(\\d+)$",
+  "place_fields": [
+   "Additional office locations"
+  ],
+  "page": "https://recruitment.macquarie.com/en_US/careers"
  }
 ]

@@ -419,3 +419,28 @@ def test_pinpoint_and_gem_boards(monkeypatch):
     assert g.posted_at
     with pytest.raises(FetchError):
         boards.fetch_board({"ats": "gem", "slug": "../x", "name": "Bad"})
+
+
+def test_job_pages_labelled_fields(monkeypatch):
+    site = {"type": "sitemap", "name": "AV", "host": "c.av.com", "sitemap": "https://c.av.com/s.xml", "style": "jsonld",
+            "job_link": r"/JobDetail/[^/]+/(\d+)$", "place_fields": ["City", "Country/Region"]}
+    xml = "<urlset><url><loc>https://c.av.com/JobDetail/SDE/1</loc></url><url><loc>https://c.av.com/JobDetail/PM/2</loc></url>" \
+          "<url><loc>https://c.av.com/JobDetail/Gone/3</loc></url><url><loc>https://c.av.com/JobDetail/Ops/4</loc></url></urlset>"
+    field = '<div class="article__content__view__field__label" > {} </div> <div class="article__content__view__field__value"> {} </div>'
+    pages = {"https://c.av.com/JobDetail/SDE/1": '<script type="application/ld+json">{"@type":"JobPosting","title":"SDE"}</script>'
+             + field.format("City", "Bengaluru") + field.format("Country/Region", "India"),
+             "https://c.av.com/JobDetail/PM/2": '<meta property="og:title" content="PM" />' + field.format("City", "Pune"),
+             "https://c.av.com/JobDetail/Gone/3": None,
+             "https://c.av.com/JobDetail/Ops/4": "<html>no title here</html>"}
+
+    def get(url):
+        if url.endswith("s.xml"):
+            return xml
+        if pages[url] is None:
+            raise FetchError(f"{url}: HTTP 404")
+        return pages[url]
+    monkeypatch.setattr(portals, "_get_text", get)
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    monkeypatch.setattr(portals.time, "sleep", lambda s: None)
+    jobs = portals.fetch_portal(site)
+    assert [(j.title, j.location) for j in jobs] == [("SDE", "Bengaluru, India"), ("PM", "Pune")]
