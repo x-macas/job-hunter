@@ -990,5 +990,42 @@
   "host": "rakuten.wd1.myworkdayjobs.com",
   "tenant": "rakuten",
   "site": "RakutenSymphony"
+ },
+ {
+  "type": "sitemap",
+  "name": "Housing.com",
+  "host": "careers.housing.com",
+  "sitemap": "https://careers.housing.com/sitemap_index.xml",
+  "style": "jsonld",
+  "job_link": "/job/([a-z0-9-]+)/$",
+  "country": "India",
+  "page": "https://careers.housing.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Times Internet",
+  "host": "timesinternet.in",
+  "sitemap": "https://timesinternet.in/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/careers/job-detail/([0-9a-f]+)$",
+  "page": "https://timesinternet.in/careers/job-list"
+ },
+ {
+  "type": "sitemap",
+  "name": "Quadeye",
+  "host": "www.quadeye.com",
+  "sitemap": "https://www.quadeye.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/jobs/(\\d+)/",
+  "page": "https://www.quadeye.com/careers"
+ },
+ {
+  "type": "sitemap",
+  "name": "Dassault Systemes",
+  "host": "www.3ds.com",
+  "sitemap": "https://www.3ds.com/sitemap/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "^https://www\\.3ds\\.com/careers/jobs/[a-z0-9-]+-(\\d+)$",
+  "page": "https://www.3ds.com/careers/jobs"
  }
 ]

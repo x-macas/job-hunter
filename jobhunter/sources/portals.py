@@ -497,6 +497,8 @@ def _job_pages(p: dict, links: list[str], rules) -> list[RawJob]:
         write_private_file(JOB_PAGES_FILE, json.dumps(saved).encode())
     jobs = []
     for link, v in mine.items():
+        if v["t"] and not v["l"] and p.get("country"):
+            v = {**v, "l": p["country"]}     # India-only company whose pages leave the city out
         if not v["t"] or not parse.is_india(v["l"]):
             continue
         m = pat.search(link)
