@@ -60,8 +60,15 @@ def fetch_board(board: dict) -> list[RawJob]:
     return []
 
 
+def _gh_api(slug: str) -> str:
+    """Boards on Greenhouse's European site are written 'slug@eu'."""
+    if slug.endswith("@eu"):
+        return f"https://boards.eu.greenhouse.io/v1/boards/{slug[:-3]}"
+    return f"https://boards-api.greenhouse.io/v1/boards/{slug}"
+
+
 def _greenhouse(slug, name):
-    data = fetch_json(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs")
+    data = fetch_json(f"{_gh_api(slug)}/jobs")
     jobs = []
     for j in data.get("jobs", []):
         location = (j.get("location") or {}).get("name", "") or ""
@@ -77,7 +84,7 @@ def _greenhouse(slug, name):
 
 
 def greenhouse_description(slug: str, job_id) -> str:
-    data = fetch_json(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs/{job_id}")
+    data = fetch_json(f"{_gh_api(slug)}/jobs/{job_id}")
     return parse.html_to_text(data.get("content", ""))
 
 

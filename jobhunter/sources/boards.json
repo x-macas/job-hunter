@@ -760,5 +760,20 @@
   "slug": "careers.zohocorp.com",
   "name": "Zoho",
   "country": "India"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "quantboxresearchpte@eu",
+  "name": "QuantBox"
+ },
+ {
+  "ats": "workable",
+  "slug": "innovaccer-analytics",
+  "name": "Innovaccer"
+ },
+ {
+  "ats": "mynexthire",
+  "slug": "angelone",
+  "name": "Angel One"
  }
 ]

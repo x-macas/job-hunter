@@ -366,3 +366,15 @@ def test_zohorecruit_board(monkeypatch):
         ("SDE Intern", "India (Remote)", "https://acme.zohorecruit.in/jobs/Careers/3/SDE-Intern")]
     with pytest.raises(FetchError):
         boards.fetch_board({"ats": "zohorecruit", "slug": "a/../b", "name": "Bad"})
+
+
+def test_greenhouse_eu_boards(monkeypatch):
+    from jobhunter.sources import boards
+    calls = []
+    monkeypatch.setattr(boards, "fetch_json", lambda url: calls.append(url) or {"jobs": [], "content": "<p>Hi</p>"})
+    boards.fetch_board({"ats": "greenhouse", "slug": "qb@eu", "name": "QB"})
+    boards.greenhouse_description("qb@eu", "7")
+    boards.fetch_board({"ats": "greenhouse", "slug": "acme", "name": "Acme"})
+    assert calls == ["https://boards.eu.greenhouse.io/v1/boards/qb/jobs", "https://boards.eu.greenhouse.io/v1/boards/qb/jobs/7",
+                     "https://boards-api.greenhouse.io/v1/boards/acme/jobs"]
+    assert handcheck.source_url({"ats": "greenhouse", "slug": "qb@eu", "name": "QB"}) == "https://job-boards.eu.greenhouse.io/qb"
