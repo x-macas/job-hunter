@@ -872,5 +872,12 @@
   "also": [
    "Carelon"
   ]
+ },
+ {
+  "type": "workday",
+  "name": "Becton Dickinson",
+  "host": "bdx.wd1.myworkdayjobs.com",
+  "tenant": "bdx",
+  "site": "EXTERNAL_CAREER_SITE_INDIA"
  }
 ]

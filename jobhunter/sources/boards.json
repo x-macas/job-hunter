@@ -673,5 +673,15 @@
   "ats": "greenhouse",
   "slug": "purestorage",
   "name": "Pure Storage"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "taketwo",
+  "name": "Take-Two Interactive"
+ },
+ {
+  "ats": "lever",
+  "slug": "Sprinto",
+  "name": "Sprinto"
  }
 ]
