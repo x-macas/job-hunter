@@ -34,13 +34,14 @@ Playwright (form filling), Gmail over IMAP/SMTP with an app password.
 
 ## Job sources
 
-- 168 company job boards (Greenhouse, including its European site, Lever, Ashby, SmartRecruiters,
-  Workable, Jobvite, Freshteam, mynexthire, Recruiterbox, Rippling, Kula, Pinpoint, Gem, Recruitee
-  and Zoho Recruit job pages)
-- 135 company careers sites read directly: Workday (Walmart, Salesforce, Citi, Nvidia, Adobe, ModMed,
+- 169 company job boards (Greenhouse, including its European site, Lever, Ashby, SmartRecruiters,
+  Workable, Jobvite, Freshteam, mynexthire, Recruiterbox, Rippling, Kula, Pinpoint, Gem, Recruitee,
+  JazzHR and Zoho Recruit job pages)
+- 139 company careers sites read directly: Workday (Walmart, Salesforce, Citi, Nvidia, Adobe, ModMed,
   Medtronic, Amgen, Eli Lilly...), Oracle Recruiting (JPMorgan, Oracle, Uber, BNY...), Amazon, Atlassian,
   Avature (EA, Tesco), Eightfold (Microsoft, Qualcomm, Ericsson...), iCIMS Jibe (AMD, DocuSign), SAP's
-  own site and a few companies' own public job lists (Wayfair, Zerodha, LambdaTest, Fidelity).
+  own site and a few companies' own public job lists or plain job pages (Wayfair, Zerodha, MakeMyTrip,
+  Fidelity, iRage).
   India-only searches, at most 3 requests at a time, with polite retries.
 - 17 companies whose sitemap lists their job pages but not the city (Teradata, D. E. Shaw India, Dassault,
   Quadeye, Times Internet, and sites on Trakstar Hire like Easebuzz and MoEngage): each new job page is
