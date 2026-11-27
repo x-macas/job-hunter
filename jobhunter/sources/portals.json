@@ -1060,5 +1060,15 @@
   "style": "jsonld",
   "job_link": "/jobs/([a-z0-9]+)$",
   "page": "https://payu.hire.trakstar.com/"
+ },
+ {
+  "type": "sitemap",
+  "name": "D. E. Shaw",
+  "host": "www.deshawindia.com",
+  "sitemap": "https://www.deshawindia.com/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "/careers/[a-z0-9-]+-(\\d+)$",
+  "country": "India",
+  "page": "https://www.deshawindia.com/careers"
  }
 ]
