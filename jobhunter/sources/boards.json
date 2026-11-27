@@ -872,5 +872,11 @@
   "ats": "keka",
   "slug": "testsigma",
   "name": "Testsigma"
+ },
+ {
+  "ats": "pyjamahr",
+  "slug": "kuku-fm",
+  "uuid": "8B92017E1E",
+  "name": "Kuku FM"
  }
 ]

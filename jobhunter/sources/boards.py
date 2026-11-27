@@ -13,7 +13,7 @@ from .http import FetchError, check_public_url, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee", "jazzhr", "keka")
+       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee", "jazzhr", "keka", "pyjamahr")
 
 
 def default_boards() -> list[dict]:
@@ -65,6 +65,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _jazzhr(slug, name)
     if ats == "keka":
         return _keka(slug, name)
+    if ats == "pyjamahr":
+        return _pyjamahr(slug, name, board.get("uuid", ""))
     if ats == "zohorecruit":
         return _zohorecruit(slug, name, board.get("page", "Careers"), board.get("country", ""))
     return []
@@ -515,6 +517,41 @@ def _keka(slug, name):
             posted_at=parse.iso_to_ts(j.get("publishedOn") or ""),
             job_type=parse.job_type_from(j.get("title") or "", "part time" if str(j.get("jobType")) == "1" else ""),
         ))
+    return jobs
+
+
+# ---------- PyjamaHR (jobs.pyjamahr.com/<company>) ----------
+# A public job list, 10 a page, found by the company's id on its careers page.
+
+def _pyjamahr(slug, name, uuid):
+    _slug_ok(slug, name)
+    if not re.fullmatch(r"[A-Za-z0-9]{6,20}", uuid or ""):
+        raise FetchError(f"{name}: odd PyjamaHR company id {uuid!r}")
+    jobs, seen = [], set()
+    for n in range(1, 11):
+        url = f"https://api.pyjamahr.com/api/career/jobs/?company_uuid={uuid}&page={n}&is_careers_page=true"
+        if not robots.allowed(url):
+            raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+        data = fetch_json(url) or {}
+        for j in data.get("results") or []:
+            if str(j.get("id")) in seen or j.get("published_internally") is True:
+                continue
+            seen.add(str(j.get("id")))
+            place = (j.get("location") or "").strip()
+            remote = (j.get("workplace_type") or "").upper() == "REMOTE"
+            lo, hi = j.get("min_experience"), j.get("max_experience")
+            exp = f"Experience: {lo:g} - {hi:g} years" if isinstance(lo, (int, float)) and isinstance(hi, (int, float)) else ""
+            if not re.fullmatch(r"[a-z0-9-]+", j.get("slug") or ""):
+                continue
+            jobs.append(RawJob(
+                source="pyjamahr", source_id=f"{slug}:{j['id']}", source_name=f"{name} careers",
+                company=name, title=html.unescape(j.get("title") or "").strip(),
+                url=f"https://jobs.pyjamahr.com/{slug}/{j['slug']}",
+                location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
+                description=exp or None, job_type=parse.job_type_from(j.get("title") or ""),
+            ))
+        if not data.get("next"):
+            break
     return jobs
 
 

@@ -503,6 +503,30 @@ def test_keka_board(monkeypatch):
     assert j.description == "Experience: 0 - 1 years\n\nGo" and j.posted_at
 
 
+def test_pyjamahr_board(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    seen = []
+
+    def fake(url):
+        seen.append(url)
+        if url.endswith("page=1&is_careers_page=true"):
+            return {"next": "p2", "results": [
+                {"id": 1, "slug": "sde-1", "title": "SDE 1", "location": "Bengaluru, Karnataka, India",
+                 "workplace_type": "ON_SITE", "min_experience": 0.0, "max_experience": 1.0},
+                {"id": 2, "slug": "../x", "title": "Odd link", "location": "Pune"}]}
+        return {"next": None, "results": [{"id": 3, "slug": "qa", "title": "QA", "location": "India", "workplace_type": "REMOTE"}]}
+    monkeypatch.setattr(boards, "fetch_json", fake)
+    jobs = boards.fetch_board({"ats": "pyjamahr", "slug": "k", "uuid": "8B92017E1E", "name": "K"})
+    assert len(seen) == 2 and "company_uuid=8B92017E1E" in seen[0]
+    assert [(j.title, j.url, j.description) for j in jobs] == [
+        ("SDE 1", "https://jobs.pyjamahr.com/k/sde-1", "Experience: 0 - 1 years"),
+        ("QA", "https://jobs.pyjamahr.com/k/qa", None)]
+    assert jobs[1].location == "India (Remote)"
+    with pytest.raises(FetchError):
+        boards.fetch_board({"ats": "pyjamahr", "slug": "k", "uuid": "a&b=c", "name": "Bad"})
+
+
 def test_jazzhr_board(monkeypatch):
     from jobhunter.sources import boards
     monkeypatch.setattr(robots, "rules_for", lambda host: [])

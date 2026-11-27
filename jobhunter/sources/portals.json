@@ -1369,5 +1369,28 @@
   "also": [
    "Booking Holdings"
   ]
+ },
+ {
+  "type": "oraclehcm",
+  "name": "Kotak Mahindra Bank",
+  "host": "hcbt.fa.em2.oraclecloud.com",
+  "site": "CX",
+  "also": [
+   "Kotak"
+  ]
+ },
+ {
+  "type": "jsonlist",
+  "name": "Futures First",
+  "host": "insight.futuresfirst.com",
+  "polite": true,
+  "url": "https://insight.futuresfirst.com/ats/sampleapi.php?request=joblisting&currentpage=1&jobsperpage=100&country=India",
+  "items": "data",
+  "id": "job_id",
+  "title": "job_title",
+  "location": "location",
+  "link": "apply_url",
+  "page": "https://futuresfirst.com/job-list/",
+  "country": "India"
  }
 ]

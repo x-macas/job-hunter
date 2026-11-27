@@ -730,7 +730,7 @@ def _pagelist(p: dict) -> list[RawJob]:
     Links must stay on the page's own site."""
     jobs, seen = [], set()
     for url in ([p["list"]] if isinstance(p["list"], str) else p["list"]):
-        if not robots.allowed(url):
+        if not p.get("polite") and not robots.allowed(url):
             raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
         page = _get_text(url)
         host = urllib.parse.urlsplit(url).netloc.lower()
