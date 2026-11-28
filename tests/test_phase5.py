@@ -90,6 +90,7 @@ def backup_env(tmp_path, monkeypatch, app):
     data.mkdir()
     (data / "resume.pdf").write_bytes(b"%PDF resume")
     (data / "workday_facets.json").write_text("{}")
+    (data / "resume.tex").write_text(r"\documentclass{article}")
     monkeypatch.setattr(backup, "DB_PATH", app.config["DB_PATH"])
     monkeypatch.setattr(backup, "RESUME_PATH", data / "resume.pdf")
     monkeypatch.setattr(backup, "DATA_DIR", data)
@@ -103,7 +104,7 @@ def test_backup_and_prune(backup_env):
     assert left == sorted(p.name for p in made[1:])
     assert oct(backup_env.stat().st_mode)[-3:] == "700" and oct(made[-1].stat().st_mode)[-3:] == "600"
     with tarfile.open(made[-1]) as tar:
-        assert set(tar.getnames()) == {"jobhunter.db", "resume.pdf", "workday_facets.json"}
+        assert set(tar.getnames()) == {"jobhunter.db", "resume.pdf", "resume.tex", "workday_facets.json"}
     assert backup.latest(s)[0] == made[-1]
 
 

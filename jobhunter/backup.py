@@ -1,7 +1,7 @@
 """Phase 5: daily backups on this laptop only (never Google Drive, never a USB stick).
 
 Each backup is one .tar.gz in the backup folder (Settings), readable only by you:
-the database (copied safely while the website runs), your resume and the small
+the database (copied safely while the website runs), your resume (PDF and LaTeX) and the small
 data files. Old ones are deleted so only the newest N stay (Settings).
 Secrets (passwords, tokens) are NOT in the backup.
 
@@ -19,7 +19,7 @@ from pathlib import Path
 from .config import DATA_DIR, DB_PATH, RESUME_PATH
 
 NAME = re.compile(r"job-hunter-\d{8}-\d{6}\.tar\.gz")
-EXTRA_FILES = ("workday_facets.json", "sitemap_reads.json", "initial_settings.json")
+EXTRA_FILES = ("resume.tex", "workday_facets.json", "sitemap_reads.json", "initial_settings.json")
 # Folders that are a USB stick, another disk, or synced to the cloud. Backups never go there.
 NOT_HERE = re.compile(r"^/(media|run/media|mnt)/|google|g-?drive|onedrive|dropbox|icloud|mega(sync)?\b", re.I)
 
