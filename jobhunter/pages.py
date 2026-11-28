@@ -182,7 +182,12 @@ def upload_tex():
     try:
         tailor.save_source(file.read(tailor.TEX_MAX + 1))
         activity.log(get_db(), "profile", "Resume LaTeX source uploaded.")
-        flash("LaTeX source saved. On a job's page you can now make a version tweaked for that job.")
+        problem = tailor.check_build(tailor.source())
+        if problem:
+            flash(f"Saved, but it doesn't build here. {problem}. Overleaf skips some errors and still makes "
+                  "the PDF, but here it has to build with no errors. Fix that line and upload again.", "error")
+        else:
+            flash("LaTeX source saved. On a job's page you can now make a version tweaked for that job.")
     except tailor.TailorError as e:
         flash(str(e), "error")
     return redirect(url_for("pages.profile"))

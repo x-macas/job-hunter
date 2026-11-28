@@ -60,6 +60,19 @@ def test_save_source_checks(tmp_path):
         tailor.save_source(b"\xff\xfe" + TEX.encode("utf-16"))
     tailor.save_source(TEX.encode())
     assert tailor.source() == TEX and oct(tailor.TEX_PATH.stat().st_mode)[-3:] == "600"
+    # the common resume template line is fine, other \input still isn't
+    glyph = TEX.replace(r"\usepackage{hyperref}", "\\usepackage{hyperref}\n\\input{glyphtounicode}")
+    tailor.save_source(glyph.encode())
+    with pytest.raises(tailor.TailorError, match="input"):
+        tailor.save_source((glyph + r"\input{glyphtounicode}\input{x}").encode())
+
+
+@pytest.mark.skipif(tailor.compiler() is None, reason="LaTeX not installed")
+def test_check_build_names_the_line():
+    assert tailor.check_build(TEX) is None
+    broken = TEX.replace(r"\begin{itemize}", "\\begin{itemize}\n\\begin{itemize}\n\\item x\n\\end{itemize}", 1)
+    problem = tailor.check_build(broken)
+    assert problem and "line 8:" in problem and "missing" in problem
 
 
 def _job(app):

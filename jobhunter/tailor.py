@@ -82,10 +82,25 @@ def save_source(raw: bytes) -> None:
         raise TailorError("Save the .tex file as UTF-8 text and try again.") from e
     if "\\documentclass" not in text or "\\begin{document}" not in text:
         raise TailorError("That doesn't look like a full LaTeX resume (no \\documentclass or \\begin{document}).")
-    if re.search(r"\\(input|include)\b|write18|\\directlua", text):
+    # \input{glyphtounicode} only loads a built-in LaTeX file (common in resume templates), so it's fine.
+    if re.search(r"\\(input|include)\b|write18|\\directlua", SAFE_INPUT.sub("", text)):
         raise TailorError("Your resume uses \\input, \\include or shell commands. Put it in one .tex file "
                           "without them, then upload again.")
     write_private_file(TEX_PATH, text.encode())
+
+
+SAFE_INPUT = re.compile(r"\\input\s*\{\s*glyphtounicode(\.tex)?\s*\}")
+
+
+def check_build(tex: str) -> str | None:
+    """Try building the resume. Returns None if it works, else a short reason."""
+    if compiler() is None:
+        return None
+    try:
+        _build(tex)
+    except TailorError as e:
+        return str(e)
+    return None
 
 
 def source() -> str:
@@ -147,11 +162,17 @@ def pdf_path(job_id: int):
 
 
 def compile_pdf(tex: str, job_id: int) -> None:
+    pdf = _build(tex)
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    os.chmod(OUT_DIR, 0o700)
+    write_private_file(pdf_path(job_id), pdf)
+
+
+def _build(tex: str) -> bytes:
+    """Build the PDF in a throwaway folder, shell escape off. Returns the PDF bytes."""
     cmd = compiler()
     if cmd is None:
         raise TailorError("LaTeX isn't installed. In a terminal run: sudo dnf install texlive-scheme-medium")
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    os.chmod(OUT_DIR, 0o700)
     with tempfile.TemporaryDirectory() as tmp:
         with open(os.path.join(tmp, "resume.tex"), "w", encoding="utf-8") as f:
             f.write(tex)
@@ -166,9 +187,9 @@ def compile_pdf(tex: str, job_id: int) -> None:
         if done.returncode != 0 or not os.path.exists(pdf):
             err = next((ln for ln in done.stdout.splitlines() if ln.startswith("./resume.tex:") or ln.startswith("!")),
                        "unknown error")
-            raise TailorError(f"LaTeX couldn't build it: {err[:200]}")
+            raise TailorError(f"LaTeX couldn't build it: {err[:200].replace('./resume.tex:', 'line ', 1)}")
         with open(pdf, "rb") as f:
-            write_private_file(pdf_path(job_id), f.read())
+            return f.read()
 
 
 def save_edits(conn, job_id: int, edits: list[dict]) -> None:
