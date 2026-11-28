@@ -109,3 +109,15 @@ def test_resume_must_be_pdf(app, logged_in):
     }, content_type="multipart/form-data")
     assert app.config["RESUME_PATH"].exists()
     assert oct(app.config["RESUME_PATH"].stat().st_mode & 0o777) == "0o600"
+
+
+def test_worker_lock_file_is_private(tmp_path, monkeypatch):
+    from jobhunter import worker
+    lock = tmp_path / "worker.lock"
+    lock.write_text("")
+    lock.chmod(0o644)                     # an old run left it readable
+    monkeypatch.setattr(worker, "DATA_DIR", tmp_path)
+    monkeypatch.setattr(worker, "DB_PATH", tmp_path / "w.db")
+    monkeypatch.setattr(worker, "make_private_dirs", lambda: None)
+    assert worker.main(["worker", "status"]) == 0
+    assert oct(lock.stat().st_mode & 0o777) == "0o600"

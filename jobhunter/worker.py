@@ -18,6 +18,7 @@ Nothing runs while the emergency stop is on.
 
 import fcntl
 import json
+import os
 import sys
 import time
 from datetime import date, datetime
@@ -330,7 +331,9 @@ def main(argv: list[str]) -> int:
     command = argv[1] if len(argv) > 1 else "tick"
     make_private_dirs()
     init_db(DB_PATH, DATA_DIR)
-    lock = open(DATA_DIR / "worker.lock", "w")
+    lock_path = DATA_DIR / "worker.lock"
+    lock = os.fdopen(os.open(lock_path, os.O_WRONLY | os.O_CREAT, 0o600), "w")
+    os.chmod(lock_path, 0o600)       # data/ files stay private (an older run made it 644)
     try:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except BlockingIOError:
