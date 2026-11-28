@@ -1443,5 +1443,73 @@
    "0000168800",
    "0000009297"
   ]
+ },
+ {
+  "type": "pagelist",
+  "name": "Tally Solutions",
+  "host": "tallysolutions.com",
+  "list": "https://tallysolutions.com/wp-content/themes/tally/api/api-careers-job-listing.php",
+  "json_field": "creersList",
+  "item": "<p class=\"roboto-medium\">(?P<title>[^<]+)</p>\\s*<p class=\"text-gray mt-md-3\">[^<]*<span class=\"px-2\">\\|</span>(?P<place>[^<]*)<span",
+  "page": "https://tallysolutions.com/careers/opportunities/",
+  "also": [
+   "Tally"
+  ],
+  "careers": "https://tallysolutions.com/careers/opportunities/"
+ },
+ {
+  "type": "sitemap",
+  "name": "Deel",
+  "host": "jobs.deel.com",
+  "sitemap": "https://jobs.deel.com/deel/sitemap.xml",
+  "style": "jsonld",
+  "job_link": "^https://jobs\\.deel\\.com/deel/job-details/([0-9a-f-]{36})/overview$",
+  "page": "https://jobs.deel.com/deel"
+ },
+ {
+  "type": "pagelist",
+  "name": "Atomicwork",
+  "host": "www.atomicwork.com",
+  "list": "https://www.atomicwork.com/company/careers",
+  "item": "<h4 class=\"h4 whtie\">(?P<title>[^<]+)</h4><div class=\"oj-extra-info-box\"><div class=\"oj-extra-info-text location\">(?P<place>[^<]*)</div></div></div><div class=\"oj-button-box\"><a href=\"(?P<link>/careers/[a-z0-9]+)\""
+ },
+ {
+  "type": "jsonlist",
+  "name": "Juspay",
+  "host": "joinus.juspay.in",
+  "url": "https://joinus.juspay.in/api/careerJobOpening?limit=1000",
+  "items": "allJobs",
+  "id": "job_id",
+  "title": "job_title",
+  "location": "job_location",
+  "description": "job_description_career",
+  "job_type_field": "job_type",
+  "open_field": "opening_status",
+  "experience_field": "experience_year",
+  "page": "https://joinus.juspay.in/?jobId={id}",
+  "careers": "https://juspay.io/careers"
+ },
+ {
+  "type": "jsonlist",
+  "name": "Magicpin",
+  "host": "sales.magicpin.in",
+  "url": "https://sales.magicpin.in/magickiosk/career/jobs",
+  "group_items": "jobs",
+  "id": "_id",
+  "title": "title",
+  "location": "location",
+  "experience_field": "experience",
+  "job_type_field": "employmentType",
+  "country": "India",
+  "page": "https://www.magicpin.com/careers/jobdescription?jobId={id}",
+  "careers": "https://www.magicpin.com/careers"
+ },
+ {
+  "type": "pagelist",
+  "name": "Shiprocket",
+  "host": "careers.shiprocket.in",
+  "list": "https://careers.shiprocket.in/",
+  "country": "India",
+  "item": "<h5>(?P<title>[^<]+)</h5>\\s*<div class=\"meta\">(?:(?!<h5>).)*?<small>(?P<years>[^<]*)</small>(?:(?!<h5>).)*?<small>(?P<place>[^<]*)</small>(?:(?!<h5>).)*?<a href=\"(?P<link>https://careers\\.shiprocket\\.in/jobs/[a-z0-9-]+/)\">View Job</a>"
  }
 ]

@@ -36,6 +36,8 @@ def source_url(src: dict, facets: dict | None = None) -> str:
     newest first where the site's links allow it."""
     kind = src.get("type") or src.get("ats")
     slug = src.get("slug", "")
+    if src.get("careers", "").startswith("https://"):
+        return src["careers"]          # the list we read is data, so link the page people use
     if kind == "workday":
         # Workday lists newest first; its links take the same India filter the website uses.
         url = f"https://{src['host']}/{src['site']}"
@@ -85,6 +87,7 @@ def source_url(src: dict, facets: dict | None = None) -> str:
         "jazzhr": f"https://{slug}.applytojob.com/apply",
         "keka": f"https://{slug}.keka.com/careers/",
         "pyjamahr": f"https://jobs.pyjamahr.com/{slug}",
+        "recruiterflow": f"https://recruiterflow.com/{slug}/jobs",
         "zohorecruit": f"https://{slug}/jobs/{src.get('page', 'Careers')}",
     }.get(kind, "")
 

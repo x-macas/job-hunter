@@ -692,15 +692,21 @@ def _dig(obj, path: str):
 def _jsonlist(p: dict) -> list[RawJob]:
     """A plain public list of jobs as JSON. The entry in portals.json says which field is which:
     items (where the list is), id, title, location (a field, or 'regex:<field>:<pattern>'), description,
-    job_type_field, link (a field holding the job's own link), page ({id} and {title_slug} are filled in), body (sent as a POST search, if given)."""
+    job_type_field, link (a field holding the job's own link), page ({id} and {title_slug} are filled in), body (sent as a POST search, if given),
+    open_field (a field that is false for closed jobs, which are skipped), experience_field (years asked for)
+    and group_items (when the list is made of groups, the field in each group that holds its jobs)."""
     url = p["url"]
     if not p.get("polite") and not robots.allowed(url):
         raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
     data = _req(url, p.get("body"))   # some lists are asked for with a small search form (POST)
     items = _dig(data, p.get("items", "")) if p.get("items") else data
+    if p.get("group_items"):     # jobs grouped by team: [{"_id": "tech", "jobs": [...]}, ...] (Magicpin)
+        items = [j for g in items or [] if isinstance(g, dict) for j in (_dig(g, p["group_items"]) or [])]
     jobs = []
     for j in items or []:
         if not isinstance(j, dict):
+            continue
+        if p.get("open_field") and _dig(j, p["open_field"]) is not True:
             continue
         title = str(_dig(j, p["title"]) or "").strip()
         job_id = str(_dig(j, p["id"]) or title)
@@ -715,6 +721,11 @@ def _jsonlist(p: dict) -> list[RawJob]:
         if p.get("country") == "India" and not parse.is_india(loc):
             loc = f"{loc}, India" if loc else "India"
         desc = parse.html_to_text(str(_dig(j, p["description"]) or "")) if p.get("description") else None
+        years = _dig(j, p["experience_field"]) if p.get("experience_field") else None
+        if isinstance(years, (int, float)) and not isinstance(years, bool):
+            desc = f"Experience: {years:g} years\n\n{desc or ''}".strip()
+        elif isinstance(years, str) and years.strip():
+            desc = f"Experience: {years.strip()[:40]}\n\n{desc or ''}".strip()   # "1-4 Yrs", "FRESHER"
         jobs.append(RawJob(source="jsonlist", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
                            company=p["name"], title=title[:200],
                            url=str(_dig(j, p["link"]) or "") if p.get("link") and str(_dig(j, p["link"]) or "").startswith("https://")
@@ -728,13 +739,19 @@ def _jsonlist(p: dict) -> list[RawJob]:
 
 def _pagelist(p: dict) -> list[RawJob]:
     """The entry in portals.json gives the page ('list', or a few pages) and a pattern ('item') with named parts:
-    title, and link or id (then 'page' makes the link, with {id} filled in), and place if the page shows it.
-    Links must stay on the page's own site."""
+    title, and link or id (then 'page' makes the link, with {id} filled in), and place and years if the page shows them.
+    Links must stay on the page's own site. 'json_field' is for a list that comes back as data
+    with its HTML inside one field."""
     jobs, seen = [], set()
     for url in ([p["list"]] if isinstance(p["list"], str) else p["list"]):
         if not p.get("polite") and not robots.allowed(url):
             raise FetchError(f"{p['name']}: robots.txt asks bots not to read {url}")
         page = _get_text(url)
+        if p.get("json_field"):       # the page comes back as data with the list's HTML in one field (Tally)
+            try:
+                page = str(json.loads(page).get(p["json_field"]) or "")
+            except (ValueError, AttributeError) as e:
+                raise FetchError(f"{p['name']}: job list is not readable") from e
         host = urllib.parse.urlsplit(url).netloc.lower()
         for m in re.finditer(p["item"], page, re.S):
             g = m.groupdict()
@@ -745,15 +762,17 @@ def _pagelist(p: dict) -> list[RawJob]:
                     continue
             else:
                 link = p["page"].replace("{id}", urllib.parse.quote(g.get("id") or ""))
-            job_id = g.get("id") or link
+            job_id = g.get("id") or (link if g.get("link") else title)   # no id or link of its own: the title is its id
             if not title or job_id in seen:
                 continue
             seen.add(job_id)
             loc = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", g.get("place") or ""))).strip() or p.get("place", "")
             if p.get("country") == "India" and not parse.is_india(loc):
                 loc = f"{loc}, India" if loc else "India"
+            years = re.sub(r"\s+", " ", html.unescape(g.get("years") or "")).strip()[:40]
             jobs.append(RawJob(source="pagelist", source_id=f"{p['host']}:{job_id}", source_name=f"{p['name']} careers",
-                               company=p["name"], title=title[:200], url=link, location=loc, job_type=parse.job_type_from(title)))
+                               company=p["name"], title=title[:200], url=link, location=loc,
+                               description=f"Experience: {years}" if years else None, job_type=parse.job_type_from(title)))
     return jobs
 
 

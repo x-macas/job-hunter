@@ -878,5 +878,18 @@
   "slug": "kuku-fm",
   "uuid": "8B92017E1E",
   "name": "Kuku FM"
+ },
+ {
+  "ats": "recruiterflow",
+  "slug": "coinswitch",
+  "name": "CoinSwitch"
+ },
+ {
+  "ats": "greenhouse",
+  "slug": "nksecuritiesresearch@eu",
+  "name": "NK Securities",
+  "also": [
+   "NK Securities Research"
+  ]
  }
 ]

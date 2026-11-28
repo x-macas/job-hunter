@@ -1,11 +1,12 @@
 """Sitemap reader: robots.txt rules, reading titles and cities from job links, new links = new jobs."""
+import json
 import time
 
 import pytest
 
 from test_phase1 import settings
 
-from jobhunter import collect, handcheck
+from jobhunter import collect, handcheck, parse
 from jobhunter.sources import portals, robots
 from jobhunter.sources.http import FetchError
 
@@ -638,3 +639,63 @@ def test_eightfold_careers_site(monkeypatch):
     jobs = portals.fetch_portal({"type": "eightfold", "name": "E", "host": "jobs.e.com", "domain": "e.com", "delay": 5})
     assert (jobs[0].title, jobs[0].location, jobs[0].url) == ("Software Engineer", "India, Karnataka, Bangalore", "https://jobs.e.com/careers/job/5631")
     assert len(jobs) == 10 and len(asked) == 2 and waits == [5.0] and "location=India" in asked[0]
+
+
+def test_jsonlist_groups_open_and_years(monkeypatch):
+    data = {"allJobs": [
+        {"team": "tech", "jobs": [{"id": "A1", "t": "SDE Backend", "where": "Bangalore", "open": True, "yrs": 0},
+                                  {"id": "A2", "t": "Old role", "where": "Mumbai", "open": False, "yrs": 1},
+                                  {"id": "A3", "t": "Java developer", "where": "Gurugram", "open": True, "yrs": "1-4 Yrs"}]},
+        {"team": "x", "jobs": None}]}
+    monkeypatch.setattr(portals, "_req", lambda url, body=None: data)
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    jobs = portals.fetch_portal({"type": "jsonlist", "name": "J", "host": "j.in", "url": "https://j.in/api/jobs", "items": "allJobs",
+                                 "group_items": "jobs", "id": "id", "title": "t", "location": "where", "open_field": "open",
+                                 "experience_field": "yrs", "page": "https://j.in/?jobId={id}"})
+    assert [(j.title, j.url, j.description) for j in jobs] == [
+        ("SDE Backend", "https://j.in/?jobId=A1", "Experience: 0 years"),
+        ("Java developer", "https://j.in/?jobId=A3", "Experience: 1-4 Yrs")]
+    assert parse.min_years(jobs[0].description) == 0 and parse.min_years(jobs[1].description) == 1
+
+
+def test_pagelist_json_field_and_years(monkeypatch):
+    html_part = ('<p class="roboto-medium">Staff Test Engineer - Bangalore</p><p class="m">Eng<span>|</span>India<span></p><small>8-12 Years</small>'
+                 '<p class="roboto-medium">Sales Lead</p><p class="m">Sales<span>|</span>Middle East<span></p><small>5 Years</small>')
+    monkeypatch.setattr(portals, "_get_text", lambda url, **k: json.dumps({"list": html_part}))
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    jobs = portals.fetch_portal({"type": "pagelist", "name": "T", "host": "t.com", "list": "https://t.com/api.php", "json_field": "list",
+                                 "item": r'<p class="roboto-medium">(?P<title>[^<]+)</p><p class="m">[^<]*<span>\|</span>(?P<place>[^<]*)<span></p><small>(?P<years>[^<]*)</small>',
+                                 "page": "https://t.com/careers/"})
+    assert [(j.title, j.location, j.url, j.description) for j in jobs] == [
+        ("Staff Test Engineer - Bangalore", "India", "https://t.com/careers/", "Experience: 8-12 Years"),
+        ("Sales Lead", "Middle East", "https://t.com/careers/", "Experience: 5 Years")]
+    assert jobs[0].source_id != jobs[1].source_id
+    monkeypatch.setattr(portals, "_get_text", lambda url, **k: "<html>not data</html>")
+    with pytest.raises(FetchError):
+        portals.fetch_portal({"type": "pagelist", "name": "T", "host": "t.com", "list": "https://t.com/api.php", "json_field": "list",
+                              "item": "x", "page": "https://t.com/"})
+
+
+def test_recruiterflow_board(monkeypatch):
+    from jobhunter.sources import boards
+    monkeypatch.setattr(robots, "rules_for", lambda host: [])
+    page = ('<script type="text/javascript">\n      window.jobsList = {"department": [["Engineering", ['
+            '{"apply_link": "c/jobs/662", "details": "Bengaluru", "employment_type": "Full time", "job_id": 662, '
+            '"job_name": "Backend Engineer", "last_opened": "2026-04-08T07:05:07+0000", "remote_type": null}, '
+            '{"job_id": "../x", "job_name": "Odd"}]], ["Legal", [{"job_id": 705, "job_name": "Legal Intern", "details": "Pune", '
+            '"employment_type": "Internship", "remote_type": "Remote"}]]], "group": []};\n    </script>')
+    monkeypatch.setattr(boards, "fetch_bytes", lambda url, **k: page.encode())
+    jobs = boards.fetch_board({"ats": "recruiterflow", "slug": "c", "name": "C"})
+    assert [(j.title, j.url, j.location, j.job_type) for j in jobs] == [
+        ("Backend Engineer", "https://recruiterflow.com/c/jobs/662", "Bengaluru", "full_time"),
+        ("Legal Intern", "https://recruiterflow.com/c/jobs/705", "Pune (Remote)", "intern")]
+    assert jobs[0].posted_at and jobs[0].posted_at > 1.7e9
+    monkeypatch.setattr(boards, "fetch_bytes", lambda url, **k: b"<html>no list</html>")
+    with pytest.raises(FetchError):
+        boards.fetch_board({"ats": "recruiterflow", "slug": "c", "name": "C"})
+
+
+def test_experience_colon_form():
+    assert parse.min_years("Experience: 0 years") == 0
+    assert parse.min_years("Experience required: 3+ yrs") == 3
+    assert parse.min_years("Experience: FRESHER") is None

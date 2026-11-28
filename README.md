@@ -34,17 +34,18 @@ Playwright (form filling), Gmail over IMAP/SMTP with an app password.
 
 ## Job sources
 
-- 174 company job boards (Greenhouse, including its European site, Lever, Ashby, SmartRecruiters,
+- 176 company job boards (Greenhouse, including its European site, Lever, Ashby, SmartRecruiters,
   Workable, Jobvite, Freshteam, mynexthire, Recruiterbox, Rippling, Kula, Pinpoint, Gem, Recruitee,
-  JazzHR, Keka, PyjamaHR and Zoho Recruit job pages)
-- 148 company careers sites read directly: Workday (Walmart, Salesforce, Citi, Nvidia, Adobe, ModMed,
+  JazzHR, Keka, PyjamaHR, Recruiterflow and Zoho Recruit job pages)
+- 153 company careers sites read directly: Workday (Walmart, Salesforce, Citi, Nvidia, Adobe, ModMed,
   Medtronic, Amgen, Eli Lilly...), Oracle Recruiting (JPMorgan, Oracle, Uber, BNY, Kotak...), Amazon,
   Atlassian, Avature (EA, Tesco), Eightfold (Microsoft, Qualcomm, Ericsson...), iCIMS Jibe (AMD, DocuSign,
   Booking.com), SAP's own site, MediaTek's own site and a few companies' own public job lists or plain job
-  pages (Wayfair, Zerodha, MakeMyTrip, Fidelity, iRage, Jio, Scaler).
+  pages (Wayfair, Zerodha, MakeMyTrip, Fidelity, iRage, Jio, Scaler, Juspay, Magicpin, Tally, Shiprocket).
+  When a list says how many years a job asks for, that goes to the experience rule too.
   India-only searches, at most 3 requests at a time, with polite retries.
-- 20 companies whose sitemap lists their job pages but not the city (Teradata, D. E. Shaw India, Dassault,
-  Quadeye, Times Internet, iCIMS sites like Rambus and MSCI, and sites on Trakstar Hire like Easebuzz and
+- 21 companies whose sitemap lists their job pages but not the city (Teradata, D. E. Shaw India, Dassault,
+  Quadeye, Times Internet, Deel, iCIMS sites like Rambus and MSCI, and sites on Trakstar Hire like Easebuzz and
   MoEngage): each new job page is opened once, one per second or slower, for its title and city, and
   never opened again.
 - 3 companies whose robots.txt asks bots to stay away but don't block (Futures First, Urban Company,

@@ -66,6 +66,7 @@ _EXP_PATTERNS = [
     re.compile(_NUM + r"\s*\+\s*(?:years?|yrs?)", re.I),
     re.compile(_NUM + r"\s*(?:years?|yrs?)(?:'|’)?\s*(?:of\s+)?(?:\w+\s+){0,4}?experience", re.I),
     re.compile(r"(?:minimum|at\s+least|min\.?)\s*(?:of\s+)?" + _NUM + r"\s*(?:years?|yrs?)", re.I),
+    re.compile(r"experience\s*(?:required)?\s*:\s*" + _NUM + r"\s*\+?\s*(?:years?|yrs?)\b", re.I),   # "Experience: 2 years"
 ]
 
 

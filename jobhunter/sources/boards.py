@@ -13,7 +13,7 @@ from .http import FetchError, check_public_url, fetch_bytes, fetch_json
 
 BOARDS_FILE = Path(__file__).with_name("boards.json")
 ATS = ("greenhouse", "lever", "ashby", "smartrecruiters", "workable", "jobvite", "freshteam", "mynexthire", "recruiterbox",
-       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee", "jazzhr", "keka", "pyjamahr")
+       "rippling", "kula", "zohorecruit", "pinpoint", "gem", "recruitee", "jazzhr", "keka", "pyjamahr", "recruiterflow")
 
 
 def default_boards() -> list[dict]:
@@ -67,6 +67,8 @@ def fetch_board(board: dict) -> list[RawJob]:
         return _keka(slug, name)
     if ats == "pyjamahr":
         return _pyjamahr(slug, name, board.get("uuid", ""))
+    if ats == "recruiterflow":
+        return _recruiterflow(slug, name)
     if ats == "zohorecruit":
         return _zohorecruit(slug, name, board.get("page", "Careers"), board.get("country", ""))
     return []
@@ -552,6 +554,44 @@ def _pyjamahr(slug, name, uuid):
             ))
         if not data.get("next"):
             break
+    return jobs
+
+
+# ---------- Recruiterflow (recruiterflow.com/<company>/jobs) ----------
+# The page carries its whole job list as data (window.jobsList); robots.txt allows it.
+
+_RF_LIST = re.compile(r"window\.jobsList\s*=\s*(\{.*?\});?\s*\n", re.S)
+
+
+def _recruiterflow(slug, name):
+    _slug_ok(slug, name)
+    url = f"https://recruiterflow.com/{slug}/jobs"
+    if not robots.allowed(url):
+        raise FetchError(f"{name}: robots.txt asks bots not to read {url}")
+    m = _RF_LIST.search(fetch_bytes(url).decode("utf-8", "ignore"))
+    if not m:
+        raise FetchError(f"{name}: no job list on its Recruiterflow page")
+    try:
+        data = json.loads(m.group(1))
+    except ValueError as e:
+        raise FetchError(f"{name}: Recruiterflow job list is not readable") from e
+    jobs, seen = [], set()
+    for _, group in data.get("department") or []:
+        for j in group or []:
+            job_id = str(j.get("job_id") or "")
+            if not job_id.isdigit() or job_id in seen:
+                continue
+            seen.add(job_id)
+            title = html.unescape(j.get("job_name") or "").strip()
+            place = (j.get("details") or "").strip()
+            remote = bool(j.get("remote_type")) and "remote" in str(j.get("remote_type")).lower()
+            jobs.append(RawJob(
+                source="recruiterflow", source_id=f"{slug}:{job_id}", source_name=f"{name} careers",
+                company=name, title=title, url=f"https://recruiterflow.com/{slug}/jobs/{job_id}",
+                location=place + (" (Remote)" if remote else ""), remote=remote and parse.is_open_remote(place + " remote", True),
+                posted_at=parse.iso_to_ts(j["last_opened"]) if j.get("last_opened") else None,
+                job_type=parse.job_type_from(title, j.get("employment_type") or ""),
+            ))
     return jobs
 
 
